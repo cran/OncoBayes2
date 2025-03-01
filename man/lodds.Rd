@@ -12,10 +12,10 @@ inv_logit(eta)
 }
 \arguments{
 \item{mu}{A numeric object with probabilies, with values in the in
-the range [0,1]. Missing values (NAs) are allowed.}
+the range \eqn{[0,1]}. Missing values (NAs) are allowed.}
 
 \item{eta}{A numeric object with log-odds values, with values in
-the range [-Inf,Inf]. Missing values (NAs) are allowed.}
+the range \eqn{[-Inf,Inf]}. Missing values (NAs) are allowed.}
 }
 \value{
 A numeric object of the same type as mu and eta containing

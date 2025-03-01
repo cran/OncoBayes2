@@ -8,7 +8,7 @@
 #' @examples
 #'
 #' ## run single-agent analysis which defines blrmfit model object
-#' example_model("single_agent", silent=TRUE)
+#' example_model("single_agent", silent = TRUE)
 #'
 #' nsamples(blrmfit)
 #'
@@ -18,12 +18,12 @@
 #' @aliases nsamples
 #' @export
 nsamples.blrmfit <- function(object, ...) {
-    return(object$stanfit@sim$chains * (object$stanfit@sim$iter - object$stanfit@sim$warmup))
+  return(object$stanfit@sim$chains * (object$stanfit@sim$iter - object$stanfit@sim$warmup))
 }
 
 #' @method nsamples blrm_trial
 #' @export
 nsamples.blrm_trial <- function(object, ...) {
-    .assert_is_blrm_trial_and_prior_is_set(object)
-    return(nsamples.blrmfit(object$blrmfit))
+  .assert_is_blrm_trial_and_prior_is_set(object)
+  return(nsamples.blrmfit(object$blrmfit))
 }

@@ -8,13 +8,17 @@
 blrm_exnex(
   formula,
   data,
+  prior_EX_mu_comp,
   prior_EX_mu_mean_comp,
   prior_EX_mu_sd_comp,
+  prior_EX_tau_comp,
   prior_EX_tau_mean_comp,
   prior_EX_tau_sd_comp,
   prior_EX_corr_eta_comp,
+  prior_EX_mu_inter,
   prior_EX_mu_mean_inter,
   prior_EX_mu_sd_inter,
+  prior_EX_tau_inter,
   prior_EX_tau_mean_inter,
   prior_EX_tau_sd_inter,
   prior_EX_corr_eta_inter,
@@ -22,8 +26,10 @@ blrm_exnex(
   prior_is_EXNEX_comp,
   prior_EX_prob_comp,
   prior_EX_prob_inter,
+  prior_NEX_mu_comp,
   prior_NEX_mu_mean_comp,
   prior_NEX_mu_sd_comp,
+  prior_NEX_mu_inter,
   prior_NEX_mu_mean_inter,
   prior_NEX_mu_sd_inter,
   prior_tau_dist,
@@ -44,50 +50,96 @@ blrm_exnex(
 }
 \arguments{
 \item{formula}{the model formula describing the linear predictors
-of the model. The lhs of the formula is a two-column matrix
-which are the number of occured events and the number of times
-no event occured. The rhs of the formula defines the linear
-predictors for the marginal models for each drug component,
-then the interaction model and at last the grouping and
-optional stratum factors of the models. These elements of the
-formula are separated by a vertical bar. The marginal models
-must follow a intercept and slope form while the interaction
-model must not include an interaction term. See the examples
-below for an example instantiation.}
+of the model. The lhs of the formula is a two-column matrix which
+are the number of occured events and the number of times no event
+occured. The rhs of the formula defines the linear predictors for
+the marginal models for each drug component, then the interaction
+model and at last the grouping and optional stratum factors of
+the models. These elements of the formula are separated by a
+vertical bar. The marginal models must follow a intercept and
+slope form while the interaction model must not include an
+interaction term. See the examples below for an example
+instantiation.}
 
 \item{data}{optional data frame containing the variables of the
-model. If not found in \code{data}, the variables are taken
-from \code{environment(formula)}.}
+model. If not found in \code{data}, the variables are taken from
+\code{environment(formula)}.}
 
-\item{prior_EX_mu_mean_comp, prior_EX_mu_sd_comp}{Mean and sd for
-the prior on the mean parameters \eqn{\boldsymbol\mu_i =
-(\mu_{\alpha i}, \mu_{\beta i})} of each component.  Two column
-matrix (intercept, log-slope) with one row per component.}
+\item{prior_EX_mu_comp}{List of bivariate normal mixture priors for
+intercept and slope parameters \eqn{\boldsymbol\mu_i =
+  (\mu_{\alpha i}, \mu_{\beta i})} of each component. In case of a
+single drug model, then a mixture prior is accepted as well.}
 
-\item{prior_EX_tau_mean_comp, prior_EX_tau_sd_comp}{Prior mean and
-sd for heterogeniety parameter \eqn{\boldsymbol\tau_{si} =
-(\tau_{\alpha s i}, \tau_{\beta s i})} of each stratum. If no
+\item{prior_EX_mu_mean_comp, prior_EX_mu_sd_comp}{\if{html}{\out{
+<!------------->
+}}
+
+
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use \code{prior_EX_mu_comp}
+instead. Mean and sd for the prior on the mean parameters
+\eqn{\boldsymbol\mu_i = (\mu_{\alpha i}, \mu_{\beta i})} of each
+component.  Two column matrix (intercept, log-slope) with one row
+per component.}
+
+\item{prior_EX_tau_comp}{List of bivariate normal mixture priors
+for heterogeniety parameter \eqn{\boldsymbol\tau_{si} =
+  (\tau_{\alpha s i}, \tau_{\beta s i})} of each stratum. If no
 differential discounting is required (i.e. if there is only one
-stratum \eqn{s = 1}), then it is a two-column matrix
-(intercept, log-slope) with one row per component. Otherwise it
-is a three-dimensional array whose first dimension indexes the
-strata, second dimension indexes the components, and third
-dimension of length two for (intercept, log-slope).}
+stratum \eqn{s = 1}), then it suffices to provide a bivariate
+normal mixture prior instead of a list with just one element.}
+
+\item{prior_EX_tau_mean_comp, prior_EX_tau_sd_comp}{\if{html}{\out{
+<!----------->
+}}
+
+
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use \code{prior_EX_tau_comp}
+instead. Prior mean and sd for heterogeniety parameter
+\eqn{\boldsymbol\tau_{si} = (\tau_{\alpha s i}, \tau_{\beta s
+  i})} of each stratum. If no differential discounting is required
+(i.e. if there is only one stratum \eqn{s = 1}), then it is a
+two-column matrix (intercept, log-slope) with one row per
+component. Otherwise it is a three-dimensional array whose first
+dimension indexes the strata, second dimension indexes the
+components, and third dimension of length two for (intercept,
+log-slope).}
 
 \item{prior_EX_corr_eta_comp}{Prior LKJ correlation parameter for
 each component given as numeric vector. If missing, then a 1 is
 assumed corresponding to a marginal uniform prior of the
 correlation.}
 
-\item{prior_EX_mu_mean_inter, prior_EX_mu_sd_inter}{Prior mean and
-sd for population mean parameters \eqn{\mu_{\eta k}} of each
-interaction parameter. Vector of length equal to the number of
-interactions.}
+\item{prior_EX_mu_inter}{Multivariate normal mixture prior for
+interaction parameter vector
+\eqn{\boldsymbol{\mu_{\eta}}}. Dimension must correspond to the
+number of interactions.}
 
-\item{prior_EX_tau_mean_inter, prior_EX_tau_sd_inter}{Prior mean and
-sd for heterogeniety parameter \eqn{\tau_{\eta s k}} of each
-stratum. Matrix with one column per interaction and one row per
-stratum.}
+\item{prior_EX_mu_mean_inter, prior_EX_mu_sd_inter}{\if{html}{\out{
+<!------------>
+}}
+
+
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use \code{prior_EX_mu_inter}
+instead. Prior mean and sd for population mean parameters
+\eqn{\mu_{\eta k}} of each interaction parameter. Vector of
+length equal to the number of interactions.}
+
+\item{prior_EX_tau_inter}{List of multivariate normal mixture
+priors for heterogeniety interaction parameter vector
+\eqn{\boldsymbol{\tau_{\eta s}}} of each stratum. If no
+differential discounting is required (i.e. if there is only one
+stratum \eqn{s = 1}), then it suffices to provide a mixture prior
+instead of a list with just one element.}
+
+\item{prior_EX_tau_mean_inter, prior_EX_tau_sd_inter}{\if{html}{\out{
+<!---------->
+}}
+
+
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use
+\code{prior_EX_tau_inter} instead. Prior mean and sd for heterogeniety
+parameter \eqn{\tau_{\eta s k}} of each stratum. Matrix with one
+column per interaction and one row per stratum.}
 
 \item{prior_EX_corr_eta_inter}{Prior LKJ correlation parameter for
 interaction given as numeric. If missing, then a 1 is assumed
@@ -99,33 +151,57 @@ length equal to the number of interactions. If missing
 \code{FALSE} is assumed for all interactions.}
 
 \item{prior_is_EXNEX_comp}{Defines if non-exchangability is
-admitted for a given component. Logical vector of length equal
-to the number of components. If missing \code{TRUE} is assumed
-for all components.}
+admitted for a given component. Logical vector of length equal to
+the number of components. If missing \code{TRUE} is assumed for
+all components.}
 
 \item{prior_EX_prob_comp}{Prior probability \eqn{p_{ij}} for
 exchangability of each component per group. Matrix with one
 column per component and one row per group. Values must lie in
-[0-1] range.}
+\eqn{[0-1]} range.}
 
 \item{prior_EX_prob_inter}{Prior probability \eqn{p_{\eta k j}} for
 exchangability of each interaction per group. Matrix with one
-column per interaction and one row per group. Values must lie
-in [0-1] range.}
+column per interaction and one row per group. Values must lie in
+\eqn{[0-1]} range.}
 
-\item{prior_NEX_mu_mean_comp, prior_NEX_mu_sd_comp}{Prior mean
-\eqn{\boldsymbol m_{ij}} and sd \eqn{\boldsymbol s_{ij} =
-\mbox{diag}(\boldsymbol S_{ij})} of each component for
-non-exchangable case. Two column matrix (intercept, log-slope)
-with one row per component. If missing set to the same prior as
-given for the EX part. It is required that the specification be
-the same across groups j.}
+\item{prior_NEX_mu_comp}{List of bivariate normal mixture priors
+\eqn{\boldsymbol m_{ij}} and \eqn{\boldsymbol s_{ij} =
+  \mbox{diag}(\boldsymbol S_{ij})} of each component for
+non-exchangable case. If missing set to the same prior as given
+for the EX part. It is required that the specification be the
+same across groups j.}
 
-\item{prior_NEX_mu_mean_inter, prior_NEX_mu_sd_inter}{Prior mean
-\eqn{m_{\eta k j}} and sd \eqn{s_{\eta k j}} for each
-interaction parameter for non-exchangable case. Vector of
-length equal to the number of interactions. If missing set to
+\item{prior_NEX_mu_mean_comp, prior_NEX_mu_sd_comp}{\if{html}{\out{
+<!----------->
+}}
+
+
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use \code{prior_NEX_mu_comp}
+instead. Prior mean \eqn{\boldsymbol m_{ij}} and sd
+\eqn{\boldsymbol s_{ij} = \mbox{diag}(\boldsymbol S_{ij})} of
+each component for non-exchangable case. Two column matrix
+(intercept, log-slope) with one row per component. If missing set
+to the same prior as given for the EX part. It is required that
+the specification be the same across groups j.}
+
+\item{prior_NEX_mu_inter}{Multivariate normal mixture prior (mean
+\eqn{m_{\eta k j}}, sd \eqn{s_{\eta k j}} and covariance) for the
+interaction parameter vector for non-exchangable case. Dimension
+must correspond to the number of interactions. If missing set to
 the same prior as given for the EX part.}
+
+\item{prior_NEX_mu_mean_inter, prior_NEX_mu_sd_inter}{\if{html}{\out{
+<!--------->
+}}
+
+
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use
+\code{prior_NEX_mu_inter} instead. Prior mean \eqn{m_{\eta k j}} and
+sd \eqn{s_{\eta k j}} for each interaction parameter for
+non-exchangable case. Vector of length equal to the number of
+interactions. If missing set to the same prior as given for the
+EX part.}
 
 \item{prior_tau_dist}{Defines the distribution used for
 heterogeniety parameters. Choices are 0=fixed to it's mean,
@@ -174,19 +250,21 @@ widths can be specified.}
 }
 \value{
 The function returns a S3 object of type
-    \code{blrmfit}.
+\code{blrmfit}.
 }
 \description{
 Bayesian Logistic Regression Model (BLRM) for N
-    compounds using EXchangability and NonEXchangability (EXNEX)
-    modeling.
+compounds using EXchangability and NonEXchangability (EXNEX)
+modeling.
 }
 \details{
-\code{blrm_exnex} is a flexible function for Bayesian meta-analytic modeling of binomial
-count data. In particular, it is designed to model counts of the number of observed
-dose limiting toxicities (DLTs) by dose, for guiding dose-escalation studies
-in Oncology. To accommodate dose escalation over more than one agent, the dose
-may consist of combinations of study drugs, with any number of treatment components.
+\code{blrm_exnex} is a flexible function for Bayesian meta-analytic
+modeling of binomial count data. In particular, it is designed to
+model counts of the number of observed dose limiting toxicities
+(DLTs) by dose, for guiding dose-escalation studies in Oncology. To
+accommodate dose escalation over more than one agent, the dose may
+consist of combinations of study drugs, with any number of
+treatment components.
 
 In the simplest case, the aim is to model the probability \eqn{\pi} that
 a patient experiences a DLT, by complementing the binomial likelihood with
@@ -194,30 +272,33 @@ a monotone logistic regression
 
 \deqn{\mbox{logit}\,\pi(d) = \log\,\alpha + \beta \, t(d),}
 
-where \eqn{\beta > 0}. Most typically, \eqn{d} represents the dose, and \eqn{t(d)}
-is an appropriate transformation, such as \eqn{t(d) = \log (d \big / d^*)}. A
-joint prior on \eqn{\boldsymbol \theta = (\log\,\alpha, \log\,\beta)} completes
-the model and ensures monotonicity \eqn{\beta > 0}.
+where \eqn{\beta > 0}. Most typically, \eqn{d} represents the dose,
+and \eqn{t(d)} is an appropriate transformation, such as \eqn{t(d)
+= \log (d \big / d^*)}. A joint prior on \eqn{\boldsymbol \theta =
+(\log\,\alpha, \log\,\beta)} completes the model and ensures
+monotonicity \eqn{\beta > 0}.
 
-Many extensions are possible. The function supports general combination regimens, and also
-provides framework for Bayesian meta-analysis of dose-toxicity data from
-multiple historical and concurrent sources.
+Many extensions are possible. The function supports general
+combination regimens, and also provides framework for Bayesian
+meta-analysis of dose-toxicity data from multiple historical and
+concurrent sources.
 
 For an example of a single-agent trial refer to \code{\link{example-single-agent}}.
 }
-\section{Methods (by generic)}{
+\section{Functions}{
 \itemize{
-\item \code{print}: print function.
-}}
+\item \code{print(blrmfit)}: print function.
 
+}}
 \section{Combination of two treatments}{
 
 
-For a combination of two treatment components, the basic modeling framework
-is that the DLT rate \eqn{\pi(d_1,d_2)} is comprised of (1) a "no-interaction"
-baseline model \eqn{\tilde \pi(d_1,d_2)} driven by the single-agent toxicity of
-each component, and (2) optional interaction terms \eqn{\gamma(d_1,d_2)}
-representing synergy or antagonism between the drugs. On the log-odds scale,
+For a combination of two treatment components, the basic modeling
+framework is that the DLT rate \eqn{\pi(d_1,d_2)} is comprised of
+(1) a "no-interaction" baseline model \eqn{\tilde \pi(d_1,d_2)}
+driven by the single-agent toxicity of each component, and (2)
+optional interaction terms \eqn{\gamma(d_1,d_2)} representing
+synergy or antagonism between the drugs. On the log-odds scale,
 
 \deqn{\mbox{logit} \,\pi(d_1,d_2) = \mbox{logit} \, \tilde \pi(d_1,d_2) + \eta \, \gamma(d_1,d_2). }
 
@@ -231,13 +312,14 @@ logistic regressions as before.
 
 \deqn{\mbox{logit} \, \pi_i(d_i) = \log\, \alpha_i + \beta_i \, t(d_i),}
 
-where \eqn{t(d_i)} is a monotone transformation of the doses, such as
-\eqn{t(d_i) = \log (d_i \big / d_i^*)}.
+where \eqn{t(d_i)} is a monotone transformation of the doses of the
+respective drug component $i$, such as \eqn{t(d_i) = \log (d_i \big
+/ d_i^*)}.
 
 The inclusion of an interaction term \eqn{\gamma(d_1,d_2)} allows
-DLT rates above or below the "no-interaction" rate. The magnitude of
-the interaction term may also be made dependent on the doses (or other covariates)
-through regression. As an example, one could let
+DLT rates above or below the "no-interaction" rate. The magnitude
+of the interaction term may also be made dependent on the doses (or
+other covariates) through regression. As an example, one could let
 
 \deqn{\gamma(d_1, d_2) = \frac{d_1}{d_1^*} \frac{d_1}{d_2^*}.}
 
@@ -372,7 +454,6 @@ for the interaction parameters \eqn{\tau_{\eta s k}} for each stratum
 on larger values of the \eqn{\tau} parameters will exhibit less shrinkage
 towards the the means, \eqn{\boldsymbol\mu_{\boldsymbol \theta i}} and \eqn{\boldsymbol \mu_{\boldsymbol \nu}} respectively.
 
-
 \item \emph{EXNEX (Partial exchangeability):} Another mechansim for increasing
 robustness is to introduce mixture priors for the group-specific parameters,
 where one mixture component is shared across groups, and the other is group-specific.
@@ -392,15 +473,16 @@ weights correspond to greater exchange of information, while smaller values
 increase robustness in case of outlying observations in individual groups
 \eqn{j}.
 
-
 }
 }
 
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 # fit an example model. See documentation for "combo3" example
 example_model("combo3")
@@ -429,32 +511,33 @@ newdata$num_patients <- rep(3, nrow(newdata))
 newdata$num_toxicities <- c(0, 1, 2, 2)
 library(dplyr)
 blrmfit_new <- update(blrmfit,
-                      data = rbind(hist_combo3, newdata) \%>\%
-                               arrange(stratum_id, group_id))
+  data = rbind(hist_combo3, newdata) \%>\%
+    arrange(stratum_id, group_id)
+)
 
 # updated posterior summary
 summ_upd <- summary(blrmfit_new, newdata = newdata, interval_prob = c(0, 0.16, 0.33, 1))
-print(cbind(newdata, summ_upd))
+print(cbind(newdata, summ_upd)) 
 ## Recover user set sampling defaults
 options(.user_mc_options)
 
 }
 \references{
-Neuenschwander, B., Roychoudhury, S., & Schmidli, H. 
- (2016). On the use of co-data in clinical trials. \emph{Statistics in 
- Biopharmaceutical Research}, 8(3), 345-354.
+Neuenschwander, B., Roychoudhury, S., & Schmidli, H.
+(2016). On the use of co-data in clinical trials. \emph{Statistics in
+Biopharmaceutical Research}, 8(3), 345-354.
 
-Neuenschwander, B., Wandel, S., Roychoudhury, S., & 
- Bailey, S. (2016). Robust exchangeability designs for early phase 
- clinical trials with multiple strata. \emph{Pharmaceutical
- statistics}, 15(2), 123-134.
+Neuenschwander, B., Wandel, S., Roychoudhury, S., &
+Bailey, S. (2016). Robust exchangeability designs for early phase
+clinical trials with multiple strata. \emph{Pharmaceutical
+statistics}, 15(2), 123-134.
 
-Neuenschwander, B., Branson, M., & Gsponer, T. (2008). 
- Critical aspects of the Bayesian approach to phase I cancer trials. 
- \emph{Statistics in medicine}, 27(13), 2420-2439.
+Neuenschwander, B., Branson, M., & Gsponer, T. (2008).
+Critical aspects of the Bayesian approach to phase I cancer trials.
+\emph{Statistics in medicine}, 27(13), 2420-2439.
 
 Neuenschwander, B., Matano, A., Tang, Z., Roychoudhury, S.,
- Wandel, S. Bailey, Stuart. (2014). A Bayesian Industry Approach to 
- Phase I Combination Trials in Oncology. In \emph{Statistical methods 
- in drug combination studies} (Vol. 69). CRC Press.
+Wandel, S. Bailey, Stuart. (2014). A Bayesian Industry Approach to
+Phase I Combination Trials in Oncology. In \emph{Statistical methods
+in drug combination studies} (Vol. 69). CRC Press.
 }

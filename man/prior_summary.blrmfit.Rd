@@ -16,29 +16,31 @@
 }
 \value{
 Returns an analysis specific list, which has it's own
-    \code{print} function. The returned list contains arrays which
-    represent the prior in a structured format.
+\code{print} function. The returned list contains arrays which
+represent the prior in a structured format.
 }
 \description{
 Extracts a summary of the prior in a structured data format.
 }
 \details{
 The summary of the prior creates a structured
-    representation of the specified prior from a
-    \code{\link{blrm_exnex}} (\code{\link{blrm_trial}}) analysis.
+representation of the specified prior from a
+\code{\link{blrm_exnex}} (\code{\link{blrm_trial}}) analysis.
 }
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 ## run combo2 analysis which defines blrmfit model object
-example_model("combo2", silent=TRUE)
+example_model("combo2", silent = TRUE)
 
 prior_summary(blrmfit)
 
-prior_sum  <- prior_summary(blrmfit)
+prior_sum <- prior_summary(blrmfit)
 names(prior_sum)
 
 ## the entries of the prior list are labelled arrays

@@ -31,7 +31,7 @@
 #'
 #' @references
 #' Stan Development Team (2019). RStan: the R interface to Stan. R package version 2.19.2. https://mc-stan.org
-#'
+
 #' @name OncoBayes2
 #' @aliases OncoBayes2
 #' @docType package
@@ -40,11 +40,13 @@
 #' @import Rcpp
 #' @importFrom RcppParallel RcppParallelLibs CxxFlags
 #' @importFrom rstan sampling get_sampler_params get_adaptation_info summary stanc_builder get_stancode get_divergent_iterations
-#' @importFrom posterior as_draws_array as_draws_rvars as_draws_matrix summarise_draws subset_draws resample_draws default_convergence_measures rvar as_rvar ndraws variables draws_of variables<- %**% bind_draws mcse_mean ess_mean mcse_quantile ess_quantile
+#' @importFrom posterior as_draws_array as_draws_rvars as_draws_matrix as_draws_list summarise_draws subset_draws resample_draws default_convergence_measures rvar as_rvar ndraws variables draws_of variables<- %**% bind_draws mcse_mean ess_mean mcse_quantile ess_quantile rvar_ifelse rvar_rng nvariables
 #' @importFrom utils capture.output modifyList combn head
 #' @importFrom matrixStats logSumExp
 #' @importFrom stats delete.response ftable median model.frame model.matrix model.response quantile rbinom sd terms model.matrix.default setNames update update.default .getXlevels as.formula na.fail qlogis dbinom uniroot qnorm
+#' @importFrom lifecycle deprecated deprecate_warn deprecate_stop
 #' @import assertthat
+#' @import RBesT
 #' @import checkmate
 #' @import Formula
 #' @import rstantools
@@ -53,7 +55,7 @@
 #' @import ggplot2
 #' @importFrom tibble as_tibble
 #' @importFrom tidyselect vars_select_helpers vars_select
-#' @importFrom rlang env_bury
+#' @importFrom rlang env_bury .data
 #' @importFrom scales number_format extended_breaks
 #' @import abind
 #' @export posterior_linpred posterior_predict posterior_interval

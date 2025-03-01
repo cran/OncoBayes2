@@ -1,3 +1,44 @@
+# OncoBayes2 0.9-0 - February 28th, 2025
+
+## Enhancements
+
+* Introduce mixture prior arguments for `blrm_exnex`. These replace
+  the existing arguments for prior specification, which are now
+  deprecated and will be removed in the next main version increase of
+  the package.
+* Add experimental as_draws* functions allowing to extract samples in
+  the `posterior` draws format from `blrmfit` objects.
+* Improve error messages when Stan fails to sample.
+
+## Bug fixes
+
+* Added several plot improvements and bug fixes. Fixed an issue
+  leading to jagged curves in `plot_toxicity_intervals_stacked()`, and
+  another leading to wrongly ordered facets in
+  `plot_toxicity_intervals()`. Ensured consistent `bayesplot` themeing
+  across all plots.
+* Fixed sampling of model prior whenever EXNEX is used.
+* Simulation-based calibration performance was increased by roughly
+  an order of magnitude.
+* Fixed issues for BLRMs without interaction term and `cmdstan` 2.36.0
+* Results of model runs with the `cmdstanr` backend are now loaded using
+  the `brms` package instead of `rstan`. This fixes issues with loading
+  results from `cmdstan` 2.36.0
+* The intervals reported by the `summary()` function using the `interval_prob`
+  argument by default now include the lower end as a closed interval for
+  calls where `predictive = FALSE`. For the default underdosing interval,
+  this includes the probability of exactly 0 now.
+* Fixed an issue relating to an incompatibility of upcoming R 4.5.0 on
+  macOS when using C23 with rstan.
+
+# OncoBayes2 0.8-10 - November 4th, 2024
+
+## Enhancements
+
+* Updated Stan model file syntax to use new array syntax as required
+  by Stan >=2.33. This upgrades the minimal Stan version to 2.26.
+* Start compressing plots in vignette to slim down file size.
+
 # OncoBayes2 0.8-9 - July 20th, 2023
 
 ## Bug fixes

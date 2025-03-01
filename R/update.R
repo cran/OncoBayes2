@@ -17,55 +17,58 @@
 #'
 #' @template start-example
 #' @examples
-#' example_model("single_agent", silent=TRUE)
+#' example_model("single_agent", silent = TRUE)
 #'
 #' library(tibble)
-#' new_cohort <- tibble(group_id="trial_A", drug_A=50, num_patients=4, num_toxicities=1)
+#' new_cohort <- tibble(group_id = "trial_A", drug_A = 50, num_patients = 4, num_toxicities = 1)
 #'
 #' ## this would fail, since add_data argument must be named
 #' ## new_blrmfit <- update(blrmfit, new_cohort)
-#' new_blrmfit <- update(blrmfit, add_data=new_cohort)
+#' new_blrmfit <- update(blrmfit, add_data = new_cohort)
 #'
 #' @template stop-example
 #' @method update blrmfit
 #' @export
 update.blrmfit <- function(object, ..., add_data) {
-    dots  <- list(...)
-    if(!missing(add_data)) {
-        if("data" %in% names(dots)) {
-            current_data <- dots$data
-            dots$data <- NULL
-        } else {
-            current_data <- object$data
-        }
-
-        ## ensure that group_id and stratum_id (if present) as used in
-        ## object are part of the data in add_data
-        labels <- all.vars(delete.response(terms(object$f, rhs=length(object$f)[2])))
-        assert_set_equal(intersect(names(add_data), labels), labels, .var.name="grouping and/or stratum columns")
-        has_stratum_fct  <- length(labels) == 2
-
-        ## check add_data for consistency with existing data and
-        ## matched against definitions of object
-        strata_group_fct <- .get_strata_group_fct(object, add_data)
-
-        ## convert the index columns into matched factors
-        ## only do this if the object$data is a factor
-        if (has_stratum_fct) {
-            if(is.factor(current_data[[labels[1]]]))
-                add_data[[labels[1]]] <- strata_group_fct$strata_fct
-            if(is.factor(current_data[[labels[2]]]))
-                add_data[[labels[2]]] <- strata_group_fct$group_fct
-        } else {
-            if(is.factor(current_data[[labels[1]]]))
-                add_data[[labels[1]]] <- strata_group_fct$group_fct
-        }
-        .combined_data <- bind_rows(current_data, add_data)
-        upd_call  <- do.call(update.default, c(list(object=object, data=.combined_data), dots, list(evaluate=FALSE)))
-        return(eval(upd_call, c(list(.combined_data=.combined_data), dots), parent.frame()))
+  dots <- list(...)
+  if (!missing(add_data)) {
+    if ("data" %in% names(dots)) {
+      current_data <- dots$data
+      dots$data <- NULL
+    } else {
+      current_data <- object$data
     }
-    upd_call  <- do.call(update.default, c(list(object=object), dots, list(evaluate=FALSE)))
-    return(eval(upd_call, dots, parent.frame()))
+
+    ## ensure that group_id and stratum_id (if present) as used in
+    ## object are part of the data in add_data
+    labels <- all.vars(delete.response(terms(object$f, rhs = length(object$f)[2])))
+    assert_set_equal(intersect(names(add_data), labels), labels, .var.name = "grouping and/or stratum columns")
+    has_stratum_fct <- length(labels) == 2
+
+    ## check add_data for consistency with existing data and
+    ## matched against definitions of object
+    strata_group_fct <- .get_strata_group_fct(object, add_data)
+
+    ## convert the index columns into matched factors
+    ## only do this if the object$data is a factor
+    if (has_stratum_fct) {
+      if (is.factor(current_data[[labels[1]]])) {
+        add_data[[labels[1]]] <- strata_group_fct$strata_fct
+      }
+      if (is.factor(current_data[[labels[2]]])) {
+        add_data[[labels[2]]] <- strata_group_fct$group_fct
+      }
+    } else {
+      if (is.factor(current_data[[labels[1]]])) {
+        add_data[[labels[1]]] <- strata_group_fct$group_fct
+      }
+    }
+    .combined_data <- bind_rows(current_data, add_data)
+    upd_call <- do.call(update.default, c(list(object = object, data = .combined_data), dots, list(evaluate = FALSE)))
+    return(eval(upd_call, c(list(.combined_data = .combined_data), dots), parent.frame()))
+  }
+  upd_call <- do.call(update.default, c(list(object = object), dots, list(evaluate = FALSE)))
+  return(eval(upd_call, dots, parent.frame()))
 }
 
 #' Update data and/or prior of a BLRM trial
@@ -88,21 +91,19 @@ update.blrmfit <- function(object, ..., add_data) {
 #' @template stop-example
 #' @method update blrm_trial
 #' @export
-update.blrm_trial <- function(object, ...)
-{
-    .assert_is_blrm_trial(object)
+update.blrm_trial <- function(object, ...) {
+  .assert_is_blrm_trial(object)
 
-    if (has_name(object, "update_blrmfit")) {
-        # If blrmfit exists, update it
-        object <- object$update_blrmfit(object, ...)
-    } else {
-        # Otherwise, create it
-        object <- .blrm_trial_compute_prior(object, ...)
-    }
-    # add ewoc check for pre-defined doses
-    object$ewoc_check <- .blrm_trial_compute_ewoc_check(object, object$dose_info)
-    .blrm_trial_ewoc_check(object, object$ewoc_check)
+  if (has_name(object, "update_blrmfit")) {
+    # If blrmfit exists, update it
+    object <- object$update_blrmfit(object, ...)
+  } else {
+    # Otherwise, create it
+    object <- .blrm_trial_compute_prior(object, ...)
+  }
+  # add ewoc check for pre-defined doses
+  object$ewoc_check <- .blrm_trial_compute_ewoc_check(object, object$dose_info)
+  .blrm_trial_ewoc_check(object, object$ewoc_check)
 
-    return(object)
+  return(object)
 }
-

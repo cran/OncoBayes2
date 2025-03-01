@@ -18,7 +18,7 @@
 #'
 #' @template start-example
 #' @examples
-#' example_model("single_agent", silent=TRUE)
+#' example_model("single_agent", silent = TRUE)
 #'
 #' posterior_interval(blrmfit)
 #'
@@ -26,17 +26,18 @@
 #' @method posterior_interval blrmfit
 #' @aliases posterior_interval
 #' @export
-posterior_interval.blrmfit <- function(object, prob=0.95, ...) {
-    pars <- c("mu_log_beta", "tau_log_beta", "rho_log_beta",  "beta_group")
-    if(object$has_inter)
-        pars <- c(pars, c("mu_eta", "tau_eta", "Sigma_corr_eta", "eta_group"))
-    post <- as.matrix(object$stanfit, pars=pars)
-    rstantools::posterior_interval(post, prob=prob)
+posterior_interval.blrmfit <- function(object, prob = 0.95, ...) {
+  pars <- c("mu_log_beta", "tau_log_beta", "rho_log_beta", "beta_group")
+  if (object$has_inter) {
+    pars <- c(pars, c("mu_eta", "tau_eta", "Sigma_corr_eta", "eta_group"))
+  }
+  post <- as.matrix(object$stanfit, pars = pars)
+  rstantools::posterior_interval(post, prob = prob)
 }
 
 #' @method posterior_interval blrm_trial
 #' @export
-posterior_interval.blrm_trial <- function(object, prob=0.95, ...) {
-    .assert_is_blrm_trial_and_prior_is_set(object)
-    return(posterior_interval.blrmfit(object$blrmfit, prob=prob, ...))
+posterior_interval.blrm_trial <- function(object, prob = 0.95, ...) {
+  .assert_is_blrm_trial_and_prior_is_set(object)
+  return(posterior_interval.blrmfit(object$blrmfit, prob = prob, ...))
 }

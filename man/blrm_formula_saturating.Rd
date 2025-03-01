@@ -11,24 +11,30 @@ blrm_formula_saturating(
 )
 }
 \arguments{
-\item{ref_doses}{Numeric vector of reference doses with names corresponding to drug names}
+\item{ref_doses}{Numeric vector of reference doses with names
+corresponding to drug names}
 
-\item{max_interaction_level}{Highest interaction order to consider [1 - Inf]. Default: 2}
+\item{max_interaction_level}{Highest interaction order to consider
+\eqn{[1 - Inf]}. Default: 2}
 
-\item{specific_interaction_terms}{List of custom interaction terms to generate (e.g. list(c("drug1", "drug2"), c("drug1", "drug3"))). Default: NULL}
+\item{specific_interaction_terms}{List of custom interaction terms
+to generate (e.g. \code{list(c("drug1", "drug2"), c("drug1",
+  "drug3"))}).}
 }
 \value{
 The function returns an object of class \code{blrm_formula}.
 }
 \description{
-\code{blrm_formula_saturating} is a convenience function for generating
-a formula for \code{blrm_trial} and \code{blrm_exnex} with an interaction of the form:
+\code{blrm_formula_saturating} is a convenience
+function for generating a formula for \code{blrm_trial} and
+\code{blrm_exnex} with an interaction of the form:
 
-\deqn{2 \eta \, \frac{\prod_{i=1}^N (d_i \big / d_i^*)}{1 + \prod_{i=1}^N (d_i \big / d_i^*)}}
+\deqn{2 \eta \, \frac{\prod_{i=1}^N (d_i \big / d_i^*)}{1 +
+\prod_{i=1}^N (d_i \big / d_i^*)}}
 }
 \examples{
 
-ref_doses <- c(drug_A=10, drug_B=20)
+ref_doses <- c(drug_A = 10, drug_B = 20)
 
 # can be used with blrm_trial
 blrm_formula_saturating(ref_doses)
@@ -36,7 +42,7 @@ blrm_formula_saturating(ref_doses)
 }
 \references{
 Widmer, L.A., Bean, A., Ohlssen, D., Weber, S.,
- Principled Drug-Drug Interaction Terms for Bayesian Logistic
- Regression Models of Drug Safety in Oncology Phase I Combination Trials
- \emph{arXiv pre-print}, 2023, \doi{10.48550/arXiv.2302.11437}
+Principled Drug-Drug Interaction Terms for Bayesian Logistic
+Regression Models of Drug Safety in Oncology Phase I Combination Trials
+\emph{arXiv pre-print}, 2023, \doi{10.48550/arXiv.2302.11437}
 }

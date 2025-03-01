@@ -2,6 +2,7 @@
 % Please edit documentation in R/OncoBayes2-package.R
 \docType{package}
 \name{OncoBayes2}
+\alias{OncoBayes2-package}
 \alias{OncoBayes2}
 \title{OncoBayes2}
 \description{
@@ -23,32 +24,48 @@ Option \tab Default \tab Description \cr
 \code{OncoBayes2.MC.chains} \tab 4 \tab MCMC chains\cr
 \code{OncoBayes2.MC.thin} \tab 1 \tab MCMC thinning \cr
 \code{OncoBayes2.MC.control} \tab \code{list(adapt_delta=0.99,} \tab sets \code{control} argument for Stan call\cr
- \tab \code{stepsize=0.1}) \tab \cr
+\tab \code{stepsize=0.1}) \tab \cr
 \code{OncoBayes2.MC.backend} \tab rstan \tab Backend used to run Stan (\code{rstan} or \code{cmdstanr}) \cr
 \code{OncoBayes2.abbreviate.min} \tab 0 \tab Minimal length of variable names \cr
-   \tab \tab when abbreviating variable names. \cr
-   \tab \tab The default 0 disables abbreviation.\cr
+\tab \tab when abbreviating variable names. \cr
+\tab \tab The default 0 disables abbreviation.\cr
 }
 }
 
 \references{
-Neuenschwander, B., Roychoudhury, S., & Schmidli, H. 
- (2016). On the use of co-data in clinical trials. \emph{Statistics in 
- Biopharmaceutical Research}, 8(3), 345-354.
+Neuenschwander, B., Roychoudhury, S., & Schmidli, H.
+(2016). On the use of co-data in clinical trials. \emph{Statistics in
+Biopharmaceutical Research}, 8(3), 345-354.
 
-Neuenschwander, B., Wandel, S., Roychoudhury, S., & 
- Bailey, S. (2016). Robust exchangeability designs for early phase 
- clinical trials with multiple strata. \emph{Pharmaceutical
- statistics}, 15(2), 123-134.
+Neuenschwander, B., Wandel, S., Roychoudhury, S., &
+Bailey, S. (2016). Robust exchangeability designs for early phase
+clinical trials with multiple strata. \emph{Pharmaceutical
+statistics}, 15(2), 123-134.
 
-Neuenschwander, B., Branson, M., & Gsponer, T. (2008). 
- Critical aspects of the Bayesian approach to phase I cancer trials. 
- \emph{Statistics in medicine}, 27(13), 2420-2439.
+Neuenschwander, B., Branson, M., & Gsponer, T. (2008).
+Critical aspects of the Bayesian approach to phase I cancer trials.
+\emph{Statistics in medicine}, 27(13), 2420-2439.
 
 Neuenschwander, B., Matano, A., Tang, Z., Roychoudhury, S.,
- Wandel, S. Bailey, Stuart. (2014). A Bayesian Industry Approach to 
- Phase I Combination Trials in Oncology. In \emph{Statistical methods 
- in drug combination studies} (Vol. 69). CRC Press.
+Wandel, S. Bailey, Stuart. (2014). A Bayesian Industry Approach to
+Phase I Combination Trials in Oncology. In \emph{Statistical methods
+in drug combination studies} (Vol. 69). CRC Press.
 
 Stan Development Team (2019). RStan: the R interface to Stan. R package version 2.19.2. https://mc-stan.org
+}
+\author{
+\strong{Maintainer}: Sebastian Weber \email{sebastian.weber@novartis.com}
+
+Authors:
+\itemize{
+  \item Lukas A. Widmer \email{lukas_andreas.widmer@novartis.com}
+  \item Andrew Bean \email{andrew.bean@novartis.com}
+}
+
+Other contributors:
+\itemize{
+  \item Novartis Pharma AG [copyright holder]
+  \item Trustees of Columbia University (R/stanmodels.R, configure, configure.win) [copyright holder]
+}
+
 }

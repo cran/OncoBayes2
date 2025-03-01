@@ -1,2 +1,2 @@
-//    This file is part of RBesT.
-//    Copyright (C) 2017 Novartis Pharma AG
+//    This file is part of OncoBayes2.
+//    Copyright (C) 2025 Novartis Pharma AG

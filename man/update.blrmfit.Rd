@@ -28,17 +28,19 @@ Adds data rows to a \code{\link{blrm_exnex}} or
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
-example_model("single_agent", silent=TRUE)
+example_model("single_agent", silent = TRUE)
 
 library(tibble)
-new_cohort <- tibble(group_id="trial_A", drug_A=50, num_patients=4, num_toxicities=1)
+new_cohort <- tibble(group_id = "trial_A", drug_A = 50, num_patients = 4, num_toxicities = 1)
 
 ## this would fail, since add_data argument must be named
 ## new_blrmfit <- update(blrmfit, new_cohort)
-new_blrmfit <- update(blrmfit, add_data=new_cohort)
+new_blrmfit <- update(blrmfit, add_data = new_cohort)
 
 ## Recover user set sampling defaults
 options(.user_mc_options)

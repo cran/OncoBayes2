@@ -21,9 +21,9 @@ entire posterior is returned}
 }
 \value{
 Matrix of dimensions \code{draws} by \code{nrow(newdata)}
-    where row correspond to a draw of the posterior and each
-    column corresponds to a row in \code{newdata}. The columns are
-    labelled with the \code{row.names} of \code{newdata}.
+where row correspond to a draw of the posterior and each
+column corresponds to a row in \code{newdata}. The columns are
+labelled with the \code{row.names} of \code{newdata}.
 }
 \description{
 Simulation of the predictive distribution.
@@ -52,13 +52,15 @@ prior for future groups.
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 
-example_model("single_agent", silent=TRUE)
+example_model("single_agent", silent = TRUE)
 
-post_pred  <- posterior_predict(blrmfit)
+post_pred <- posterior_predict(blrmfit)
 ## turn DLT counts into DLT rates
 post_pred_rate <- sweep(post_pred, 2, hist_SA$num_patients, "/")
 
@@ -67,9 +69,11 @@ library(ggplot2)
 
 ## compare posterior predictive of the model for the response rates
 ## with observed data
-with(hist_SA,
-    ppc_intervals(num_toxicities / num_patients, post_pred_rate, x=drug_A, prob_outer=0.95)) +
-    xlab("Dose [mg]")
+with(
+  hist_SA,
+  ppc_intervals(num_toxicities / num_patients, post_pred_rate, x = drug_A, prob_outer = 0.95)
+) +
+  xlab("Dose [mg]")
 
 ## Recover user set sampling defaults
 options(.user_mc_options)

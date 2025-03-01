@@ -64,6 +64,7 @@ plot_toxicity_intervals_stacked(object, ...)
   interval_prob = c(0, 0.16, 0.33, 1),
   interval_max_mass = c(NA, NA, 0.25),
   ewoc_colors = c("green", "red"),
+  facet_args = list(),
   ...
 )
 
@@ -127,7 +128,7 @@ the same way as in \code{\link[dplyr:select]{dplyr::select()}}
 and similar functions. Examples of using \code{x} in this way
 can be found in the examples. For \code{blrm_trial} methods, it
 defaults to the first entry in \code{summary(blrm_trial,
-"drug_info")$drug_name}.}
+    "drug_info")$drug_name}.}
 
 \item{group}{Grouping variable(s) whose levels will be mapped to
 different facets of the plot. \code{group} can be a character
@@ -136,7 +137,7 @@ or a formula to be passed directly to
 \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. For
 \code{blrm_trial} methods, it defaults to \code{group_id}, plus
 all entries of \code{summary(blrm_trial,
-"drug_info")$drug_name} except the first, which is mapped to
+    "drug_info")$drug_name} except the first, which is mapped to
 \code{x}.}
 
 \item{xlim}{x-axis limits}
@@ -157,7 +158,7 @@ the quantiles \code{0.5-prob/2} and \code{0.5+prob/2} are displayed.}
 passed to \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon()}}, and \code{size} is passed to
 \code{\link[ggplot2:geom_line]{ggplot2::geom_line()}}.}
 
-\item{facet_args}{A named list of arguments (other than `facets`) passed
+\item{facet_args}{A named list of arguments (other than \code{facets}) passed
 to \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}.}
 
 \item{hline_at}{Location(s) of horizontal guide lines (passed to
@@ -196,7 +197,7 @@ being summarized. Defaults to \code{FALSE}.}
 }
 \value{
 A ggplot object that can be further
-  customized using the \code{\link[ggplot2]{ggplot2}} package.
+customized using the \code{\link[ggplot2]{ggplot2}} package.
 }
 \description{
 \strong{Warning}: these methods are at an experimental stage of development, and
@@ -208,7 +209,7 @@ Plotting methods for \code{blrmfit} and \code{blrm_trial} objects.
 \code{plot_toxicity_curve} plots continuous profiles of the dose-toxicity curve.
 
 \code{plot_toxicity_intervals} plots the posterior probability mass in
-subintervals of [0,1], at a discrete set of provisional doses.
+subintervals of \eqn{[0,1]}, at a discrete set of provisional doses.
 
 \code{plot_toxicity_intervals_stacked} is similar to
 \code{plot_toxicity_intervals}, but over a continuous range of doses.
@@ -216,41 +217,51 @@ subintervals of [0,1], at a discrete set of provisional doses.
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 
-example_model("combo2", silent=TRUE)
+example_model("combo2", silent = TRUE)
 
 # Plot the dose-toxicity curve
 plot_toxicity_curve(blrmfit,
-                    x = "drug_A",
-                    group = ~ group_id * drug_B,
-                    newdata = subset(dose_info_combo2, group_id == "trial_AB"),
-                    facet_args = list(ncol = 4))
+  x = "drug_A",
+  group = ~ group_id * drug_B,
+  newdata = subset(dose_info_combo2, group_id == "trial_AB"),
+  facet_args = list(ncol = 4)
+)
 
 # Plot posterior DLT-rate-interval probabilities at discrete dose levels
 plot_toxicity_intervals(blrmfit,
-                        x = "drug_A",
-                        group = ~ group_id * drug_B,
-                        newdata = subset(dose_info_combo2, group_id == "trial_AB"))
+  x = "drug_A",
+  group = ~ group_id * drug_B,
+  newdata = subset(dose_info_combo2, group_id == "trial_AB")
+)
 
 # Plot posterior DLT-rate-interval probabilities over continuous dose
 plot_toxicity_intervals_stacked(blrmfit,
-                                x = "drug_A",
-                                group = ~ group_id * drug_B,
-                                newdata = subset(dose_info_combo2, group_id == "trial_AB"))
+  x = "drug_A",
+  group = ~ group_id * drug_B,
+  newdata = subset(dose_info_combo2, group_id == "trial_AB")
+)
 
 # Plot predictive distribution probabilities over continuous dose
 plot_toxicity_intervals_stacked(blrmfit,
-                                x = "drug_A",
-                                group = ~ group_id * drug_B,
-                                predictive = TRUE,
-                                interval_prob = c(-1, 0, 1, 6),
-                                newdata = transform(subset(dose_info_combo2,
-                                                           group_id == "trial_AB"),
-                                                    num_patients = 6,
-                                                    num_toxicities = 0))
+  x = "drug_A",
+  group = ~ group_id * drug_B,
+  predictive = TRUE,
+  interval_prob = c(-1, 0, 1, 6),
+  newdata = transform(
+    subset(
+      dose_info_combo2,
+      group_id == "trial_AB"
+    ),
+    num_patients = 6,
+    num_toxicities = 0
+  )
+)
 ## Recover user set sampling defaults
 options(.user_mc_options)
 

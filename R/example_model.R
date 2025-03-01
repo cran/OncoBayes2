@@ -23,20 +23,20 @@
 #' @template stop-example
 #'
 #' @export
-example_model <- function(topic, envir=parent.frame(), silent=FALSE) {
-    if(missing(topic))
-        return(names(example_cache))
-    assert_character(topic)
-    assert_that(topic %in% names(example_cache), msg="Unkown example. For a list of examples call example_model().")
-        ex_str <- example_cache[[topic]]
-    if(silent) {
-        ex_str <- c("suppressMessages(capture.output({ ", ex_str, "}))")
-        eval(parse(text=ex_str), envir=envir)
-    } else {
-        message("Running ", topic, " example:\n")
-        message(paste(c(ex_str, ""), collapse="\n"))
-        eval(parse(text=ex_str), envir=envir)
-    }
-    invisible(envir)
+example_model <- function(topic, envir = parent.frame(), silent = FALSE) {
+  if (missing(topic)) {
+    return(names(example_cache))
+  }
+  assert_character(topic)
+  assert_that(topic %in% names(example_cache), msg = "Unkown example. For a list of examples call example_model().")
+  ex_str <- example_cache[[topic]]
+  if (silent) {
+    ex_str <- c("suppressMessages(capture.output({ ", ex_str, "}))")
+    eval(parse(text = ex_str), envir = envir)
+  } else {
+    message("Running ", topic, " example:\n")
+    message(paste(c(ex_str, ""), collapse = "\n"))
+    eval(parse(text = ex_str), envir = envir)
+  }
+  invisible(envir)
 }
-

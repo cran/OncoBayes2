@@ -84,19 +84,19 @@ The function returns an object of class \code{blrm_trial}.
 }
 \description{
 \code{blrm_trial} facilitates the conduct of dose
-    escalation studies guided by Bayesian Logistic Regression
-    Models (BLRM). While the \code{blrm_exnex} only fits the BLRM
-    model to data, the \code{blrm_trial} function standardizes the
-    specification of the entire trial design and provides various
-    standardized functions for trial data accrual and derivation of
-    model summaries needed for dose-escalation decisions.
+escalation studies guided by Bayesian Logistic Regression
+Models (BLRM). While the \code{blrm_exnex} only fits the BLRM
+model to data, the \code{blrm_trial} function standardizes the
+specification of the entire trial design and provides various
+standardized functions for trial data accrual and derivation of
+model summaries needed for dose-escalation decisions.
 }
 \details{
 \code{blrm_trial} constructs an object of class
-    \code{blrm_trial} which stores the compelte information about
-    the study design of a dose-escalation trial. The study design
-    is defined through the data sets (see sections below for a
-    definition of the columns):
+\code{blrm_trial} which stores the compelte information about
+the study design of a dose-escalation trial. The study design
+is defined through the data sets (see sections below for a
+definition of the columns):
 
 \describe{
 
@@ -137,9 +137,9 @@ calculated for the pre-defined dose levels of the trial.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{print}: print function.
-}}
+\item \code{print(blrm_trial)}: print function.
 
+}}
 \section{Simplified prior}{
 
 
@@ -165,17 +165,17 @@ ongoing trial(s). It's data columns must include, but are not
 limited to:
 
 \describe{
-  \item{group_id}{study}
+\item{group_id}{study}
 
-  \item{stratum_id}{optional, only required for differential discounting of groups}
+\item{stratum_id}{optional, only required for differential discounting of groups}
 
-  \item{num_patients}{number of patients}
+\item{num_patients}{number of patients}
 
-  \item{num_toxicities}{number of toxicities}
+\item{num_toxicities}{number of toxicities}
 
-  \item{drug_A}{Columns for the dose of each treatment component,
-  with column names matching the \code{drug_name} values specified
-  in the \code{drug_info} argument of \code{blrm_trial}}
+\item{drug_A}{Columns for the dose of each treatment component,
+with column names matching the \code{drug_name} values specified
+in the \code{drug_info} argument of \code{blrm_trial}}
 
 }
 }
@@ -187,10 +187,10 @@ The drug information data-set defines drug properties. The fields
 included are:
 
 \describe{
-  \item{drug_name}{name of drug which is also used as column name for the dose}
-  \item{dose_ref}{reference dose}
-  \item{dose_unit}{units used for drug amounts}
-  \item{reference_p_dlt}{optional; if provided, allows setup of a simplified prior}
+\item{drug_name}{name of drug which is also used as column name for the dose}
+\item{dose_ref}{reference dose}
+\item{dose_unit}{units used for drug amounts}
+\item{reference_p_dlt}{optional; if provided, allows setup of a simplified prior}
 }
 }
 
@@ -212,8 +212,8 @@ internally generated.}
 \item{group_id}{study}
 
 \item{drug_A}{Columns for the dose of each treatment component,
-  with column names matching the \code{drug_name} values specified
-  in the \code{drug_info} argument of \code{blrm_trial}}
+with column names matching the \code{drug_name} values specified
+in the \code{drug_info} argument of \code{blrm_trial}}
 
 }
 }
@@ -221,8 +221,10 @@ internally generated.}
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 
 # construct initial blrm_trial object from built-in example datasets
@@ -248,13 +250,13 @@ options(.user_mc_options)
 
 }
 \references{
-Babb, J., Rogatko, A., & Zacks, S. (1998). Cancer 
- phase I clinical trials: efficient dose escalation with overdose 
- control. \emph{Statistics in medicine}, 17(10), 1103-1120.
+Babb, J., Rogatko, A., & Zacks, S. (1998). Cancer
+phase I clinical trials: efficient dose escalation with overdose
+control. \emph{Statistics in medicine}, 17(10), 1103-1120.
 
-Neuenschwander, B., Roychoudhury, S., & Schmidli, H. 
- (2016). On the use of co-data in clinical trials. \emph{Statistics in 
- Biopharmaceutical Research}, 8(3), 345-354.
+Neuenschwander, B., Roychoudhury, S., & Schmidli, H.
+(2016). On the use of co-data in clinical trials. \emph{Statistics in
+Biopharmaceutical Research}, 8(3), 345-354.
 }
 \seealso{
 Other blrm_trial combo2 example: 

@@ -7,10 +7,10 @@
 \format{
 A data frame with 5 rows and 4 variables:
 \describe{
-  \item{group_id}{study}
-  \item{drug_A}{dose}
-  \item{num_patients}{number of patients}
-  \item{num_toxicities}{number of events}
+\item{group_id}{study}
+\item{drug_A}{dose}
+\item{num_patients}{number of patients}
+\item{num_toxicities}{number of events}
 }
 }
 \usage{
@@ -25,8 +25,10 @@ and to determine its MTD."
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 ## Example from Neuenschwander, B., et al. (2009). Stats in Medicine
 
@@ -43,35 +45,15 @@ dref <- 50
 blrmfit <- blrm_exnex(
   cbind(num_toxicities, num_patients - num_toxicities) ~
     1 + log(drug_A / dref) |
-    0 |
-    group_id,
+      0 |
+      group_id,
   data = hist_SA,
-  prior_EX_mu_mean_comp = matrix(
-    c(logit(1/2), # mean of intercept on logit scale
-      log(1)),    # mean of log-slope on logit scale
-    nrow = num_comp,
-    ncol = 2
-  ),
-  prior_EX_mu_sd_comp = matrix(
-    c(2,  # sd of intercept
-      1), # sd of log-slope
-    nrow = num_comp,
-    ncol = 2
-  ),
+  prior_EX_mu_comp = mixmvnorm(c(1, logit(1 / 2), log(1), diag(c(2^2, 1)))),
   ## Here we take tau as known and as zero.
   ## This disables the hierarchical prior which is
   ## not required in this example as we analyze a
   ## single trial.
-  prior_EX_tau_mean_comp = matrix(
-    c(0, 0),
-    nrow = num_comp,
-    ncol = 2
-  ),
-  prior_EX_tau_sd_comp = matrix(
-    c(1, 1),
-    nrow = num_comp,
-    ncol = 2
-  ),
+  prior_EX_tau_comp = mixmvnorm(c(1, 0, 0, diag(c(1, 1)))),
   prior_EX_prob_comp = matrix(1, nrow = num_comp, ncol = 1),
   prior_tau_dist = 0,
   prior_PD = FALSE
@@ -81,8 +63,8 @@ options(.user_mc_options)
 
 }
 \references{
-Neuenschwander, B., Branson, M., & Gsponer, T. (2008). 
- Critical aspects of the Bayesian approach to phase I cancer trials. 
- \emph{Statistics in medicine}, 27(13), 2420-2439.
+Neuenschwander, B., Branson, M., & Gsponer, T. (2008).
+Critical aspects of the Bayesian approach to phase I cancer trials.
+\emph{Statistics in medicine}, 27(13), 2420-2439.
 }
 \keyword{datasets}

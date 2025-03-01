@@ -34,7 +34,7 @@ examples <- list(
     )),
     drug_info = tibble::tibble(
       drug_name = "drug1",
-      dose_ref  = 1,
+      dose_ref = 1,
       dose_unit = "ngogn",
       reference_p_dlt = 0.1
     )
@@ -72,9 +72,9 @@ examples <- list(
     )),
     drug_info = tibble::tibble(
       drug_name = c("drug1", "drug2"),
-      dose_ref  = c(1, 100),
+      dose_ref = c(1, 100),
       dose_unit = c("ngogn", "potrzebie"),
-      reference_p_dlt=0.3
+      reference_p_dlt = 0.3
     )
   ),
 
@@ -114,12 +114,11 @@ examples <- list(
     )),
     drug_info = tibble::tibble(
       drug_name = paste0("drug", 1:3),
-      dose_ref  = 10 ^ c(0, 2, 3),
+      dose_ref = 10^c(0, 2, 3),
       dose_unit = c("ngogn", "potrzebie", "blintz"),
       reference_p_dlt = 0.1
     )
   ),
-
   single_drug_with_strata = list(
     histdata = dplyr::bind_rows(list(
       tibble::tibble(
@@ -162,7 +161,6 @@ examples <- list(
       dose_unit = "ngogn"
     )
   ),
-  
   multi_drug_single_group = list(
     histdata = tibble::tibble(
       group_id = "single_group",
@@ -182,6 +180,6 @@ examples <- list(
       drug_name = c("A", "B", "C"),
       dose_ref  = 1,
       dose_unit = "ngogn"
-    )    
+    )
   )
 )

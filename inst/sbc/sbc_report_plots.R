@@ -1,6 +1,6 @@
 #'
 #' # SBC Graphical Results
-#' 
+#'
 #'
 #' ## Model 1: Single-agent logistic regression
 #'
@@ -143,4 +143,3 @@ print(pl_split$combo3_EXNEX.beta_group$ecdf_diff)
 #'
 print(pl_split$combo3_EXNEX.eta_group$hist)
 print(pl_split$combo3_EXNEX.eta_group$ecdf_diff)
-

@@ -17,9 +17,9 @@ to the caller environment.}
 }
 \value{
 When topic is not specified a list of all possible topics
-    is return. Whenever a valid topic is specified, the function
-    inserts the example into the environment given and returns
-    (invisibly) the updated environment.
+is return. Whenever a valid topic is specified, the function
+inserts the example into the environment given and returns
+(invisibly) the updated environment.
 }
 \description{
 Runs example models
@@ -27,8 +27,10 @@ Runs example models
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 
 ## get a list of available examples

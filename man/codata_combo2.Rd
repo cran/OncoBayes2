@@ -7,12 +7,12 @@
 \format{
 A data frame with 20 rows and 5 variables:
 \describe{
-  \item{group_id}{study}
-  \item{drug_A}{dose of Drug A}
-  \item{drug_B}{dose of Drug B}
-  \item{num_patients}{number of patients}
-  \item{num_toxicities}{number of DLTs}
-  \item{cohort_time}{cohort number of patients}
+\item{group_id}{study}
+\item{drug_A}{dose of Drug A}
+\item{drug_B}{dose of Drug B}
+\item{num_patients}{number of patients}
+\item{num_toxicities}{number of DLTs}
+\item{cohort_time}{cohort number of patients}
 }
 }
 \usage{
@@ -31,68 +31,48 @@ agent studies, prior to the initiation of \code{trial_AB} and \code{IIT}.
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 dref <- c(6, 960)
 
-num_comp <- 2 # two investigational drugs
-num_inter <- 1 # one drug-drug interaction needs to be modeled
+num_comp   <- 2 # two investigational drugs
+num_inter  <- 1 # one drug-drug interaction needs to be modeled
 num_groups <- nlevels(codata_combo2$group_id) # no stratification needed
 num_strata <- 1 # no stratification needed
 
 blrmfit <- blrm_exnex(
   cbind(num_toxicities, num_patients - num_toxicities) ~
-      1 + I(log(drug_A / dref[1])) |
+    1 + I(log(drug_A / dref[1])) |
       1 + I(log(drug_B / dref[2])) |
-      0 + I(drug_A/dref[1] *drug_B/dref[2]) |
+      0 + I(drug_A / dref[1] * drug_B / dref[2]) |
       group_id,
   data = codata_combo2,
-  prior_EX_mu_mean_comp = matrix(
-     c(logit(0.2), 0,  # hyper-mean of (intercept, log-slope) for drug A
-       logit(0.2), 0), # hyper-mean of (intercept, log-slope) for drug B
-       nrow = num_comp,
-       ncol = 2,
-       byrow = TRUE
-      ),
-  prior_EX_mu_sd_comp = matrix(
-     c(2.0, 1,  # hyper-sd of mean mu for (intercept, log-slope) for drug A
-       2.0, 1), # hyper-sd of mean mu for (intercept, log-slope) for drug B
-       nrow = num_comp,
-       ncol = 2,
-       byrow = TRUE
-      ),
-  prior_EX_tau_mean_comp = matrix(
-     c(log(0.25), log(0.125),
-       log(0.25), log(0.125)),
-       nrow = num_comp,
-       ncol = 2,
-       byrow = TRUE
-      ),
-  prior_EX_tau_sd_comp = matrix(
-     c(log(4) / 1.96, log(4) / 1.96,
-       log(4) / 1.96, log(4) / 1.96),
-       nrow = num_comp,
-       ncol = 2,
-       byrow = TRUE
-      ),
-  prior_EX_mu_mean_inter = 0,
-  prior_EX_mu_sd_inter = 1.121,
-  prior_EX_tau_mean_inter = matrix(log(0.125), nrow = num_strata, ncol = num_inter),
-  prior_EX_tau_sd_inter = matrix(log(4) / 1.96, nrow = num_strata, ncol = num_inter),
+  prior_EX_mu_comp  = list(mixmvnorm(c(1, logit(0.2), 0, diag(c(2^2, 1)))),
+                           mixmvnorm(c(1, logit(0.2), 0, diag(c(2^2, 1))))),
+  prior_EX_tau_comp = list(mixmvnorm(c(1,
+                                       log(0.250), log(0.125),
+                                       diag(c(log(4)/1.96, log(4)/1.96)^2))),
+                           mixmvnorm(c(1,
+                                       log(0.250), log(0.125),
+                                       diag(c(log(4)/1.96, log(4)/1.96)^2)))),
+  prior_EX_mu_inter = mixmvnorm(c(1, 0, 1.121^2)),
+  prior_EX_tau_inter = mixmvnorm(c(1, log(0.125), (log(4) / 1.96)^2)),
   prior_is_EXNEX_comp = rep(FALSE, num_comp),
   prior_is_EXNEX_inter = rep(FALSE, num_inter),
   prior_EX_prob_comp = matrix(1, nrow = num_groups, ncol = num_comp),
   prior_EX_prob_inter = matrix(1, nrow = num_groups, ncol = num_inter),
   prior_tau_dist = 1
- )
+)
 ## Recover user set sampling defaults
 options(.user_mc_options)
 
 }
 \references{
-Neuenschwander, B., Roychoudhury, S., & Schmidli, H. 
- (2016). On the use of co-data in clinical trials. \emph{Statistics in 
- Biopharmaceutical Research}, 8(3), 345-354.
+Neuenschwander, B., Roychoudhury, S., & Schmidli, H.
+(2016). On the use of co-data in clinical trials. \emph{Statistics in
+Biopharmaceutical Research}, 8(3), 345-354.
 }
 \keyword{datasets}

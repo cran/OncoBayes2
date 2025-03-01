@@ -25,9 +25,9 @@ entire posterior is returned}
 }
 \value{
 Matrix of dimensions \code{draws} by \code{nrow(newdata)}
-    where row correspond to a draw of the posterior and each
-    column corresponds to a row in \code{newdata}. The columns are
-    labelled with the \code{row.names} of \code{newdata}.
+where row correspond to a draw of the posterior and each
+column corresponds to a row in \code{newdata}. The columns are
+labelled with the \code{row.names} of \code{newdata}.
 }
 \description{
 Calculates the posterior of the linear predictor.
@@ -56,26 +56,28 @@ prior for future groups.
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 
 ## run single-agent analysis which defines blrmfit model object
-example_model("single_agent", silent=TRUE)
+example_model("single_agent", silent = TRUE)
 
 ## obtain posterior of linear prediction on 0-1 scale
-post_prob_dlt <- posterior_linpred(blrmfit, TRUE, newdata=hist_SA)
+post_prob_dlt <- posterior_linpred(blrmfit, TRUE, newdata = hist_SA)
 ## name columns to obtain nice bayesplot labels
 colnames(post_prob_dlt) <- hist_SA$drug_A
 
 library(bayesplot)
 library(ggplot2)
-mcmc_intervals(post_prob_dlt, prob=0.5, prob_outer=0.95) +
-    coord_flip() +
-    vline_at(c(0.16, 0.33), linetype=2) +
-    ylab("Dose [mg]") +
-    ggtitle("Posterior Probability of a DLT") +
-    scale_x_continuous(breaks=c(0.1,0.16,0.33, 0.5, 0.75))
+mcmc_intervals(post_prob_dlt, prob = 0.5, prob_outer = 0.95) +
+  coord_flip() +
+  vline_at(c(0.16, 0.33), linetype = 2) +
+  ylab("Dose [mg]") +
+  ggtitle("Posterior Probability of a DLT") +
+  scale_x_continuous(breaks = c(0.1, 0.16, 0.33, 0.5, 0.75))
 
 ## Recover user set sampling defaults
 options(.user_mc_options)

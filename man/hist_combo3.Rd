@@ -7,13 +7,13 @@
 \format{
 A data frame with 18 rows and 7 variables:
 \describe{
-  \item{group_id}{study}
-  \item{drug_A}{dose of Drug A}
-  \item{drug_B}{dose of Drug B}
-  \item{drug_C}{dose of Drug C}
-  \item{num_patients}{number of patients}
-  \item{num_toxicities}{number of DLTs}
-  \item{stratum_id}{stratum for \code{group_id}'s used for differential discounting}
+\item{group_id}{study}
+\item{drug_A}{dose of Drug A}
+\item{drug_B}{dose of Drug B}
+\item{drug_C}{dose of Drug C}
+\item{num_patients}{number of patients}
+\item{num_toxicities}{number of DLTs}
+\item{stratum_id}{stratum for \code{group_id}'s used for differential discounting}
 }
 }
 \usage{
@@ -32,8 +32,10 @@ alternate-dose data.
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 ## example combo3
 
@@ -41,34 +43,34 @@ library(abind)
 
 dref <- c(500, 500, 1000)
 num_comp <- 3
-num_inter <- choose(3,2) + 1
+num_inter <- choose(3, 2) + 1
 num_strata <- nlevels(hist_combo3$stratum_id)
 num_groups <- nlevels(hist_combo3$group_id)
 
 blrmfit <- blrm_exnex(
-  cbind(num_toxicities, num_patients-num_toxicities) ~
-    1 + I(log(drug_A/dref[1])) |
-    1 + I(log(drug_B/dref[2])) |
-    1 + I(log(drug_C/dref[3])) |
-    0
-  + I(drug_A/dref[1] * drug_B/dref[2])
-  + I(drug_A/dref[1] * drug_C/dref[3])
-  + I(drug_B/dref[2] * drug_C/dref[3])
-  + I(drug_A/dref[1] * drug_B/dref[2] * drug_C/dref[3]) |
-    stratum_id/group_id,
+  cbind(num_toxicities, num_patients - num_toxicities) ~
+    1 + I(log(drug_A / dref[1])) |
+      1 + I(log(drug_B / dref[2])) |
+      1 + I(log(drug_C / dref[3])) |
+      0
+      + I(drug_A / dref[1] * drug_B / dref[2])
+        + I(drug_A / dref[1] * drug_C / dref[3])
+        + I(drug_B / dref[2] * drug_C / dref[3])
+        + I(drug_A / dref[1] * drug_B / dref[2] * drug_C / dref[3]) |
+      stratum_id / group_id,
   data = hist_combo3,
-  prior_EX_mu_mean_comp = matrix(c(logit(1/3), 0), nrow = num_comp, ncol = 2, TRUE),
-  prior_EX_mu_sd_comp = matrix(c(2, 1), nrow = num_comp, ncol = 2, TRUE),
-  prior_EX_tau_mean_comp = abind(matrix(log(  c(0.25, 0.125)), nrow = num_comp, ncol = 2, TRUE),
-                                 matrix(log(2*c(0.25, 0.125)), nrow = num_comp, ncol = 2, TRUE),
-                                 along = 0),
-  prior_EX_tau_sd_comp = abind(matrix(log(4) / 1.96, nrow = num_comp, ncol = 2, TRUE),
-                               matrix(log(4) / 1.96, nrow = num_comp, ncol = 2, TRUE),
-                               along = 0),
-  prior_EX_mu_mean_inter = rep(0, num_inter),
-  prior_EX_mu_sd_inter = rep(sqrt(2) / 2, num_inter),
-  prior_EX_tau_mean_inter = matrix(log(0.25), nrow = num_strata, ncol = num_inter),
-  prior_EX_tau_sd_inter = matrix(log(2) / 1.96, nrow = num_strata, ncol = num_inter),
+  prior_EX_mu_comp = replicate(num_comp, mixmvnorm(c(1, logit(1/3), 0, diag(c(2^2, 1)))), FALSE),
+  prior_EX_tau_comp = list(replicate(num_comp,
+                                     mixmvnorm(c(1, log(c(0.25, 0.125)),
+                                               diag(c(log(4)/1.96, log(4)/1.96)^2))), FALSE),
+                           replicate(num_comp,
+                                     mixmvnorm(c(1, log(2 * c(0.25, 0.125)),
+                                               diag(c(log(4)/1.96, log(4)/1.96)^2))), FALSE)),
+  prior_EX_mu_inter = mixmvnorm(c(1, rep.int(0, num_inter),
+                                     diag((rep.int(sqrt(2) / 2, num_inter))^2))),
+  prior_EX_tau_inter = replicate(num_strata,
+                                 mixmvnorm(c(1, rep.int(log(0.25), num_inter),
+                                             diag((rep.int(log(2) / 1.96, num_inter))^2))), FALSE),
   prior_EX_prob_comp = matrix(0.9, nrow = num_groups, ncol = num_comp),
   prior_EX_prob_inter = matrix(1.0, nrow = num_groups, ncol = num_inter),
   prior_is_EXNEX_comp = rep(TRUE, num_comp),

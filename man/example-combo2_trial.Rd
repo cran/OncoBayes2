@@ -22,8 +22,10 @@ To run this example, use \code{example_model("combo2_trial")}. See
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 library(tibble)
 library(dplyr)
@@ -39,58 +41,42 @@ combo2_trial_setup <- blrm_trial(
   simplified_prior = FALSE
 )
 
+# summary of dimensionality of data structures
 dims <- summary(combo2_trial_setup, "dimensionality")
 
 # Fit the initial model with the historical data and fully specified prior
-combo2_trial_start <- update(
-  combo2_trial_setup,
-  prior_EX_mu_mean_comp = matrix(
-    c(logit(0.2), 0,  # hyper-mean of (intercept, log-slope) for drug A
-      logit(0.2), 0), # hyper-mean of (intercept, log-slope) for drug B
-    nrow = dims$num_components,
-    ncol = 2,
-    byrow = TRUE
-  ),
-  prior_EX_mu_sd_comp = matrix(
-    c(2.0, 1,  # hyper-sd of mean mu for (intercept, log-slope) for drug A
-      2.0, 1), # hyper-sd of mean mu for (intercept, log-slope) for drug B
-    nrow = dims$num_components,
-    ncol = 2,
-    byrow = TRUE
-  ),
-  prior_EX_tau_mean_comp = matrix(
-    c(log(0.25), log(0.125),
-      log(0.25), log(0.125)),
-    nrow = dims$num_components,
-    ncol = 2,
-    byrow = TRUE
-  ),
-  prior_EX_tau_sd_comp = matrix(
-    c(log(4) / 1.96, log(4) / 1.96,
-      log(4) / 1.96, log(4) / 1.96),
-    nrow = dims$num_components,
-    ncol = 2,
-    byrow = TRUE
-  ),
-  prior_EX_mu_mean_inter = 0,
-  prior_EX_mu_sd_inter = 1.121,
-  prior_EX_tau_mean_inter = matrix(log(0.125),
-                                   nrow = dims$num_strata,
-                                   ncol = dims$num_interaction_terms),
-  prior_EX_tau_sd_inter = matrix(log(4) / 1.96,
-                                 nrow = dims$num_strata,
-                                 ncol = dims$num_interaction_terms),
-  prior_is_EXNEX_comp = rep(FALSE, dims$num_components),
-  prior_is_EXNEX_inter = rep(FALSE, dims$num_interaction_terms),
-  prior_EX_prob_comp = matrix(1,
-                              nrow = dims$num_groups,
-                              ncol = dims$num_components),
-  prior_EX_prob_inter = matrix(1,
-                               nrow = dims$num_groups,
-                               ncol = dims$num_interaction_terms),
-  prior_tau_dist = 1
-)
 
+
+combo2_trial_start <- update(
+   combo2_trial_setup,
+   ## bivariate normal prior for drug A and drug B of intercept and
+   ## log-slope
+   prior_EX_mu_comp =
+     replicate(2,
+               mixmvnorm(c(1,
+                           logit(0.2), 0,
+                           diag(c(2^2, 1))))
+             , FALSE),
+   prior_EX_tau_comp =
+     replicate(2,
+               mixmvnorm(c(1,
+                           log(0.25), log(0.125),
+                           diag(c(log(4)/1.96, log(4)/1.96)^2)))
+             , FALSE),
+   prior_EX_mu_inter = mixmvnorm(c(1, 0, 1.121^2)),
+   prior_EX_tau_inter = mixmvnorm(c(1, log(0.125), (log(4) / 1.96)^2)),
+   prior_is_EXNEX_comp = c(FALSE, FALSE),
+   prior_is_EXNEX_inter = FALSE,
+   prior_EX_prob_comp = matrix(1,
+     nrow = dims$num_groups,
+     ncol = 2
+   ),
+   prior_EX_prob_inter = matrix(1,
+     nrow = nlevels(dose_info_combo2$group_id),
+     ncol = 1
+   ),
+   prior_tau_dist = 1
+ )
 
 # print summary of prior specification
 prior_summary(combo2_trial_start)

@@ -21,7 +21,7 @@
 #'
 #' @template start-example
 #' @examples
-#' example_model("single_agent", silent=TRUE)
+#' example_model("single_agent", silent = TRUE)
 #'
 #' head(log_posterior(blrmfit))
 #'
@@ -80,5 +80,5 @@ neff_ratio.blrmfit <- function(object, pars = NULL, ...) {
 ## --- internal
 
 .contains_draws <- function(object) {
-    assert_that(nsamples(object) > 0, msg="The model does not contain posterior draws.")
+  assert_that(nsamples(object) > 0, msg = "The model does not contain posterior draws.")
 }

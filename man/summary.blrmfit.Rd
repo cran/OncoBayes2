@@ -39,12 +39,12 @@ being summarized. Defaults to \code{FALSE}.}
 }
 \value{
 Returns a \code{data.frame} of the key summaries of the
-    posterior mean, standard deviation, central probability
-    interval, median and optional interval probabilities. Each row
-    of the \code{data.frame} corresponds to the respective input
-    data which is by default the same data set as used for the
-    \code{\link{blrm_exnex}} analysis or the data specified in the
-    \code{newdata} argument.
+posterior mean, standard deviation, central probability
+interval, median and optional interval probabilities. Each row
+of the \code{data.frame} corresponds to the respective input
+data which is by default the same data set as used for the
+\code{\link{blrm_exnex}} analysis or the data specified in the
+\code{newdata} argument.
 }
 \description{
 Provides model summaries for \code{\link{blrm_exnex}} and
@@ -65,25 +65,29 @@ by the number of trials such that results are on the 0-1 scale.
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
-example_model("single_agent", silent=TRUE)
+example_model("single_agent", silent = TRUE)
 
 ## obtain underdosing (0-0.16], target dosing (0.16-0.33] and
 ## overdosing (0.33-1] probabilities
-summary(blrmfit, interval_prob=c(0,0.16,0.33,1))
+summary(blrmfit, interval_prob = c(0, 0.16, 0.33, 1))
 
 ## obtain predictive distribution for respective cohorts and
 ## calculate probability for no event, 1 event or >1 event
 ## note that this does the calculation for the cohort sizes
 ## as put into the data-set
-summary(blrmfit, interval_prob=c(-1,0,1,10), predictive=TRUE)
+summary(blrmfit, interval_prob = c(-1, 0, 1, 10), predictive = TRUE)
 
 ## to obtain the predictive for a cohort-size of 6 for all patients
 ## in the data-set one would need to use the newdata argument, e.g.
-summary(blrmfit, newdata=transform(hist_SA, num_patients=6),
-                 interval_prob=c(-1,0,1,10), predictive=TRUE)
+summary(blrmfit,
+  newdata = transform(hist_SA, num_patients = 6),
+  interval_prob = c(-1, 0, 1, 10), predictive = TRUE
+)
 
 ## Recover user set sampling defaults
 options(.user_mc_options)

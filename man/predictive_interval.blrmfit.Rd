@@ -22,9 +22,9 @@ used}
 }
 \value{
 Matrix with as many rows as the input data set and two
-    columns which contain the lower and upper quantile
-    corresponding to the central probability mass \code{prob} for
-    the number of responses of the predictive distribution.
+columns which contain the lower and upper quantile
+corresponding to the central probability mass \code{prob} for
+the number of responses of the predictive distribution.
 }
 \description{
 Posterior predictive intervals of the model.
@@ -36,10 +36,12 @@ according to the fitted model.
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
-example_model("single_agent", silent=TRUE)
+example_model("single_agent", silent = TRUE)
 
 predictive_interval(blrmfit)
 

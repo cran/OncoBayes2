@@ -7,12 +7,12 @@
 \format{
 A tibble with 11 rows and 5 variables:
 \describe{
-  \item{group_id}{study}
-  \item{drug_A}{dose of Drug A}
-  \item{drug_B}{dose of Drug B}
-  \item{num_patients}{number of patients}
-  \item{num_toxicities}{number of DLTs}
-  \item{cohort_time}{cohort number of patients}
+\item{group_id}{study}
+\item{drug_A}{dose of Drug A}
+\item{drug_B}{dose of Drug B}
+\item{num_patients}{number of patients}
+\item{num_toxicities}{number of DLTs}
+\item{cohort_time}{cohort number of patients}
 }
 }
 \usage{
@@ -28,8 +28,8 @@ which includes additional dose-toxicity data from \code{trial_AB} and \code{IIT}
 combination of Drugs A and B.
 }
 \references{
-Neuenschwander, B., Roychoudhury, S., & Schmidli, H. 
- (2016). On the use of co-data in clinical trials. \emph{Statistics in 
- Biopharmaceutical Research}, 8(3), 345-354.
+Neuenschwander, B., Roychoudhury, S., & Schmidli, H.
+(2016). On the use of co-data in clinical trials. \emph{Statistics in
+Biopharmaceutical Research}, 8(3), 345-354.
 }
 \keyword{datasets}

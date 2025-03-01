@@ -55,7 +55,7 @@ parameter selection by specifying \code{x = vars(...)}, where
 functions. Examples of using \code{x} in this way can be found
 in the examples. For \code{blrm_trial} methods, it defaults to
 the first entry in \code{summary(blrm_trial,
-"drug_info")$drug_name}.}
+    "drug_info")$drug_name}.}
 
 \item{p}{cumulative probability corresponding to the critical
 quantile range.}
@@ -99,17 +99,17 @@ finding. Defaults to \code{100}.}
 }
 \value{
 Vector of length equal to the number of rows of the input
-    data set with the crticial value for the covariate specified as
-    \code{x} which fullfills the requirements as detailled
-    above. May return \code{NA} for cases where no solution is
-    found on the specified interval \code{interval.x}.
+data set with the crticial value for the covariate specified as
+\code{x} which fullfills the requirements as detailled
+above. May return \code{NA} for cases where no solution is
+found on the specified interval \code{interval.x}.
 }
 \description{
 Calculates the critical value of a model covariate for
-    which a fixed quantile of the crude rate is equal to the
-    specified (tail or interval) probability. The specified
-    quantile can relate to the posterior or the predictive
-    distribution of the response rate.
+which a fixed quantile of the crude rate is equal to the
+specified (tail or interval) probability. The specified
+quantile can relate to the posterior or the predictive
+distribution of the response rate.
 }
 \details{
 The function searches for a critical value \eqn{x_c} of the covariate
@@ -151,19 +151,23 @@ correspond to the EWOC metric. These defaults are only applied if
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 # fit an example model. See documentation for "combo2" example
-example_model("combo2", silent=TRUE)
+example_model("combo2", silent = TRUE)
 
 # Find dose of drug_A at which EWOC criterium is just fulfilled
-data_trial_ab <- subset(codata_combo2, group_id=="trial_AB")
-drug_A_crit <- critical_quantile(blrmfit, newdata=data_trial_ab,
-                                 x="drug_A", p=0.25, qc=0.33,
-                                 lower.tail=FALSE)
+data_trial_ab <- subset(codata_combo2, group_id == "trial_AB")
+drug_A_crit <- critical_quantile(blrmfit,
+  newdata = data_trial_ab,
+  x = "drug_A", p = 0.25, qc = 0.33,
+  lower.tail = FALSE
+)
 data_trial_ab$drug_A <- drug_A_crit
-summary(blrmfit, newdata=data_trial_ab, interval_prob=c(0,0.16,0.33,1))
+summary(blrmfit, newdata = data_trial_ab, interval_prob = c(0, 0.16, 0.33, 1))
 
 ## Recover user set sampling defaults
 options(.user_mc_options)

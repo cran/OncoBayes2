@@ -11,14 +11,14 @@
 #' library(tibble)
 #'
 #' dose_info_A <- tibble(
-#'    group_id = "hist_A",
-#'    drug_A = 1
-#'  )
+#'   group_id = "hist_A",
+#'   drug_A = 1
+#' )
 #'
-#'  dose_info_B <- tibble(
-#'    group_id = "hist_B",
-#'    drug_B = 100 * (1:2)
-#'  )
+#' dose_info_B <- tibble(
+#'   group_id = "hist_B",
+#'   drug_B = 100 * (1:2)
+#' )
 #'
 #' bind_rows_0(dose_info_A, dose_info_B)
 #'

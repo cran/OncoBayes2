@@ -14,10 +14,10 @@
 ##     list(X_comp=X_comp_list, X_inter=X_inter, beta=beta_list, eta=eta_list, beta_map=beta_map_list, eta_map=eta_map_list)
 ## }
 
-##blrm_grouped_rng_auto <- function(group, n, X_comp, X_inter, beta, eta) {
+## blrm_grouped_rng_auto <- function(group, n, X_comp, X_inter, beta, eta) {
 ##    do.call(blrm_grouped_rng, c(list(group=group, n=n), reshape_model_inputs(X_comp, X_inter, beta, eta)))
-##}
+## }
 
-##blrm_logit_grouped_auto <- function(group, stratum, X_comp, X_inter, beta, eta, beta_map, eta_map) {
+## blrm_logit_grouped_auto <- function(group, stratum, X_comp, X_inter, beta, eta, beta_map, eta_map) {
 ##    do.call(blrm_logit_grouped, c(list(group=group, stratum=stratum), reshape_model_inputs(X_comp, X_inter, beta, eta, beta_map, eta_map)))
-##}
+## }

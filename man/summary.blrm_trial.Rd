@@ -16,22 +16,22 @@
 \item{object}{\code{\link{blrm_trial}} object}
 
 \item{summarize}{one of the following options:
-\itemize{
-  \item{}{\code{blrmfit}: summary of the underlying blrmfit object with further arguments ...}
-  \item{}{\code{blrm_exnex_call}: blrm_exnex call used to create the \code{blrmfit} object}
-  \item{}{\code{drug_info}: drug_info for the trial, contains drugs, reference doses and units}
-  \item{}{\code{dose_info}: dose_info that were defined}
-  \item{}{\code{dose_prediction} prediction for the defined \code{dose_info}}
-  \item{}{\code{data}: data that were observed}
-  \item{}{\code{data_prediction}: prediction for the observed data}
-  \item{}{\code{newdata_prediction}: prediction for data provided with the \code{newdata} argument}
-  \item{}{\code{dimensionality}: numeric vector with entries \code{"num_components"},
-    \code{"num_interaction_terms"}, \code{"num_groups"}, \code{"num_strata"}}
-  \item{}{\code{interval_prob}: interval probabilities reported in the standard outputs}
-  \item{}{\code{interval_max_mass}: named vector defining for each interval of the
-    \code{interval_prob} vector a maxmimal admissable
-    probability mass for a given dose level}
-  \item{}{\code{ewoc_check}: MCMC diagnostic and precision estimates of ewoc defining metrics for the defined doses in \code{dose_info} (default) or for the doses provided in the \code{newdata} argument. Please refer to the details for reported diagnostics.}
+\describe{
+\item{\code{blrmfit}}{summary of the underlying blrmfit object with further arguments ...}
+\item{\code{blrm_exnex_call}}{blrm_exnex call used to create the \code{blrmfit} object}
+\item{\code{drug_info}}{drug_info for the trial, contains drugs, reference doses and units}
+\item{\code{dose_info}}{dose_info that were defined}
+\item{\code{dose_prediction}}{prediction for the defined \code{dose_info}}
+\item{\code{data}}{data that were observed}
+\item{\code{data_prediction}}{prediction for the observed data}
+\item{\code{newdata_prediction}}{prediction for data provided with the \code{newdata} argument}
+\item{\code{dimensionality}}{numeric vector with entries \code{"num_components"},
+\code{"num_interaction_terms"}, \code{"num_groups"}, \code{"num_strata"}}
+\item{\code{interval_prob}}{interval probabilities reported in the standard outputs}
+\item{\code{interval_max_mass}}{named vector defining for each interval of the
+\code{interval_prob} vector a maxmimal admissable
+probability mass for a given dose level}
+\item{\code{ewoc_check}}{MCMC diagnostic and precision estimates of ewoc defining metrics for the defined doses in \code{dose_info} (default) or for the doses provided in the \code{newdata} argument. Please refer to the details for reported diagnostics.}
 }}
 
 \item{...}{further arguments for \code{\link{summary.blrmfit}}}
@@ -41,13 +41,13 @@ Provides model summaries for \code{\link{blrm_trial}} analyses.
 }
 \details{
 The \code{ewoc_check} summary routine allows to assess the
-    accuracy and reliability of the ewoc criterion with respect to
-    MCMC sampling noise. The returned summary provides detailled
-    MCMC convergence and precision estimates for all criteria
-    defined by \code{interval_prob} and \code{interval_max_mass}
-    which contribute to EWOC metric. That is, for each interval
-    probability with a maximal mass of less than unity the routine
-    will return these columns:
+accuracy and reliability of the ewoc criterion with respect to
+MCMC sampling noise. The returned summary provides detailled
+MCMC convergence and precision estimates for all criteria
+defined by \code{interval_prob} and \code{interval_max_mass}
+which contribute to EWOC metric. That is, for each interval
+probability with a maximal mass of less than unity the routine
+will return these columns:
 \describe{
 \item{\code{est}}{the MCMC estimate defining the critical value. For intervals defined by a tail probability this corresponds to the respective critical quantile while for interval probabilites this is equal to the interval probability.}
 \item{\code{stat}}{centered and standardized test quantity. The estimate is centered by the critical value and scaled by the Monte-Carlo standard error (MCSE) of the estimate. Hence, negative (positive) values correspond to the constraint being (not) fulfilled. The standardization with the MCSE allows to compare the values to standard normal quantiles accordingly.}
@@ -56,9 +56,9 @@ The \code{ewoc_check} summary routine allows to assess the
 \item{\code{rhat}}{the Monte-Carlo non-convergence diagnostic Rhat as determined with the \code{\link[posterior]{rhat} function}.}
 }
 
-For the common case of requiring that 33\% DLT probability is not
-exceeded by more than 25\% of the posterior probability mass, the
-estimate column \code{est} contains the 75\% quantile
+For the common case of requiring that 33\\% DLT probability is not
+exceeded by more than 25\\% of the posterior probability mass, the
+estimate column \code{est} contains the 75\\% quantile
 \eqn{q_{75\%}}{q75\%} and the standardized statistic \code{stat} is
 defined as:
 
@@ -71,8 +71,10 @@ the MCMC estimation accuracy is sufficient.
 \examples{
 ## Setting up dummy sampling for fast execution of example
 ## Please use 4 chains and 100x more warmup & iter in practice
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1,
-                            OncoBayes2.MC.save_warmup=FALSE)
+.user_mc_options <- options(
+  OncoBayes2.MC.warmup = 10, OncoBayes2.MC.iter = 20, OncoBayes2.MC.chains = 1,
+  OncoBayes2.MC.save_warmup = FALSE
+)
 
 # construct initial blrm_trial object from built-in example datasets
 combo2_trial_setup <- blrm_trial(
