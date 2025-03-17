@@ -33,6 +33,7 @@ blrm_exnex(
   prior_NEX_mu_mean_inter,
   prior_NEX_mu_sd_inter,
   prior_tau_dist,
+  sample_map = FALSE,
   iter = getOption("OncoBayes2.MC.iter", 2000),
   warmup = getOption("OncoBayes2.MC.warmup", 1000),
   save_warmup = getOption("OncoBayes2.MC.save_warmup", TRUE),
@@ -205,7 +206,14 @@ EX part.}
 
 \item{prior_tau_dist}{Defines the distribution used for
 heterogeniety parameters. Choices are 0=fixed to it's mean,
-1=log-normal, 2=truncated normal.}
+1=log-normal, 2=truncated normal or \code{NULL} shutting off the
+hierarchical structure of the model.}
+
+\item{sample_map}{Logical flag (defaults to \code{FALSE})
+controlling inclusion of MAP priors for each stratum defined as
+part of the generated posterior. If set to \code{TRUE} then the
+posterior samples will contain \code{map_log_beta} and
+\code{map_eta} variables.}
 
 \item{iter}{number of iterations (including warmup).}
 

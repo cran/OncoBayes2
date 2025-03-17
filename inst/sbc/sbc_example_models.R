@@ -117,39 +117,27 @@ example_models <- lapply(
     num_groups <- nlevels(design$group_id)
     num_strata <- nlevels(design$stratum)
 
-    prior_EX_tau_mean_comp_arg <- list()
-    prior_EX_tau_sd_comp_arg <- list()
+    prior_EX_tau_comp_arg <- list()
     for(s in seq_len(num_strata)) {
-      prior_EX_tau_mean_comp_arg[[s]] <- matrix(log(c(0.25, 0.125) / (2.0 * s)), nrow = num_comp, ncol = 2, TRUE)
-      prior_EX_tau_sd_comp_arg[[s]] <- matrix(log(0.5 + s) / 1.96, nrow = num_comp, ncol = 2, TRUE)
+      prior_EX_tau_comp_arg[[s]] <- replicate(num_comp, mixmvnorm(c(1,
+                                                                    log(c(0.25, 0.125) / (2.0 * s)),
+                                                                    diag(c(log(0.5 + s) / 1.96, log(0.5 + s) / 1.96)^2))), FALSE)  
     }
-    prior_EX_tau_mean_comp_arg <- abind(prior_EX_tau_mean_comp_arg, along=0)
-    prior_EX_tau_sd_comp_arg <- abind(prior_EX_tau_sd_comp_arg, along=0)
+
     blrm_args <- list(
       formula = formula,
       data = design,
-      prior_EX_mu_mean_comp = matrix(c(logit(1 / 3), 0), nrow = num_comp, ncol = 2, TRUE),
-      prior_EX_mu_sd_comp = matrix(c(1, 0.5), nrow = num_comp, ncol = 2, TRUE),
-      prior_EX_tau_mean_comp = prior_EX_tau_mean_comp_arg,
-      prior_EX_tau_sd_comp = prior_EX_tau_sd_comp_arg,
+      prior_EX_mu_comp = replicate(num_comp, mixmvnorm(c(1, logit(1 / 3), 0, diag(c(1, 0.5)^2))), FALSE),
+      prior_EX_tau_comp = prior_EX_tau_comp_arg,
       prior_EX_corr_eta_comp = rep(2.0, num_comp),
-      prior_EX_mu_mean_inter = rep(0, num_inter),
-      prior_EX_mu_sd_inter = rep(log(2) / 1.96, num_inter),
-      prior_EX_tau_mean_inter = matrix(log(0.25), nrow = num_strata, ncol = num_inter),
-      prior_EX_tau_sd_inter = matrix(log(2) / 1.96, nrow = num_strata, ncol = num_inter),
       prior_EX_corr_eta_inter = 2.0,
-      ## prior_EX_prob_comp = matrix(p_exch, nrow=num_groups, ncol=num_comp),
       prior_EX_prob_comp = example_prior_EX_prob_comp,
       prior_EX_prob_inter = matrix(1.0, nrow = num_groups, ncol = num_inter),
-      ## prior_is_EXNEX_comp = rep(is_exnex, num_comp),
       prior_is_EXNEX_comp = example_prior_is_EXNEX_comp,
       prior_is_EXNEX_inter = rep(FALSE, num_inter),
       prior_tau_dist = 1,
       ## SW: to actually test NEX  make the distribution different!
-      prior_NEX_mu_mean_comp = matrix(c(logit(2 / 3), 0), nrow = num_comp, ncol = 2, TRUE),
-      prior_NEX_mu_sd_comp = matrix(c(1, 0.5), nrow = num_comp, ncol = 2, TRUE),
-      prior_NEX_mu_mean_inter = rep(0, num_inter),
-      prior_NEX_mu_sd_inter = rep(log(2) / 1.96, num_inter),
+      prior_NEX_mu_comp = replicate(num_comp, mixmvnorm(c(1, logit(2 / 3), 0, diag(c(1, 0.5)^2))), FALSE),
       iter = 1000 + 1000,
       warmup = 1000,
       ## iter = 200 + 600,
@@ -170,6 +158,12 @@ example_models <- lapply(
       prior_PD = FALSE,
       save_warmup = FALSE
     )
+
+    if(num_inter > 0) {
+      blrm_args$prior_EX_mu_inter <- mixmvnorm(c(1, rep.int(0, num_inter), diag((log(2)/1.96)^2, num_inter, num_inter)))
+      blrm_args$prior_EX_tau_inter <- replicate(num_strata, mixmvnorm(c(1, rep.int(log(0.25), num_inter), diag((log(2)/1.96)^2, num_inter, num_inter))), FALSE)
+      blrm_args$prior_NEX_mu_inter <- mixmvnorm(c(1, rep.int(0, num_inter), diag((log(2)/1.96)^2, num_inter, num_inter)))
+    }
 
     base_args <- blrm_args
     base_args$data <- base_args$data |> mutate(num_toxicities = 0)

@@ -21,17 +21,11 @@ where \eqn{d^* = 250}, and the prior for
 and \eqn{\boldsymbol m = (\mbox{logit}\, 0.5, \log\, 1)} and
 \eqn{\boldsymbol S = \mbox{diag}(2^2, 1^2)} are constants.
 
-In the \code{blrm_exnex} framework, in which
-the prior must be specified as a hierarchical model
-\eqn{\boldsymbol\theta \sim \mbox{N}(\boldsymbol \mu, \boldsymbol \Sigma)}
-with additional priors on \eqn{\boldsymbol\mu} and \eqn{\boldsymbol\Sigma},
-the simple prior distribution above is accomplished
-by fixing the diagonal elements \eqn{\tau^2_\alpha} and \eqn{\tau^2_\beta}
-of \eqn{\boldsymbol\Sigma} to zero, and taking
-\deqn{\boldsymbol\mu \sim \mbox{N}(\boldsymbol m, \boldsymbol S).}
-
-The arguments \code{prior_tau_dist} and \code{prior_EX_tau_mean_comp}
-as specified below ensure that the \eqn{\tau}'s are fixed at zero.
+The above model is non-hierarchical. To disable the hierarchical
+model structure of the \code{blrm_exnex} framework, the user can
+specify the option \code{prior_tau_dist=NULL}. This will internally
+set all the heterogeniety parameters (\eqn{\tau^2_\alpha} and
+\eqn{\tau^2_\beta}) to zero.
 }
 \examples{
 ## Setting up dummy sampling for fast execution of example
@@ -43,30 +37,20 @@ as specified below ensure that the \eqn{\tau}'s are fixed at zero.
 
 ## Example from Neuenschwander, B., et al. (2009). Stats in Medicine
 
-num_comp <- 1 # one investigational drug
-num_inter <- 0 # no drug-drug interactions need to be modeled
-num_groups <- nlevels(hist_SA$group_id) # no stratification needed
-num_strata <- 1 # no stratification needed
-
-
 dref <- 50
 
 ## Since there is no prior information the hierarchical model
 ## is not used in this example by setting tau to (almost) 0.
 blrmfit <- blrm_exnex(
   cbind(num_toxicities, num_patients - num_toxicities) ~
-    1 + log(drug_A / dref) |
+      1 + log(drug_A / dref) |
       0 |
       group_id,
   data = hist_SA,
   prior_EX_mu_comp = mixmvnorm(c(1, logit(1 / 2), log(1), diag(c(2^2, 1)))),
-  ## Here we take tau as known and as zero.
-  ## This disables the hierarchical prior which is
-  ## not required in this example as we analyze a
-  ## single trial.
-  prior_EX_tau_comp = mixmvnorm(c(1, 0, 0, diag(c(1, 1)))),
-  prior_EX_prob_comp = matrix(1, nrow = num_comp, ncol = 1),
-  prior_tau_dist = 0,
+  ## Setting prior_tau_dist=NULL disables the hierarchical prior which is
+  ## not required in this example as we analyze a single trial.
+  prior_tau_dist = NULL,
   prior_PD = FALSE
 )
 ## Recover user set sampling defaults

@@ -16,9 +16,9 @@ functions {
     vector[Nc] lp_mix;
     if(rows(y) == 0) return 0.0;
     for(i in 1:Nc) {
-      lp_mix[i] = multi_normal_cholesky_lpdf(y | m[i], L[i]);
+      lp_mix[i] = log(w[i]) + multi_normal_cholesky_lpdf(y | m[i], L[i]);
     }
-    return log_sum_exp(log(w) + lp_mix);
+    return log_sum_exp(lp_mix);
   }
 
   real mixmv_tau_prior_lpdf(vector tau, int dist, int Nc, vector w, array[] vector m, array[] matrix L) {
@@ -330,6 +330,9 @@ data {
   // 1 = log-normal
   // 2 = truncated normal
   int<lower=0, upper=2> prior_tau_dist;
+
+  // controls if MAP priors for each stratum should be sampled
+  int<lower=0, upper=1> sample_map;
   
   // sample from prior predictive (do not add data to likelihood)
   int<lower=0, upper=1> prior_PD;
@@ -628,17 +631,29 @@ transformed parameters {
   }
   
   // EX parameters which vary by stratum which is defined by the group
-  for (g in 1 : num_groups) {
-    int s = group_stratum_cid[g];
-    for (j in 1 : num_comp) {
-      beta[g, j] = mu_log_beta[j]
-                   + diag_pre_multiply(tau_log_beta[s, j],
-                                       L_corr_log_beta[j])
-                     * log_beta_raw[g, j];
+  {
+    array[num_strata, num_comp] matrix[2,2] L_log_beta;
+    array[num_strata] matrix[num_inter, num_inter] L_eta;
+    
+    for (s in 1 : num_strata) {
+      for (j in 1 : num_comp) {
+        L_log_beta[s, j] = diag_pre_multiply(tau_log_beta[s, j],
+                                             L_corr_log_beta[j]);
+      }
+      if (num_inter > 0) {
+        L_eta[s] = diag_pre_multiply(tau_eta[s], L_corr_eta);
+      }
     }
-    if (num_inter > 0) {
-      eta[g] = mu_eta
-               + diag_pre_multiply(tau_eta[s], L_corr_eta) * eta_raw[g];
+    
+    for (g in 1 : num_groups) {
+      int s = group_stratum_cid[g];
+      for (j in 1 : num_comp) {
+        beta[g, j] = mu_log_beta[j]
+                     + L_log_beta[s,j] * log_beta_raw[g, j];
+      }
+      if (num_inter > 0) {
+        eta[g] = mu_eta + L_eta[s] * eta_raw[g];
+      }
     }
   }
   
@@ -751,6 +766,8 @@ generated quantities {
   vector[num_groups] log_lik_group;
   vector[num_comp] rho_log_beta;
   matrix[num_inter, num_inter] Sigma_corr_eta = multiply_lower_tri_self_transpose(L_corr_eta);
+  array[sample_map ? num_strata : 0, num_comp] vector[2] map_log_beta;
+  array[sample_map ? num_strata : 0] vector[num_inter] map_eta;
   
   for (j in 1 : num_comp) {
     matrix[2, 2] Sigma_corr_log_beta = multiply_lower_tri_self_transpose(L_corr_log_beta[j]);
@@ -802,6 +819,21 @@ generated quantities {
           eta_EX_prob[g, j] = 1.0;
         }
         eta_group[g, j] = eta[g + (mix_eta_config[j] == 1 ? 0 : num_groups), j];
+      }
+    }
+  }
+
+  if (sample_map) {
+    for (s in 1:num_strata) {
+      for (j in 1 : num_comp) {
+        map_log_beta[s, j] = multi_normal_cholesky_rng(mu_log_beta[j],
+                                                       diag_pre_multiply(tau_log_beta[s, j],
+                                                                         L_corr_log_beta[j]));
+      }
+      if (num_inter > 0) {
+        map_eta[s] = multi_normal_cholesky_rng(mu_eta,
+                                               diag_pre_multiply(tau_eta[s],
+                                                                 L_corr_eta));
       }
     }
   }

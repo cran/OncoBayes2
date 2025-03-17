@@ -1,3 +1,26 @@
+# OncoBayes2 0.9-1 - March 17th, 2025
+
+## Enhancements
+
+* Adding new vignette on how to derive MAP priors from historical
+  data.
+* New `sample_map` argument for `blrm_exnex` function allows to sample
+  MAP prior for all defined strata of the model. When set to `TRUE`
+  the posterior draws contain `map_log_beta` and `map_eta` which
+  correspond to respective MAP priors per stratum for new trials.
+* Allow argument `tau_prior_dist` of `blrm_exnex` to be set to
+  `NULL`. This will disable the hierarchical model structure entirely
+  and this simplifies specifying such models without a hierarchical
+  structure (data will then be pooled across groups).
+
+## Bug fixes
+
+* Fix issue whenever different number of mixture components are used
+  for prios on drug components.
+* Ensure that extracted posterior samples as draws objects have
+  labeled array dimensions.
+* Small efficiency improvement for Stan model.
+
 # OncoBayes2 0.9-0 - February 28th, 2025
 
 ## Enhancements

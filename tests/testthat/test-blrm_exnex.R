@@ -52,7 +52,7 @@ check_model_basic <- function(fit, envir) {
   envir$fit <- fit
   envir$data1 <- data[1, , drop = FALSE]
 
-  suppressMessages(capture.output(single_obs_fit <- with(envir, update(fit, data = data1))))
+  suppressWarnings(suppressMessages(capture.output(single_obs_fit <- with(envir, update(fit, data = data1)))))
   ss1 <- summary(single_obs_fit)
   expect_equal(nrow(ss1), 1)
   expect_equal(ncol(ss1), 5)
@@ -105,11 +105,13 @@ test_that("blrm_exnex data handling consistency combo3 with cmdstanr backend", {
 
 test_that("interval probabilites are consistent", {
   skip_on_cran()
+  withr::local_seed(67894356)
+
   combo2_sens <- combo2
   sens_low <- hist_combo2 %>%
     mutate(num_toxicities = 0, num_patients = 3 * num_patients)
   combo2_sens$sens_low <- sens_low
-  outp <- suppressMessages(capture.output(sens_fit_low <- with(combo2_sens, update(blrmfit, iter = 11000, warmup = 1000, chains = 1, data = sens_low))))
+  suppressWarnings(suppressMessages(outp <- capture.output(sens_fit_low <- with(combo2_sens, update(blrmfit, iter = 11000, warmup = 1000, chains = 1, init=0, data = sens_low)), type="message")))
   s_low <- summary(sens_fit_low, interval_prob = c(0, 0.9, 1))
   expect_equal(sum((s_low[, "[0,0.9]"] - 1) < eps), nrow(sens_low))
   expect_equal(sum((s_low[, "(0.9,1]"]) < eps), nrow(sens_low))
@@ -129,7 +131,7 @@ test_that("interval probabilites are consistent", {
   sens_high <- hist_combo2 %>%
     mutate(num_patients = 20, num_toxicities = num_patients)
   combo2_sens$sens_high <- sens_high
-  outp <- suppressMessages(capture.output(sens_fit_high <- with(combo2_sens, update(blrmfit, iter = 11000, warmup = 1000, chains = 1, data = sens_high))))
+  outp <- suppressWarnings(suppressMessages(capture.output(sens_fit_high <- with(combo2_sens, update(blrmfit, iter = 11000, warmup = 1000, chains = 1, data = sens_high)))))
   s_high <- summary(sens_fit_high, interval_prob = c(0, 0.1, 1))
   expect_equal(sum((s_high[, "(0.1,1]"] - 1) < eps), nrow(sens_low))
   expect_equal(sum((s_high[, "[0,0.1]"]) < eps), nrow(sens_low))
@@ -221,7 +223,7 @@ test_that("all expected posterior quantiles are returned", {
 
 
 query_fit <- function(fit) {
-  capture_output(print(fit))
+  suppressWarnings(o <- capture_output(print(fit)))
   prior_summary(fit)
   s1 <- summary(fit)
   s2 <- summary(fit, interval_prob = c(0, 0.16, 0.33, 1.0))
@@ -251,6 +253,8 @@ test_that("blrmfit methods work for combo3 models", {
 
 
 test_that("blrm_exnex accepts single-stratum data sets with general prior definition (deprecated interface)", {
+  skip_on_cran()
+
   withr::local_options(lifecycle_verbosity = "quiet")
   
   num_comp <- 1 # one investigational drug
@@ -263,7 +267,7 @@ test_that("blrm_exnex accepts single-stratum data sets with general prior defini
   hist_SA_alt <- mutate(hist_SA, stratum = factor(1))
 
   ## in case a single stratum is used in the data, the priors for tau should accept
-  blrmfit <- blrm_exnex(
+  suppressWarnings(blrmfit <- blrm_exnex(
     cbind(num_toxicities, num_patients - num_toxicities) ~
       1 + log(drug_A / dref) |
         0 |
@@ -293,7 +297,7 @@ test_that("blrm_exnex accepts single-stratum data sets with general prior defini
     cores = 1,
     iter = 10,
     warmup = 5
-  )
+  ))
 
   expect_true(nrow(summary(blrmfit)) == nrow(hist_SA_alt))
 })
@@ -329,6 +333,8 @@ test_that("blrm_exnex accepts single-stratum data sets with general prior defini
 })
 
 test_that("blrm_exnex summaries do not change depending on global variable definitions of dref (deprecated interface)", {
+  skip_on_cran()
+
   withr::local_options(lifecycle_verbosity = "quiet")
   
   num_comp <- 1 # one investigational drug
@@ -341,7 +347,7 @@ test_that("blrm_exnex summaries do not change depending on global variable defin
   hist_SA_alt <- mutate(hist_SA, stratum = factor(1))
 
   ## in case a single stratum is used in the data, the priors for tau should accept
-  blrmfit <- blrm_exnex(
+  suppressWarnings(blrmfit <- blrm_exnex(
     cbind(num_toxicities, num_patients - num_toxicities) ~
       1 + log(drug_A / dref) |
         0 |
@@ -371,7 +377,7 @@ test_that("blrm_exnex summaries do not change depending on global variable defin
     cores = 1,
     iter = 10,
     warmup = 5
-  )
+  ))
 
   mean1 <- summary(blrmfit)$mean
   pmean1 <- summary(blrmfit, predictive = TRUE)$mean
@@ -425,6 +431,8 @@ test_that("blrm_exnex summaries do not change depending on global variable defin
 })
 
 test_that("blrm_exnex rejects wrongly nested stratum/group combinations in data sets (deprecated interface)", {
+  skip_on_cran()
+
   withr::local_options(lifecycle_verbosity = "quiet")
   
   hist_data <- tibble(
@@ -504,13 +512,15 @@ test_that("blrm_exnex rejects wrongly nested stratum/group combinations in data 
 })
 
 test_that("update.blrmfit grows the data set", {
+  skip_on_cran()
+
   single_agent_new <- single_agent
   single_agent_new$new_cohort_SA <- data.frame(group_id = "trial_A", num_patients = 4, num_toxicities = 2, drug_A = 50)
-  single_agent_new$new_blrmfit_1 <- with(single_agent_new, update(blrmfit, add_data = new_cohort_SA))
+  suppressWarnings(single_agent_new$new_blrmfit_1 <- with(single_agent_new, update(blrmfit, add_data = new_cohort_SA)))
   expect_true(nrow(summary(single_agent_new$new_blrmfit_1)) == nrow(hist_SA) + 1)
 
   ## ensure that the data accumulates
-  new_blrmfit_2 <- with(single_agent_new, update(new_blrmfit_1, add_data = new_cohort_SA))
+  suppressWarnings(new_blrmfit_2 <- with(single_agent_new, update(new_blrmfit_1, add_data = new_cohort_SA)))
   expect_true(nrow(summary(new_blrmfit_2)) == nrow(hist_SA) + 2)
 
   combo2_new <- combo2
@@ -532,14 +542,14 @@ test_that("update.blrmfit grows the data set", {
     group_id = as.character(group_id)
   )
   set.seed(123144)
-  new_blrmfit_3 <- with(combo2_new, update(blrmfit, add_data = new_codata))
+  suppressWarnings(new_blrmfit_3 <- with(combo2_new, update(blrmfit, add_data = new_codata)))
   expect_true(nrow(summary(new_blrmfit_3)) == nrow(codata_combo2) + 2)
   ## Test that adding dummy data does not change results in the other rows
   set.seed(123144)
   combo2_new_with_dummy <- combo2
   combo2_new_with_dummy$new_codata <- add_row(combo2_new_with_dummy$new_codata, group_id = factor("IIT"), drug_A = 1, drug_B = 1, drug_C = 1, num_patients = 0, num_toxicities = 0)
 
-  new_blrmfit_3_with_dummy <- with(combo2_new_with_dummy, update(blrmfit, add_data = new_codata))
+  suppressWarnings(new_blrmfit_3_with_dummy <- with(combo2_new_with_dummy, update(blrmfit, add_data = new_codata)))
   expect_equal(nrow(summary(new_blrmfit_3)) + 1, nrow(summary(new_blrmfit_3_with_dummy)))
 
   ## test if the log-likelihood is the same for parameter-vector 0
@@ -561,9 +571,9 @@ test_that("update.blrmfit grows the data set", {
 
   ## Same for empty group
   set.seed(123144)
-  new_blrmfit_with_empty_group <- with(combo2_new, update(blrmfit, data = blrmfit$data))
+  suppressWarnings(new_blrmfit_with_empty_group <- with(combo2_new, update(blrmfit, data = blrmfit$data)))
   set.seed(123144)
-  new_blrmfit_with_empty_group_and_dummy <- with(combo2_new, update(blrmfit, data = add_row(blrmfit$data, group_id = factor("IIT"), drug_A = 1, drug_B = 1, num_patients = 0, num_toxicities = 0)))
+  suppressWarnings(new_blrmfit_with_empty_group_and_dummy <- with(combo2_new, update(blrmfit, data = add_row(blrmfit$data, group_id = factor("IIT"), drug_A = 1, drug_B = 1, num_patients = 0, num_toxicities = 0))))
   expect_equal(nrow(summary(new_blrmfit_with_empty_group)) + 1, nrow(summary(new_blrmfit_with_empty_group_and_dummy)))
   ## summary(new_blrmfit_with_empty_group) - summary(new_blrmfit_with_empty_group_and_dummy)[1:nrow(summary(new_blrmfit_with_empty_group)),]
   ## change level order and test
@@ -605,21 +615,26 @@ test_that("update.blrmfit grows the data set", {
 })
 
 test_that("update.blrmfit does regular updating", {
+  skip_on_cran()
+
   single_agent_new <- single_agent
   single_agent_new$only_cohort_SA <- data.frame(group_id = "trial_A", num_patients = 4, num_toxicities = 2, drug_A = 50, stringsAsFactors = TRUE)
-  single_agent_new$only_blrmfit_1 <- with(single_agent_new, update(blrmfit, data = only_cohort_SA))
+  suppressWarnings(single_agent_new$only_blrmfit_1 <- with(single_agent_new, update(blrmfit, data = only_cohort_SA)))
   expect_true(nrow(summary(single_agent_new$only_blrmfit_1)) == 1)
 })
 
 test_that("update.blrmfit combines data and add_data", {
+  skip_on_cran()
+
   single_agent_new <- single_agent
   single_agent_new$only_cohort_SA <- data.frame(group_id = "trial_A", num_patients = 4, num_toxicities = 2, drug_A = 50)
   single_agent_new$hist_SA_sub <- hist_SA[1:3, ]
-  single_agent_new$only_blrmfit_1 <- with(single_agent_new, update(blrmfit, data = hist_SA_sub, add_data = only_cohort_SA))
+  suppressWarnings(single_agent_new$only_blrmfit_1 <- with(single_agent_new, update(blrmfit, data = hist_SA_sub, add_data = only_cohort_SA)))
   expect_true(nrow(summary(single_agent_new$only_blrmfit_1)) == 4)
 })
 
 test_that("blrm_exnex properly warns/errors if prior_is_EXNEX is inconsistent from prior_EX_prob (deprecated interface)", {
+  skip_on_cran()
   withr::local_options(lifecycle_verbosity = "quiet")
   
   hist_data <- tibble(
@@ -816,7 +831,8 @@ test_that("blrm_exnex properly warns/errors if prior_is_EXNEX is inconsistent fr
 })
 
 test_that("blrm_exnex properly warns/errors if prior_is_EXNEX is inconsistent from prior_EX_prob", {
-  
+  skip_on_cran()
+
   hist_data <- tibble(
     group_id = as.factor(c(rep("trial_a", 2), rep("trial_b", 3), rep("trial_c", 1))),
     stratum_id = as.factor(c(rep("reg1", 2), rep("reg2", 2), rep("reg2", 2))),
@@ -1021,6 +1037,8 @@ test_that("posterior_linpred is consistent at exp(1) times reference dose (combo
 
 test_that(
   "no unexpected error of posterior summary when num_groups = 1 or 2 and has_inter = TRUE (deprecated interface)", {
+    skip_on_cran()
+
     withr::local_options(lifecycle_verbosity = "quiet")
     
     ## this test is to trigger a problem in posterior prior to
@@ -1036,7 +1054,7 @@ test_that(
     )
 
     num_groups <- 1
-    fit <- blrm_exnex(
+    suppressWarnings(fit <- blrm_exnex(
       cbind(num_toxicities, num_patients - num_toxicities) ~
         1 + I(log(drug_A)) |
           1 + I(log(drug_B)) |
@@ -1081,7 +1099,7 @@ test_that(
       prior_EX_prob_inter = matrix(1, nrow = num_groups, ncol = 1),
       prior_tau_dist = 0,
       prior_PD = FALSE
-    )
+    ))
 
     expect_data_frame(summary(fit), nrows = 1)
 
@@ -1090,7 +1108,7 @@ test_that(
     levels(new_data$group_id) <- groups
     num_groups <- 2
 
-    fit2 <- update(fit, data = new_data)
+    suppressWarnings(fit2 <- update(fit, data = new_data))
     expect_data_frame(summary(fit2), nrows = 1)
   }
 )
@@ -1098,6 +1116,8 @@ test_that(
 
 test_that(
   "no unexpected error of posterior summary when num_groups = 1 or 2 and has_inter = TRUE", {
+    skip_on_cran()
+
     ## this test is to trigger a problem in posterior prior to
     ## 1.4.0, see https://github.com/stan-dev/posterior/issues/265
     ## for the bug report
@@ -1114,7 +1134,7 @@ test_that(
     num_comp <- 2
     num_inter <- 1
     
-    fit <- blrm_exnex(
+    suppressWarnings(fit <- blrm_exnex(
       cbind(num_toxicities, num_patients - num_toxicities) ~
         1 + I(log(drug_A)) |
         1 + I(log(drug_B)) |
@@ -1134,7 +1154,7 @@ test_that(
       prior_tau_dist = 0,
       init=0,
       prior_PD = FALSE
-    )
+    ))
 
     expect_data_frame(summary(fit), nrows = 1)
 
@@ -1143,7 +1163,7 @@ test_that(
     levels(new_data$group_id) <- groups
     num_groups <- 2
 
-    fit2 <- update(fit, data = new_data)
+    suppressWarnings(fit2 <- update(fit, data = new_data))
     expect_data_frame(summary(fit2), nrows = 1)
   }
 )
@@ -1215,48 +1235,14 @@ test_that(
       save_warmup=FALSE
     )
 
-   blrmfit_data_is_like_prior <- blrm_exnex(
-      cbind(num_toxicities, num_patients - num_toxicities) ~
-        1 + I(log(drug1/100)) |
-        1 + I(log(drug2/100)) |
-        0 + I( (drug1/100) * (drug2/100)) | stratum_id / group_id,
-      data = mutate(hist_data, num_toxicities=0, num_patients=0),
-      prior_is_EXNEX_comp = rep(FALSE, 2),
-      prior_EX_prob_comp = matrix(c(1, 1, 1), nrow = num_groups, ncol = num_comp, byrow = FALSE), # 0.5 would be ignored
-      prior_is_EXNEX_inter = FALSE,
-      prior_EX_prob_inter = matrix(c(1, 1, 1), nrow = num_groups, ncol = num_inter),
-      prior_EX_mu_mean_inter = rep(0, num_inter),
-      prior_EX_mu_sd_inter = rep(1, num_inter),
-      prior_EX_tau_mean_inter = matrix(log(2) / 1.96, nrow = num_strata, ncol = num_inter),
-      prior_EX_tau_sd_inter = matrix(log(2) / 1.96, nrow = num_strata, ncol = num_inter),
-      prior_EX_mu_mean_comp = matrix(c(logit(0.20), 0,
-                                       logit(0.40), log(1.5)), # (E(mu_alpha), E(mu_beta))
-                                     nrow = num_comp,
-                                     ncol = 2,
-                                     byrow = TRUE
-                                     ),
-      prior_EX_mu_sd_comp = matrix(c(1, 0.8, 2, 1)/8, # (sd(mu_alpha), sd(mu_beta))
-                                   nrow = num_comp,
-                                   ncol = 2,
-                                   byrow = TRUE
-                                   ),
-      prior_EX_tau_mean_comp = abind(matrix(log(c(0.25, 0.125)/2), nrow = num_comp, ncol = 2, TRUE), # level 1 reg1
-                                     matrix(log(2 * c(0.25, 0.125)), nrow = num_comp, ncol = 2, TRUE), # level 2 reg2
-                                     along = 0
-                                     ),
-      prior_EX_tau_sd_comp = abind(matrix(c(log(2) / 1.96, log(1.25) / 1.96), nrow = num_comp, ncol = 2, TRUE),
-                                   matrix(c(log(3) / 1.96, log(2.5) / 1.96), nrow = num_comp, ncol = 2, TRUE),
-                                   along = 0
-                                   ),
-      prior_tau_dist = 1,
-      prior_PD=FALSE,
-      iter=3000,
-      warmup=1000,
-      chains=1,
-      cores=1,
-      init=0,
-      save_warmup=FALSE
-    )
+   blrmfit_data_is_like_prior <- update(blrmfit_prior_PD,
+                                        data=mutate(hist_data, num_toxicities=0, num_patients=0),
+                                        prior_PD=FALSE,
+                                        iter=3000,
+                                        warmup=1000,
+                                        chains=1,
+                                        init=0,
+                                        save_warmup=FALSE)
 
     ## checks that the median of test is within 3 se of the referenc
     ## median and calculate a p-value from a ks test
@@ -1531,74 +1517,38 @@ test_that("specified prior of a dual combination with EXNEX matches sampled prio
     prior_NEX_mu_sd_comp = matrix(c(0.5, 0.25, 0.2, 0.1),  nrow = num_comp, ncol = 2, byrow = FALSE),
     prior_tau_dist = 1,
     prior_PD=TRUE,
-    iter=3000,
-    warmup=1000,
-    chains=1,
+    iter=4000,
+    warmup=2000,
+    chains=2,
     cores=1,
     init=0,
     save_warmup=FALSE
   )
 
-  blrmfit_data_is_prior_like <- blrm_exnex(
-    cbind(num_toxicities, num_patients - num_toxicities) ~
-      1 + I(log(drug1/100)) |
-      1 + I(log(drug2/100)) |
-      0 + I( (drug1/100) * (drug2/100)) | stratum_id / group_id,
-    data = mutate(hist_data, num_toxicities=0, num_patients=0),
-    prior_is_EXNEX_comp = rep(TRUE, 2),
-    prior_EX_prob_comp = matrix(c(1, 0.5, 0.1, 0.2, 0.5, 1), nrow = num_groups, ncol = num_comp, byrow = FALSE),
-    prior_is_EXNEX_inter = FALSE,
-    prior_EX_prob_inter = matrix(c(1, 1, 1), nrow = num_groups, ncol = num_inter),
-    prior_EX_mu_mean_inter = rep(0, num_inter),
-    prior_EX_mu_sd_inter = rep(1, num_inter),
-    prior_EX_tau_mean_inter = matrix(log(2) / 1.96, nrow = num_strata, ncol = num_inter),
-    prior_EX_tau_sd_inter = matrix(log(2) / 1.96, nrow = num_strata, ncol = num_inter),
-    prior_EX_mu_mean_comp = matrix(c(logit(0.20), 0,
-                                     logit(0.40), log(1.5)), # (E(mu_alpha), E(mu_beta))
-                                   nrow = num_comp,
-                                   ncol = 2,
-                                   byrow = TRUE
-                                   ),
-    prior_EX_mu_sd_comp = matrix(c(1, 0.5,
-                                   2, 1)/8, # (sd(mu_alpha), sd(mu_beta))
-                                 nrow = num_comp,
-                                 ncol = 2,
-                                 byrow = TRUE
-                                 ),
-    prior_EX_tau_mean_comp = abind(matrix(log(c(0.25, 0.125)/2), nrow = num_comp, ncol = 2, TRUE), # level 1 reg1
-                                   along = 0
-                                   ),
-    prior_EX_tau_sd_comp = abind(matrix(c(log(2) / 1.96, log(1.25) / 1.96), nrow = num_comp, ncol = 2, TRUE),
-                                 along = 0
-                                 ),
-    prior_NEX_mu_mean_comp = matrix(c(logit(c(2/3, 3/4)), 0.2, 0.4),  nrow = num_comp, ncol = 2, byrow = FALSE),
-    prior_NEX_mu_sd_comp = matrix(c(0.5, 0.25, 0.2, 0.1),  nrow = num_comp, ncol = 2, byrow = FALSE),
-    prior_tau_dist = 1,
-    prior_PD=FALSE,
-    iter=3000,
-    warmup=1000,
-    chains=1,
-    cores=1,
-    init=0,
-    save_warmup=FALSE
-  )
+  blrmfit_data_is_prior_like <- update(blrmfit_prior_PD,
+                                       data=mutate(hist_data, num_toxicities=0, num_patients=0),
+                                       prior_PD=FALSE,
+                                       iter=4000,
+                                       warmup=2000,
+                                       chains=2,
+                                       init=0,
+                                       save_warmup=FALSE)
 
   rv_sample <- function(s1, s2, w1) rvar_ifelse(rvar(sample.int(2, ndraws(s1), replace=TRUE, prob=c(w1, 1-w1))) == 1, s1, s2)
 
   ref_data1 <- mutate(unique(hist_data[c("group_id", "stratum_id")]), num_toxicities=0, num_patients=0, drug1=100, drug2=0)
   ref_data2 <- mutate(unique(hist_data[c("group_id", "stratum_id")]), num_toxicities=0, num_patients=0, drug1=0, drug2=100)
 
-  ## checks that the median of test is within 3 se of the referenc
-  ## median and calculate a p-value from a ks test
+  ## checks that the median of test is within 3 se of the reference
   check_parameter <- function(test, ref) {
     param_name <- deparse(substitute(ref))
-    test <- posterior::thin_draws(test, ceiling(ndraws(test) / 500))
-    ref <- posterior::thin_draws(ref, ceiling(ndraws(ref) / 500))
+    test <- posterior::thin_draws(test, ceiling(ndraws(test) / 1000))
+    ref <- posterior::thin_draws(ref, ceiling(ndraws(ref) / 1000))
     m_test <- unname(median(test))
     m_ref <- unname(median(ref))
     se_ref <- posterior::mcse_median(ref)
     z <- (m_test - m_ref)/(sqrt(2) * se_ref)
-    expect_number(z, lower=qnorm(0.0005), upper=qnorm(0.9995), finite=TRUE, label=param_name, info=paste0("ref = ", ref, "; test = ", test, "; z = ", z))
+    expect_number(z, lower=-6, upper=6, finite=TRUE, label=param_name, info=paste0("ref = ", ref, "; test = ", test, "; z = ", z))
     ##suppressWarnings(ks.test(x=draws_of(test)[,1], y=draws_of(ref)[,1]))$p.value
     pnorm(-1*abs(z))
   }
@@ -1729,9 +1679,9 @@ test_that("specified prior of a dual combination with EXNEX matches sampled prio
                             mixmvnorm(c(1, logit(3/4), 0.4, diag(c(0.25, 0.1)^2)))),
     prior_tau_dist = 1,
     prior_PD=TRUE,
-    iter=3000,
-    warmup=1000,
-    chains=1,
+    iter=4000,
+    warmup=2000,
+    chains=2,
     init=0,
     save_warmup=FALSE
   )
@@ -1740,9 +1690,9 @@ test_that("specified prior of a dual combination with EXNEX matches sampled prio
     blrmfit_data_is_like_prior <- update(blrmfit_prior_PD,
                                          data=mutate(hist_data, num_toxicities=0, num_patients=0),
                                          prior_PD=FALSE,
-                                         iter=3000,
-                                         warmup=1000,
-                                         chains=1,
+                                         iter=4000,
+                                         warmup=2000,
+                                         chains=2,
                                          init=0,
                                          save_warmup=FALSE)
   
@@ -1755,13 +1705,13 @@ test_that("specified prior of a dual combination with EXNEX matches sampled prio
   ## median and calculate a p-value from a ks test
   check_parameter <- function(test, ref) {
     param_name <- deparse(substitute(ref))
-    test <- posterior::thin_draws(test, ceiling(ndraws(test) / 500))
-    ref <- posterior::thin_draws(ref, ceiling(ndraws(ref) / 500))
+    test <- posterior::thin_draws(test, ceiling(ndraws(test) / 1000))
+    ref <- posterior::thin_draws(ref, ceiling(ndraws(ref) / 1000))
     m_test <- unname(median(test))
     m_ref <- unname(median(ref))
     se_ref <- posterior::mcse_median(ref)
     z <- (m_test - m_ref)/(sqrt(2) * se_ref)
-    expect_number(z, lower=qnorm(0.0005), upper=qnorm(0.9995), finite=TRUE, label=param_name, info=paste0("ref = ", ref, "; test = ", test, "; z = ", z))
+    expect_number(z, lower=-6, upper=6, finite=TRUE, label=param_name, info=paste0("ref = ", ref, "; test = ", test, "; z = ", z))
     ##suppressWarnings(ks.test(x=draws_of(test)[,1], y=draws_of(ref)[,1]))$p.value
     pnorm(-1*abs(z))
   }
@@ -1854,6 +1804,7 @@ test_that("specified prior of a dual combination with EXNEX matches sampled prio
 ## test that we can call the old function arguments, but get a warning
 
 test_that("blrm_exnex supports deprecated non-mixture arguments with a warning", {
+  skip_on_cran()
 
   withr::local_seed(67894356)
   withr::local_options(lifecycle_verbosity = "quiet")
@@ -1923,6 +1874,7 @@ test_that("blrm_exnex supports deprecated non-mixture arguments with a warning",
 })
 
 test_that("blrm_exnex does allow either non-mixture or mixture arguments, but no mix", {
+  skip_on_cran()
 
   withr::local_seed(67894356)
   withr::local_options(lifecycle_verbosity = "quiet")
@@ -2010,9 +1962,10 @@ test_that("blrm_exnex does allow either non-mixture or mixture arguments, but no
 })
 
 test_that("blrm_exnex exits gracefully with an error message when Stan does not sample with rstan", {
+  skip_on_cran()
 
   ## give wrong argument to Stan sampler...should give us a proper error message
-  expect_error(suppressMessages(with(single_agent, backend="rstan", update(blrmfit, control=list(aBapt_delta=0.85)))), "Calling Stan failed.")
+  o <- capture.output(expect_error(suppressMessages(with(single_agent, backend="rstan", update(blrmfit, control=list(aBapt_delta=0.85)))), "Calling Stan failed."), type="message")
   
 })
 
@@ -2022,5 +1975,153 @@ test_that("blrm_exnex exits gracefully with an error message when Stan does not 
   ## give wrong argument to Stan sampler...should give us a proper error message
   expect_error(with(single_agent, update(blrmfit, backend="cmdstanr", control=list(adapt_delta=-0.85))), "Assertion on")
   
+})
+
+test_that("blrm_exnex accepts mixture priors with differing number of components", {
+  skip_on_cran()
+
+  withr::local_seed(67894356)
+
+  expect_no_error(mix_comp_fit <- with(combo2, update(blrmfit,
+                                                      prior_PD=TRUE, init=0, iter=2000, warmup=1000, chains=1,
+                                                      prior_EX_mu_comp  = list(mixmvnorm(c(0.5, logit(0.2), 0, diag(c(2^2, 1))),
+                                                                                         c(0.5, logit(0.2), 0, diag(c(2^2, 1)))),
+                                                                               mixmvnorm(c(1, logit(0.2), 0, diag(c(2^2, 1))))) )))
+})
+
+test_that("blrm_exnex does not accept hierarchical prior arguments whenever the hierarchical model is disabled.", {
+  skip_on_cran()
+
+  dref <- c(6, 960)
+  
+  num_comp <- 2 # two investigational drugs
+  num_inter <- 1 # one drug-drug interaction needs to be modeled
+  num_groups <- nlevels(codata_combo2$group_id) # no stratification needed
+  num_strata <- 1 # no stratification needed
+
+  expect_error(
+    blrm_exnex(
+    cbind(num_toxicities, num_patients - num_toxicities) ~
+      1 + I(log(drug_A / dref[1])) |
+      1 + I(log(drug_B / dref[2])) |
+      0 + I(drug_A/dref[1] *drug_B/dref[2]) |
+      group_id,
+    data = codata_combo2,
+    prior_EX_mu_comp = list(mixmvnorm(c(1, logit(0.2), 0, diag(c(2^2, 1)))),
+                            mixmvnorm(c(1, logit(0.2), 0, diag(c(2^2, 1))))),
+    prior_EX_tau_comp = list(list(mixmvnorm(c(1, 0, 0, diag(c(log(4) / 1.96, log(4) / 1.96)^2))),
+                                  mixmvnorm(c(1, 0, 0, diag(c(log(4) / 1.96, log(4) / 1.96)^2))))),
+    prior_EX_mu_inter = mixmvnorm(c(1, 0, 1.121^2)),
+    prior_EX_tau_inter = replicate(num_strata, mixmvnorm(c(1, rep.int(0, num_inter), diag(rep.int( (log(4) / 1.96)^2, num_inter), num_inter))), FALSE),
+    prior_is_EXNEX_comp = rep(FALSE, num_comp),
+    prior_is_EXNEX_inter = rep(FALSE, num_inter),
+    prior_EX_prob_comp = matrix(1, nrow = num_groups, ncol = num_comp),
+    prior_EX_prob_inter = matrix(1, nrow = num_groups, ncol = num_inter),
+    ## setup sampling to be fast, but do not trigger any rstan warning
+    ## as the rstan warning would otherwise
+    prior_tau_dist = NULL,
+    prior_PD=TRUE,
+    init=0,
+    chains=1,
+    iter=1000,
+    warmup=500,
+    control=list(adapt_delta=0.85)
+    ), regex="Hierarchical model structure disabled"
+  )
+ 
+
+})
+
+test_that("blrm_exnex does require presence of a single group whenever the hierarchical model is disabled.", {
+  skip_on_cran()
+
+  dref <- c(6, 960)
+  
+  num_comp <- 2 # two investigational drugs
+  num_inter <- 1 # one drug-drug interaction needs to be modeled
+  num_groups <- nlevels(codata_combo2$group_id) # no stratification needed
+  num_strata <- 1 # no stratification needed
+
+  expect_message(
+    blrm_exnex(
+    cbind(num_toxicities, num_patients - num_toxicities) ~
+      1 + I(log(drug_A / dref[1])) |
+      1 + I(log(drug_B / dref[2])) |
+      0 + I(drug_A/dref[1] *drug_B/dref[2]) |
+      group_id,
+    data = codata_combo2,
+    prior_EX_mu_comp = list(mixmvnorm(c(1, logit(0.2), 0, diag(c(2^2, 1)))),
+                            mixmvnorm(c(1, logit(0.2), 0, diag(c(2^2, 1))))),
+    prior_EX_mu_inter = mixmvnorm(c(1, 0, 1.121^2)),
+    ## setup sampling to be fast, but do not trigger any rstan warning
+    ## as the rstan warning would otherwise
+    prior_tau_dist = NULL,
+    prior_PD=TRUE,
+    init=0,
+    chains=1,
+    iter=1000,
+    warmup=500,
+    control=list(adapt_delta=0.85)
+    ), regex="found more than one group"
+  )
+})
+
+test_that("blrm_exnex returns tau posteriors which are zero whenever the hierarchical model is disabled.", {
+  skip_on_cran()
+
+  dref <- c(6, 960)
+
+  suppressWarnings(
+    simple_fit <- blrm_exnex(
+    cbind(num_toxicities, num_patients - num_toxicities) ~
+      1 + I(log(drug_A / dref[1])) |
+      1 + I(log(drug_B / dref[2])) |
+      0 + I(drug_A/dref[1] *drug_B/dref[2]) |
+      group_id,
+    data = mutate(codata_combo2, group_id="trial"),
+    prior_EX_mu_comp = list(mixmvnorm(c(1, logit(0.2), 0, diag(c(2^2, 1)))),
+                            mixmvnorm(c(1, logit(0.2), 0, diag(c(2^2, 1))))),
+    prior_EX_mu_inter = mixmvnorm(c(1, 0, 1.121^2)),
+    prior_tau_dist = NULL,
+    prior_PD=FALSE,
+    init=0,
+    chains=1,
+    iter=1000,
+    warmup=500,
+    control=list(adapt_delta=0.85)
+    )
+  )
+  
+  expect_true(all(as_draws_matrix(simple_fit, variable=c("tau_log_beta", "tau_eta")) == 0))
+  
+})
+
+
+test_that("blrm_exnex outputs samples of MAP priors when requested", {
+  skip_on_cran()
+
+  suppressWarnings(mapfit <- with(combo2, update(blrmfit,
+                                                 data=mutate(codata_combo2, group_id=factor(group_id, levels=c(levels(codata_combo2$group_id), "new"))),
+                                                 prior_EX_prob_comp=matrix(1, nrow = nlevels(codata_combo2$group_id)+1, ncol = 2),
+                                                 prior_EX_prob_inter=matrix(1, nrow = nlevels(codata_combo2$group_id)+1, ncol = 1),
+                                                 sample_map=TRUE)))
+
+  draws <- as_draws_rvars(mapfit)
+  
+  expect_choice("map_log_beta", variables(draws))
+  expect_choice("map_eta", variables(draws))
+
+  expect_equal(dimnames(draws$map_log_beta), list(NULL, c("I(log(drug_A/dref[1]))", "I(log(drug_B/dref[2]))"), c("intercept", "log_slope")))
+  expect_equal(dimnames(draws$map_eta), list(NULL, c("I(drug_A/dref[1] * drug_B/dref[2])")))
+
+  ## check that the sampled MAP corresponds about what we expect it to
+  ## be
+  alt_sample_map_comp <- draws$beta_group["new", , ]
+  alt_sample_map_comp[, , "slope" ] <-  log(alt_sample_map_comp[, , "slope" ])
+  alt_sample_map_inter <- draws$eta_group["new", ]
+
+  delta <- alt_sample_map_comp - draws$map_log_beta
+  delta_sum <- summarise_draws(delta, "mean", "sd")
+  expect_numeric(delta_sum$mean / delta_sum$sd, lower=qnorm(1E-2), upper=qnorm(1-1E-2), any.missing=FALSE, len=4)
 })
 

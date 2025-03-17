@@ -116,7 +116,13 @@
 #'   \code{FALSE} is assumed for all interactions.
 #' @param prior_tau_dist Defines the distribution used for
 #'   heterogeniety parameters. Choices are 0=fixed to it's mean,
-#'   1=log-normal, 2=truncated normal.
+#'   1=log-normal, 2=truncated normal or \code{NULL} shutting off the
+#'   hierarchical structure of the model.
+#' @param sample_map Logical flag (defaults to \code{FALSE})
+#'   controlling inclusion of MAP priors for each stratum defined as
+#'   part of the generated posterior. If set to \code{TRUE} then the
+#'   posterior samples will contain \code{map_log_beta} and
+#'   \code{map_eta} variables.
 #' @param prior_PD Logical flag (defaults to \code{FALSE}) indicating
 #'   if to sample the prior predictive distribution instead of
 #'   conditioning on the data.
@@ -421,6 +427,9 @@ blrm_exnex <- function(formula,
                        prior_NEX_mu_mean_inter,
                        prior_NEX_mu_sd_inter,
                        prior_tau_dist,
+
+                       sample_map=FALSE,
+                       
                        iter = getOption("OncoBayes2.MC.iter", 2000),
                        warmup = getOption("OncoBayes2.MC.warmup", 1000),
                        save_warmup = getOption("OncoBayes2.MC.save_warmup", TRUE),
@@ -517,7 +526,8 @@ blrm_exnex <- function(formula,
                 msg=paste0("Found deprecated (", paste0(deprecated_args, collapse=", "), ") and not deprecated arguments for specification of the prior.\nPlease update all prior arguments to use mixture prior arguments."))
   }
   use_non_mixture_prior_args <- any(prior_args %in% non_mixture_prior_args)
-  
+
+
 
   ## we only support a single LHS
   assert_that(length(f)[1] == 1)
@@ -561,7 +571,7 @@ blrm_exnex <- function(formula,
 
   group_fct <- group_index_term[, idx_group_index]
   if (!is.factor(group_fct)) {
-    group_fct <- factor(group_index)
+    group_fct <- factor(group_fct)
   }
   group_index <- as.integer(unclass(group_fct))
   num_groups <- nlevels(group_fct)
@@ -606,6 +616,36 @@ blrm_exnex <- function(formula,
   num_inter <- ncol(X_inter)
   has_inter <- num_inter > 0
 
+  ## check if the EXNEX part of the model is turned off
+  assert_number(prior_tau_dist, lower = 0, upper = 2, null.ok = TRUE)
+  stan_prior_tau_dist <- prior_tau_dist
+  if(is.null(prior_tau_dist)) {
+    ## in this case we do not allow for any of the EXNEX arguments for
+    ## the heterogeneity or the EXNEX probabilities as we set these
+    ## here such that this bit of the model is turned off.
+    hierarchical_args <- c("prior_EX_tau_comp", "prior_EX_tau_mean_comp", "prior_EX_tau_sd_comp",
+                           "prior_EX_tau_inter", "prior_EX_tau_mean_inter", "prior_EX_tau_sd_inter",
+                           "prior_is_EXNEX_comp", "prior_is_EXNEX_inter")
+    assert_that(sum(names(call) %in% hierarchical_args) == 0, msg=paste0("Hierarchical model structure disabled (prior_tau_dist=NULL), but found disabled arguments: ", paste(intersect(names(call), hierarchical_args), collapse=", ")))
+
+    if(num_groups != 1) {
+      message("Hierarchical model structure disabled, but found more than one group which will be pooled.")
+    }
+    if(num_strata != 1) {
+      message("Hierarchical model structure disabled, but found more than one stratum which will be ignored.")
+    }
+
+    prior_EX_tau_comp <- rep.int(replicate(num_comp, mixmvnorm(c(1, c(0, 0), diag(c(1, 1)))), FALSE), num_strata)
+    if(has_inter) {
+      prior_EX_tau_inter <- replicate(num_strata, mixmvnorm(c(1, rep(0, num_inter), diag(1, num_inter, num_inter))), FALSE)
+    }
+    prior_is_EXNEX_comp <- rep(FALSE, num_comp)
+    prior_is_EXNEX_inter <- rep(FALSE, num_inter)
+    prior_EX_prob_comp <- array(1, dim = c(num_groups, num_comp))
+    prior_EX_prob_inter <- array(1, dim = c(num_groups, num_inter))
+    stan_prior_tau_dist <- 0
+  } 
+  
   ## note: most of the consistency checks of the prior are left for
   ## Stan
 
@@ -865,8 +905,10 @@ blrm_exnex <- function(formula,
 
   assert_choice(backend, c("rstan", "cmdstanr"))
 
-  assert_number(prior_tau_dist, lower = 0, upper = 2)
+  assert_number(stan_prior_tau_dist, lower = 0, upper = 2)
 
+  assert_logical(sample_map, any.missing = FALSE, len = 1)
+  
   assert_logical(prior_PD, any.missing = FALSE, len = 1)
 
   stan_data <- c(
@@ -886,25 +928,14 @@ blrm_exnex <- function(formula,
       stratum = strata_index,
       group_stratum_cid = array(group_strata$strata_index),
       ## priors
-      prior_tau_dist = prior_tau_dist,
+      prior_tau_dist = stan_prior_tau_dist,
       prior_EX_prob_comp = prior_EX_prob_comp,
       prior_EX_prob_inter = prior_EX_prob_inter,
-      ## prior_EX_mu_mean_comp=prior_EX_mu_mean_comp,
-      ## prior_EX_mu_sd_comp=prior_EX_mu_sd_comp,
-      ## prior_EX_tau_mean_comp=prior_EX_tau_mean_comp,
-      ## prior_EX_tau_sd_comp=prior_EX_tau_sd_comp,
       prior_EX_corr_eta_comp = array(prior_EX_corr_eta_comp, num_comp),
-      ## prior_EX_mu_mean_inter=array(prior_EX_mu_mean_inter, num_inter),
-      ## prior_EX_mu_sd_inter=array(prior_EX_mu_sd_inter, num_inter),
-      ## prior_EX_tau_mean_inter=prior_EX_tau_mean_inter,
-      ## prior_EX_tau_sd_inter=prior_EX_tau_sd_inter,
       prior_EX_corr_eta_inter = prior_EX_corr_eta_inter,
-      ## prior_NEX_mu_mean_comp=prior_NEX_mu_mean_comp,
-      ## prior_NEX_mu_sd_comp=prior_NEX_mu_sd_comp,
-      ## prior_NEX_mu_mean_inter=array(prior_NEX_mu_mean_inter, num_inter),
-      ## prior_NEX_mu_sd_inter=array(prior_NEX_mu_sd_inter, num_inter),
       prior_is_EXNEX_comp = array(1 * prior_is_EXNEX_comp, num_comp),
       prior_is_EXNEX_inter = array(1 * prior_is_EXNEX_inter, num_inter),
+      sample_map = 1 * sample_map,
       prior_PD = 1 * prior_PD
     ),
     standata_prior_EX_mu_comp,
@@ -934,7 +965,7 @@ blrm_exnex <- function(formula,
       "beta_EX_prob", "eta_EX_prob"
     )
   }
-
+  
   stan_msg <- character(0)
   if (backend == "rstan") {
     ## SW: the below call can trigger spurious warnings whenever tau
@@ -1032,24 +1063,39 @@ blrm_exnex <- function(formula,
   labels <- list()
   labels$param_log_beta <- .make_label_factor(c("intercept", "log_slope"))
   labels$param_beta <- .make_label_factor(c("intercept", "slope"))
-  labels$component <- .make_label_factor(.abbreviate_label(sapply(X_comp_cols, "[", 2)))
-  stanfit <- .label_index(stanfit, "mu_log_beta", labels$component, labels$param_log_beta)
-  stanfit <- .label_index(stanfit, "tau_log_beta", strata_fct, labels$component, labels$param_log_beta)
+  labels$component <- .make_label_factor(.abbreviate_label(sapply(X_comp_cols,
+                                                                  "[", 2)))
+  stanfit <- .label_index(stanfit, "mu_log_beta",
+                          labels$component, labels$param_log_beta)
+  stanfit <- .label_index(stanfit, "tau_log_beta",
+                          strata_fct, labels$component, labels$param_log_beta)
   stanfit <- .label_index(stanfit, "rho_log_beta", labels$component)
-  stanfit <- .label_index(stanfit, "beta_group", group_fct, labels$component, labels$param_beta)
+  stanfit <- .label_index(stanfit, "beta_group", group_fct, labels$component,
+                          labels$param_beta)
   if (save_warmup) {
     stanfit <- .label_index(stanfit, "beta_EX_prob", group_fct, labels$component)
   }
   stanfit <- .label_index(stanfit, "log_lik_group", group_fct)
+  if (sample_map) {
+    stanfit <- .label_index(stanfit, "map_log_beta",
+                            strata_fct, labels$component, labels$param_log_beta)
+  }
+
   if (has_inter) {
     labels$param_eta <- .make_label_factor(.abbreviate_label(colnames(X_inter)))
     stanfit <- .label_index(stanfit, "eta_group", group_fct, labels$param_eta)
     if (save_warmup) {
-      stanfit <- .label_index(stanfit, "eta_EX_prob", group_fct, labels$param_eta)
+      stanfit <- .label_index(stanfit, "eta_EX_prob",
+                              group_fct, labels$param_eta)
     }
     stanfit <- .label_index(stanfit, "mu_eta", labels$param_eta)
     stanfit <- .label_index(stanfit, "tau_eta", strata_fct, labels$param_eta)
-    stanfit <- .label_index(stanfit, "Sigma_corr_eta", labels$param_eta, labels$param_eta)
+    stanfit <- .label_index(stanfit, "Sigma_corr_eta", labels$param_eta,
+                            labels$param_eta)
+    if (sample_map) {
+      stanfit <- .label_index(stanfit, "map_eta",
+                              strata_fct, labels$param_eta)
+    }
   }
 
   out <- list(

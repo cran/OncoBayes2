@@ -11,7 +11,8 @@ set_sampling_default <- function(iter, warmup, chains, cores = getOption("mc.cor
     OncoBayes2.MC.chains = chains,
     mc.cores = cores,
     OncoBayes2.MC.save_warmup = save_warmup,
-    OncoBayes2.MC.backend = backend
+    OncoBayes2.MC.backend = backend,
+    OncoBayes2.MC.control = control
   )
 }
 

@@ -12,6 +12,8 @@ trial_examples <- gold_runs$trial_examples
 test_that(
   "plot_toxicity_intervals_stacked.blrmfit works for single-agent example",
   {
+    skip_on_cran()
+  
     expect_gg(plot_toxicity_intervals_stacked(single_agent$blrmfit,
       x = vars(drug_A)
     ))
@@ -82,6 +84,8 @@ test_that(
 test_that(
   "plot_toxicity_intervals_stacked.blrmfit works for combo2 example",
   {
+    skip_on_cran()
+  
     a <- plot_toxicity_intervals_stacked(combo2$blrmfit,
       x = vars(drug_A),
       group = vars(group_id, drug_B)
@@ -118,6 +122,8 @@ test_that(
 test_that(
   "plot_toxicity_intervals_stacked.blrm_trial works for blrm_trial examples",
   {
+    skip_on_cran()
+  
     for (trial in trial_examples) {
       a <- plot_toxicity_intervals_stacked(trial)
       expect_gg(a)
@@ -156,6 +162,7 @@ test_that(
 
 test_that("plot_toxicity_curve.blrmfit renders single-agent plots correctly", {
   testthat::skip_on_cran()
+  
   testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
   testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
 
@@ -230,6 +237,7 @@ test_that("plot_toxicity_curve.blrmfit renders single-agent plots correctly", {
 
 test_that("plot_toxicity_intervals_stacked.blrmfit renders combo2 plots correctly", {
   testthat::skip_on_cran()
+  
   testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
   testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
 
@@ -291,6 +299,7 @@ test_that("plot_toxicity_intervals_stacked.blrmfit renders combo2 plots correctl
 for (ex in names(trial_examples)) {
   test_that(paste("plot_toxicity_intervals_stacked.blrm_trial renders", ex, "plots correctly"), {
     testthat::skip_on_cran()
+    
     testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
     testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
 
@@ -313,6 +322,8 @@ for (ex in names(trial_examples)) {
 
 test_that(
   "plot_toxicity_intervals_stacked() does not have jagged edges", {
+    skip_on_cran()
+  
     dose <- c(5, 10, 20, 40, 60, 80)
 
     drug_info <- tibble(

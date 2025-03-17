@@ -10,6 +10,8 @@ trial_examples <- gold_runs$trial_examples
 test_that(
   "plot_toxicity_intervals.blrmfit works for single-agent example",
   {
+    skip_on_cran()    
+    
     expect_gg(plot_toxicity_intervals(single_agent$blrmfit,
       x = vars(drug_A)
     ))
@@ -75,16 +77,18 @@ test_that(
 test_that(
   "plot_toxicity_intervals.blrmfit works for combo2 example",
   {
+    skip_on_cran()
+    
     a <- plot_toxicity_intervals(combo2$blrmfit,
-      x = vars(drug_A),
-      group = vars(group_id, drug_B)
-    )
+                                 x = vars(drug_A),
+                                 group = vars(group_id, drug_B)
+                                 )
 
 
     b <- plot_toxicity_intervals(combo2$blrmfit,
-      x = "drug_A",
-      group = c("group_id", "drug_B")
-    )
+                                 x = "drug_A",
+                                 group = c("group_id", "drug_B")
+                                 )
 
     expect_gg(a)
     expect_gg(b)
@@ -95,6 +99,8 @@ test_that(
 test_that(
   "plot_toxicity_intervals.blrm_trial works for blrm_trial examples",
   {
+    skip_on_cran()
+  
     for (trial in trial_examples) {
       a <- plot_toxicity_intervals(trial)
       expect_gg(a)
@@ -108,6 +114,7 @@ test_that(
 
 test_that("plot_toxicity_curve.blrmfit renders single-agent plots correctly", {
   testthat::skip_on_cran()
+  
   testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
   testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
 
@@ -134,6 +141,7 @@ test_that("plot_toxicity_curve.blrmfit renders single-agent plots correctly", {
 
 test_that("plot_toxicity_curve.blrmfit renders combo2 plots correctly", {
   testthat::skip_on_cran()
+  
   testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
   testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
 
@@ -157,6 +165,7 @@ test_that("plot_toxicity_curve.blrmfit renders combo2 plots correctly", {
 for (ex in names(trial_examples)) {
   test_that(paste("plot_toxicity_intervals.blrm_trial renders", ex, "plots correctly"), {
     testthat::skip_on_cran()
+    
     testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
     testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
 

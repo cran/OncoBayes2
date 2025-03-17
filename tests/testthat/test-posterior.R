@@ -124,29 +124,29 @@ check_trial_with_prior_posterior_functions(examples$combo2)
 
 # test S3 methods in alphabetical order
 test_that("as_draws and friends have resonable outputs", {
-  draws <- as_draws(combo2$blrmfit, variable = "mu_log_beta[1,1]")
+  draws <- as_draws(combo2$blrmfit, variable = "mu_log_beta[I(log(drug_A/dref[1])),intercept]")
   expect_s3_class(draws, "draws_list")
-  expect_equal(variables(draws), "mu_log_beta[1,1]")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/dref[1])),intercept]")
   expect_equal(ndraws(draws), nsamples(combo2$blrmfit))
 
-  draws <- suppressMessages(as_draws_matrix(combo2$blrmfit, variable = "mu_log_beta[1,1]"))
+  draws <- suppressMessages(as_draws_matrix(combo2$blrmfit, variable = "mu_log_beta[I(log(drug_A/dref[1])),intercept]"))
   expect_s3_class(draws, "draws_matrix")
-  expect_equal(variables(draws), "mu_log_beta[1,1]")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/dref[1])),intercept]")
   expect_equal(ndraws(draws), nsamples(combo2$blrmfit))
 
-  draws <- as_draws_array(combo2$blrmfit, variable = "mu_log_beta[1,1]")
+  draws <- as_draws_array(combo2$blrmfit, variable = "mu_log_beta[I(log(drug_A/dref[1])),intercept]")
   expect_s3_class(draws, "draws_array")
-  expect_equal(variables(draws), "mu_log_beta[1,1]")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/dref[1])),intercept]")
   expect_equal(ndraws(draws), nsamples(combo2$blrmfit))
 
-  draws <- as_draws_df(combo2$blrmfit, variable = "mu_log_beta[1,1]")
+  draws <- as_draws_df(combo2$blrmfit, variable = "mu_log_beta[I(log(drug_A/dref[1])),intercept]")
   expect_s3_class(draws, "draws_df")
-  expect_equal(variables(draws), "mu_log_beta[1,1]")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/dref[1])),intercept]")
   expect_equal(ndraws(draws), nsamples(combo2$blrmfit))
   
-  draws <- as_draws_list(combo2$blrmfit, variable = "mu_log_beta[1,1]")
+  draws <- as_draws_list(combo2$blrmfit, variable = "mu_log_beta[I(log(drug_A/dref[1])),intercept]")
   expect_s3_class(draws, "draws_list")
-  expect_equal(variables(draws), "mu_log_beta[1,1]")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/dref[1])),intercept]")
   expect_equal(ndraws(draws), nsamples(combo2$blrmfit))
   
   draws <- as_draws_rvars(combo2$blrmfit)
@@ -154,3 +154,12 @@ test_that("as_draws and friends have resonable outputs", {
   expect_true(nvariables(draws) > 0)
   expect_equal(ndraws(draws), nsamples(combo2$blrmfit))
 })
+
+test_that("as_draws_rvars exports dimension labels", {
+  rv <- as_draws_rvars(combo2$blrmfit, variable = "beta_group")
+  ref_dimnames <- list(c("trial_A", "trial_B", "IIT", "trial_AB"),
+                       c("I(log(drug_A/dref[1]))", "I(log(drug_B/dref[2]))"),
+                       c("intercept", "slope"))
+  expect_equal(dimnames(rv$beta_group), ref_dimnames)
+})
+

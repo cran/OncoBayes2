@@ -488,7 +488,7 @@ check_bind_rows_0_error_on_NA <- function() {
   )
 
   ## Check for error in case of NAs present
-  expect_error(bind_rows_0(example_A))
+  o <- capture.output(expect_error(bind_rows_0(example_A)), type=c("message"))
 }
 
 test_that(
@@ -1306,7 +1306,7 @@ check_trial_with_EXNEX_prior <- function(example) {
     suppressWarnings(trial <- blrm_trial(histdata, dose_info, drug_info))
     expect_output(print(trial))
     trial <- set_prior_EXNEX(trial)
-    expect_output(print(trial))
+    suppressWarnings(expect_output(print(trial)))
   })
 }
 
@@ -1419,6 +1419,8 @@ test_that(
 )
 
 check_ewoc_warnings <- function(example) {
+  skip_on_cran()
+  
   with(example, {
     dose_info2 <- dose_info[1, ]
     dose_info2[, drug_info$drug_name] <- lapply(dose_info2[, drug_info$drug_name], as.numeric)

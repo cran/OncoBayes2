@@ -1,6 +1,8 @@
 ## ----SETTINGS-knitr, include=FALSE--------------------------------------------
 ## knitr settings used to build vignettes
 library(OncoBayes2)
+library(posterior)
+library(RBesT)
 library(knitr)
 library(ggplot2)
 ggplot2::theme_set(bayesplot::bayesplot_theme_get())
@@ -8,7 +10,7 @@ knitr::knit_hooks$set(pngquant = knitr::hook_pngquant)
 knitr::opts_chunk$set(
   dev = "ragg_png",
   dpi = 72,
-  fig.retina = 2,
+  fig.retina = 1.5,
   fig.width = 1.62*4,
   fig.height = 4,
   fig.align = "center",
@@ -19,16 +21,16 @@ knitr::opts_chunk$set(
 ## ----SETTINGS-sampling, include=FALSE-----------------------------------------
 ## sampling settings used to build vignettes
 ## setup up fast sampling when run on CRAN
-is_CRAN <- Sys.getenv("NOT_CRAN", "true") != "true"
+not_CRAN <- Sys.getenv("NOT_CRAN", "false") == "true" 
 ## NOTE: for running this vignette locally, please uncomment the
 ## following line:
-## is_CRAN <- FALSE
+## not_CRAN <- TRUE
 .user_mc_options <- list()
 
-if (is_CRAN) {
-.user_mc_options <- options(OncoBayes2.MC.warmup=10, OncoBayes2.MC.iter=20, OncoBayes2.MC.chains=1, OncoBayes2.MC.save_warmup=FALSE, mc.cores=1)
+if (!not_CRAN) {
+    .user_mc_options <- options(OncoBayes2.MC.warmup=40, OncoBayes2.MC.iter=100, OncoBayes2.MC.chains=1, OncoBayes2.MC.save_warmup=FALSE, OncoBayes2.MC.control = list(adapt_delta=0.85), mc.cores=1)
 } else {
-.user_mc_options <- options(OncoBayes2.MC.warmup=500, OncoBayes2.MC.iter=1000, OncoBayes2.MC.chains=4, OncoBayes2.MC.save_warmup=FALSE, mc.cores=1)
+    .user_mc_options <- options(OncoBayes2.MC.warmup=500, OncoBayes2.MC.iter=1000, OncoBayes2.MC.chains=4, OncoBayes2.MC.save_warmup=FALSE, OncoBayes2.MC.control = list(adapt_delta=0.99), mc.cores=1)
 }
 set.seed(6475863)
 

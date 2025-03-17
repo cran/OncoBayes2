@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Andrew Bean, Sebastian Weber, Lukas Widmer" />
+
+<meta name="date" content="2025-03-17" />
+
+<title>Meta-Analytic-Predictive (MAP) approach for dose-toxicity modelling</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Meta-Analytic-Predictive (MAP) approach for
+dose-toxicity modelling</h1>
+<h4 class="author">Andrew Bean, Sebastian Weber, Lukas Widmer</h4>
+<h4 class="date">2025-03-17</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#application-background" id="toc-application-background"><span class="toc-section-number">2</span> Application background</a>
+<ul>
+<li><a href="#historical-data" id="toc-historical-data"><span class="toc-section-number">2.1</span> Historical data</a></li>
+</ul></li>
+<li><a href="#derivation-of-map-priors" id="toc-derivation-of-map-priors"><span class="toc-section-number">3</span> Derivation of MAP priors</a>
+<ul>
+<li><a href="#drug-a-model" id="toc-drug-a-model"><span class="toc-section-number">3.1</span> Drug A model</a></li>
+<li><a href="#drug-b-model" id="toc-drug-b-model"><span class="toc-section-number">3.2</span> Drug B model</a></li>
+<li><a href="#extraction-of-map-priors" id="toc-extraction-of-map-priors"><span class="toc-section-number">3.3</span> Extraction of MAP priors</a>
+<ul>
+<li><a href="#mcmc-samples" id="toc-mcmc-samples"><span class="toc-section-number">3.3.1</span> MCMC samples</a></li>
+<li><a href="#mixture-approximation" id="toc-mixture-approximation"><span class="toc-section-number">3.3.2</span> Mixture approximation</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#combination-model-with-map-priors-for-the-new-study" id="toc-combination-model-with-map-priors-for-the-new-study"><span class="toc-section-number">4</span> Combination model with MAP priors
+for the new study</a>
+<ul>
+<li><a href="#robustification" id="toc-robustification"><span class="toc-section-number">4.1</span> Robustification</a></li>
+</ul></li>
+<li><a href="#equivalence-of-map-and-mac-advanced" id="toc-equivalence-of-map-and-mac-advanced"><span class="toc-section-number">5</span> Equivalence of MAP and MAC
+(advanced)</a></li>
+<li><a href="#appendix-model-specification" id="toc-appendix-model-specification"><span class="toc-section-number">6</span> Appendix: Model specification</a>
+<ul>
+<li><a href="#combination-blrm-new-study-model" id="toc-combination-blrm-new-study-model"><span class="toc-section-number">6.1</span> Combination BLRM (new study
+model)</a>
+<ul>
+<li><a href="#prior-specification" id="toc-prior-specification"><span class="toc-section-number">6.1.1</span> Prior specification</a></li>
+</ul></li>
+<li><a href="#meta-analytic-models-for-the-historical-data" id="toc-meta-analytic-models-for-the-historical-data"><span class="toc-section-number">6.2</span> Meta-analytic models for the
+historical data</a>
+<ul>
+<li><a href="#prior-specification-1" id="toc-prior-specification-1"><span class="toc-section-number">6.2.1</span> Prior specification</a></li>
+</ul></li>
+<li><a href="#hierarchical-model-for-combined-data-mac" id="toc-hierarchical-model-for-combined-data-mac"><span class="toc-section-number">6.3</span> Hierarchical model for combined
+data (MAC)</a></li>
+</ul></li>
+<li><a href="#session-info" id="toc-session-info"><span class="toc-section-number">7</span> Session Info</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>A common characteristic of modern applications of the Bayesian
+Logistic Regression Model (BLRM) for model-based dose escalation is the
+availability of relevant historical data on the study treatment(s). For
+example, studies testing novel combination therapies may wish to
+incorporate available dose-toxicity data on the individual agents from
+single-agent dose escalation trials.</p>
+<p>There are two broad categories for statistical approaches to
+this:</p>
+<ul>
+<li>Meta-Analytic Combined (MAC) approaches use a hierarchical model to
+jointly analyze both the historical data and data from the current
+study. External data from concurrently running trials may also be
+incorporated in such an approach. The <a href="introduction.html">introductory vignette</a> illustrates this
+approach.</li>
+<li>Meta-Analytic Predictive (MAP) approaches involve two stages. In the
+first, an initial hierarchical model is estimated from the historical
+data, and from this model one extracts a posterior prediction for the
+trial-level parameters in a future trial. The posterior prediction is
+then approximated in parametric form which is used as MAP prior in the
+future trial.</li>
+</ul>
+<p>These two approaches are statistically equivalent to each other
+(provided the parametric representation of the MAP prior is exact), but
+differ in the “modelling workflow.” While the MAC approach is a
+prospective approach enabling to include even concurrent data to borrow
+from, the MAP approach is retrospective in that the historical data is
+summarized once and usually taken as immutable and static. The MAP
+approach has the advantage when designing prospectively a future study
+that we can pre-specify (and hence document in a statistical analysis
+plan) the information borrowed from the historical data and the model
+used for the future study becomes structurally simpler, since there is
+often no more a need for a hierarchical model structure at that
+stage.</p>
+<p>The recommended reference for more details on these approaches, how
+they relate to each other, and how they are applied in the dose-toxicity
+setting is explained in Neuenschwander et al (2016).</p>
+<p>In this vignette, we illustrate the implementation of the MAP
+approach, and describe its usage for safety monitoring in a realistic
+application.</p>
+<p>Initial R session setup:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(OncoBayes2)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(RBesT)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(posterior)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(knitr)</span></code></pre></div>
+</div>
+<div id="application-background" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Application
+background</h1>
+<p>We consider a case study involving a Phase-I dose-escalation study of
+a combination therapy of two compounds, drug A and drug B, in a
+population of adult patients with solid-tumor cancers. The primary
+objective of the study was to identify the Maximum Tolerated Dose (MTD)
+or Recommended Phase-2 Dose (RP2D) of the combination.</p>
+<div id="historical-data" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Historical data</h2>
+<p>In this application, each of the two compounds had previously been
+tested in single-agent Phase-I dose escalation studies. MTDs had been
+declared for each drug:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Drug</th>
+<th align="left">Declared MTD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">Drug A</td>
+<td align="left">100mg</td>
+</tr>
+<tr>
+<td align="left">Drug B</td>
+<td align="left">3mg</td>
+</tr>
+</tbody>
+</table>
+<p>These declarations had been made on the basis of the following
+dose-toxicity data from the two single-agent studies.</p>
+<table>
+<caption>Historical data from single-agent study of Drug A</caption>
+<thead>
+<tr>
+<th align="right">Drug A</th>
+<th align="right">Evaluable patients</th>
+<th align="right">DLTs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">12.5</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="right">25.0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="right">50.0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="right">80.0</td>
+<td align="right">9</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="right">100.0</td>
+<td align="right">23</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td align="right">150.0</td>
+<td align="right">3</td>
+<td align="right">2</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>Historical data from single-agent study of Drug B</caption>
+<thead>
+<tr>
+<th align="right">Drug B dose</th>
+<th align="right">Evaluable patients</th>
+<th align="right">DLTs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">0.125</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="right">0.250</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="right">0.500</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="right">1.000</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="right">2.000</td>
+<td align="right">3</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="right">2.500</td>
+<td align="right">7</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="right">3.000</td>
+<td align="right">12</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="right">4.000</td>
+<td align="right">3</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p>These data were understood to be highly relevant for informing prior
+beliefs about the single-agent contributions to the combination toxicity
+in the planned study. Therefore a MAP approach was taken to develop
+priors for the respective parameters - <span class="math inline">\(\alpha_A\)</span>, <span class="math inline">\(\beta_A\)</span>, <span class="math inline">\(\alpha_B\)</span>, and <span class="math inline">\(\beta_B\)</span> which are obtained by a
+meta-analysis of the historical data.</p>
+</div>
+</div>
+<div id="derivation-of-map-priors" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Derivation of MAP
+priors</h1>
+<p>In the MAP approach, we begin with meta-analytic hierarchical
+modelling of the historical data, accounting for the possibility of
+between-trial heterogeneity. It is important to note that this is done
+even for the case of a single historical study being available. The
+information on the between-trial heterogeneity relies in this case on
+the priors used for the heterogeneity. In practice log normal priors for
+the heterogeneity parameters based on the following table have worked
+well in many situations. The approach is to categorize the degree of
+heterogeneity between trials in terms of anticipated differences in the
+population and further factors which depend on a specific case:</p>
+<table>
+<caption>Heterogeneity categorization for intercept <span class="math inline">\(\alpha\)</span> and slope <span class="math inline">\(\beta\)</span></caption>
+<thead>
+<tr>
+<th align="left">Heterogeneity degree</th>
+<th align="right"><span class="math inline">\(\tau_\alpha\)</span></th>
+<th align="right"><span class="math inline">\(\tau_\beta\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">small</td>
+<td align="right">0.125</td>
+<td align="right">0.0625</td>
+</tr>
+<tr>
+<td align="left">moderate</td>
+<td align="right">0.250</td>
+<td align="right">0.1250</td>
+</tr>
+<tr>
+<td align="left">substantial</td>
+<td align="right">0.500</td>
+<td align="right">0.2500</td>
+</tr>
+<tr>
+<td align="left">large</td>
+<td align="right">1.000</td>
+<td align="right">0.5000</td>
+</tr>
+<tr>
+<td align="left">very large</td>
+<td align="right">2.000</td>
+<td align="right">1.0000</td>
+</tr>
+</tbody>
+</table>
+<p>Here we fit separate models to the historical drug-A and drug-B
+single-agent data. Note, equivalently, a single hierarchical
+double-combination model without any interaction could have been fit to
+those data, and would have produced the same MAP priors for the
+drug-level intercepts and slopes. A detailed specification of the models
+being fit below is given in Appendix 7.1.</p>
+<p>In this example we assume that the historical data for drug A comes
+from a relatively different population (for example different line of
+therapy) and the historical data for drug B stems from a very closely
+related patient population. This translates into respective choices for
+the between-trial heterogeneity priors according to the table above.</p>
+<div id="drug-a-model" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Drug A model</h2>
+<p>Implementation of this meta-analysis of single-agent data is done
+using <code>blrm_exnex()</code>. In order to obtain directly a sample of
+the MAP prior, we set the <code>sample_map</code> argument to
+<code>TRUE</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># historical data for drug A</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>hist_A <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">group_id =</span> <span class="fu">factor</span>(<span class="st">&quot;trial_A&quot;</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">drug_A =</span> <span class="fu">c</span>(<span class="fl">12.5</span>, <span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">80</span>, <span class="dv">100</span>, <span class="dv">150</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">num_patients =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">9</span>, <span class="dv">23</span>, <span class="dv">3</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">num_toxicities =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">2</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co"># reference dose for drug A</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>dref_A <span class="ot">&lt;-</span> <span class="dv">80</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co"># bivariate normal prior for (intercept, log-slope) </span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>prior_A <span class="ot">&lt;-</span> <span class="fu">mixmvnorm</span>(<span class="fu">c</span>(<span class="fl">1.0</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>                       <span class="fu">logit</span>(<span class="fl">0.2</span>), <span class="dv">0</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>                       <span class="fu">diag</span>(<span class="fu">c</span>(<span class="dv">1</span>, (<span class="fu">log</span>(<span class="dv">4</span>) <span class="sc">/</span> <span class="fl">1.96</span>)<span class="sc">^</span><span class="dv">2</span> ))))</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co"># between-trial heterogeneity is centered on &quot;substantial&quot;</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>tau_substantial_prior <span class="ot">&lt;-</span> <span class="fu">mixmvnorm</span>(<span class="fu">c</span>(<span class="fl">1.0</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>                                     <span class="fu">log</span>(<span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.25</span>)),</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>                                     <span class="fu">diag</span>(<span class="fu">rep</span>(<span class="fu">log</span>(<span class="dv">2</span>) <span class="sc">/</span> <span class="fl">1.96</span>, <span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span>)))</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co"># fit the model to the historical data</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>map_model_A <span class="ot">&lt;-</span> <span class="fu">blrm_exnex</span>(</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="fu">cbind</span>(num_toxicities, num_patients <span class="sc">-</span> num_toxicities) <span class="sc">~</span> </span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>    <span class="dv">1</span> <span class="sc">+</span> <span class="fu">log</span>(drug_A <span class="sc">/</span> dref_A) <span class="sc">|</span> </span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>    <span class="dv">0</span> <span class="sc">|</span> </span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>    group_id,</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>  <span class="at">data =</span> hist_A,</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>  <span class="at">prior_EX_mu_comp =</span> <span class="fu">list</span>(prior_A),</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  <span class="at">prior_EX_tau_comp =</span> tau_substantial_prior,</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="at">prior_EX_prob_comp =</span> <span class="fu">matrix</span>(<span class="dv">1</span>, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol =</span> <span class="dv">1</span>),</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>  <span class="at">prior_tau_dist =</span> <span class="dv">1</span>,</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>  <span class="at">sample_map =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="drug-b-model" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Drug B model</h2>
+<p>Similarly, for drug B:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># historical data for drug B</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>hist_B <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">group_id =</span> <span class="fu">factor</span>(<span class="st">&quot;trial_B&quot;</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">drug_B =</span> <span class="fu">c</span>(<span class="fl">0.125</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="fl">2.5</span>, <span class="dv">3</span>, <span class="dv">4</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">num_patients =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">12</span>, <span class="dv">3</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">num_toxicities =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co"># reference dose</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>dref_B <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co"># prior for (intercept, log-slope)</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>prior_B <span class="ot">&lt;-</span> prior_A</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co"># between-trial heterogeneity is centered on &quot;small&quot;, but with a</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co"># greater degree of uncertainty on this classification</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>tau_small_prior <span class="ot">&lt;-</span> <span class="fu">mixmvnorm</span>(<span class="fu">c</span>(<span class="fl">1.0</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>                               <span class="fu">log</span>(<span class="fu">c</span>(<span class="fl">0.125</span>, <span class="fl">0.0625</span>)),</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>                               <span class="fu">diag</span>(<span class="fu">rep</span>(<span class="fu">log</span>(<span class="dv">4</span>) <span class="sc">/</span> <span class="fl">1.96</span>, <span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span>)))</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co"># fit model to historical data</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>map_model_B <span class="ot">&lt;-</span> <span class="fu">blrm_exnex</span>(</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>  <span class="fu">cbind</span>(num_toxicities, num_patients <span class="sc">-</span> num_toxicities) <span class="sc">~</span> </span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>    <span class="dv">1</span> <span class="sc">+</span> <span class="fu">log</span>(drug_B <span class="sc">/</span> dref_B) <span class="sc">|</span> </span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>    <span class="dv">0</span> <span class="sc">|</span> </span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>    group_id,</span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>  <span class="at">data =</span> hist_B,</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>  <span class="at">prior_EX_mu_comp =</span> <span class="fu">list</span>(prior_B),</span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>  <span class="at">prior_EX_tau_comp =</span> tau_small_prior,</span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>  <span class="at">prior_EX_prob_comp =</span> <span class="fu">matrix</span>(<span class="dv">1</span>, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol =</span> <span class="dv">1</span>),</span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>  <span class="at">prior_tau_dist =</span> <span class="dv">1</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>  <span class="at">sample_map =</span> <span class="cn">TRUE</span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="extraction-of-map-priors" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> Extraction of MAP
+priors</h2>
+<p>We now illustrate how these meta-analytic model fits can be used to
+produce a parametric MAP prior for the new study intercepts and
+slopes.</p>
+<div id="mcmc-samples" class="section level3" number="3.3.1">
+<h3><span class="header-section-number">3.3.1</span> MCMC samples</h3>
+<p>Since we called <code>blrm_exnex</code> with the
+<code>sample_map=TRUE</code> argument, the posterior now contains the
+respective MAP prior MCMC samples for <code>&quot;map_log_beta&quot;</code>
+containing for each defined stratum (just one in our case) the MAP
+priors in MCMC form for intercept and slope. Here we extract these as
+<code>rvar</code> variables which simplifies working with the posterior
+draws.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>rvar_map_log_beta_A <span class="ot">&lt;-</span> <span class="fu">as_draws_rvars</span>(map_model_A, <span class="at">variable=</span><span class="st">&quot;map_log_beta&quot;</span>)<span class="sc">$</span>map_log_beta</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>rvar_map_log_beta_B <span class="ot">&lt;-</span> <span class="fu">as_draws_rvars</span>(map_model_B, <span class="at">variable=</span><span class="st">&quot;map_log_beta&quot;</span>)<span class="sc">$</span>map_log_beta</span></code></pre></div>
+<p>These are posteriors of 3-dimensional arrays with the dimensions
+stratum, drug component and coefficient. In the discussed example only a
+single stratum and single drug component (per fitted model) is present
+such that we directly select the respective entries of the array here
+(note that you may use names to access the respective entries in the
+array):</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>rvar_map_log_beta_A[<span class="dv">1</span>,<span class="st">&quot;log(drug_A/dref_A)&quot;</span>,,drop<span class="ot">=</span><span class="cn">TRUE</span>]</span></code></pre></div>
+<pre><code>## rvar&lt;500,4&gt;[2] mean ± sd:
+##     intercept     log_slope 
+## -1.73 ± 0.82   0.34 ± 0.72</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>rvar_map_log_beta_B[<span class="dv">1</span>,<span class="st">&quot;log(drug_B/dref_B)&quot;</span>,,drop<span class="ot">=</span><span class="cn">TRUE</span>]</span></code></pre></div>
+<pre><code>## rvar&lt;500,4&gt;[2] mean ± sd:
+##     intercept     log_slope 
+## -2.74 ± 0.62  -0.45 ± 0.53</code></pre>
+</div>
+<div id="mixture-approximation" class="section level3" number="3.3.2">
+<h3><span class="header-section-number">3.3.2</span> Mixture
+approximation</h3>
+<p>In order to leverage these MAP distributions in analyzing the new
+combination study data, we need to operationalize them as parametric
+prior distributions for the combination model. This is done by
+approximating them with finite mixtures of multivariate normal
+distributions, handled by the <code>RBesT</code> function
+<code>automixfit()</code>. The <code>automixfit()</code> function
+expects the posterior samples in matrix form such that we convert the
+draws accordingly:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>map_mix_A <span class="ot">&lt;-</span> <span class="fu">automixfit</span>(<span class="fu">draws_of</span>(rvar_map_log_beta_A[<span class="dv">1</span>,<span class="st">&quot;log(drug_A/dref_A)&quot;</span>,,<span class="at">drop=</span><span class="cn">TRUE</span>]),</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>                        <span class="at">type =</span> <span class="st">&quot;mvnorm&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>map_mix_A</span></code></pre></div>
+<pre><code>## EM for Multivariate Normal Mixture Model
+## Log-Likelihood = -4557.01
+## 
+## Multivariate normal mixture
+## Outcome dimension: 2
+## Mixture Components:
+##                          comp1       comp2      
+## w                         0.56206771  0.43793229
+## m[intercept]             -1.88227571 -1.52601780
+## m[log_slope]              0.59136954  0.01259954
+## s[intercept]              0.68030368  0.92524450
+## s[log_slope]              0.59829373  0.73241598
+## rho[log_slope,intercept] -0.29870546  0.12832698</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>map_mix_B <span class="ot">&lt;-</span> <span class="fu">automixfit</span>(<span class="fu">draws_of</span>(rvar_map_log_beta_B[<span class="dv">1</span>,<span class="st">&quot;log(drug_B/dref_B)&quot;</span>,,<span class="at">drop=</span><span class="cn">TRUE</span>]),</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>                        <span class="at">type =</span> <span class="st">&quot;mvnorm&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>map_mix_B</span></code></pre></div>
+<pre><code>## EM for Multivariate Normal Mixture Model
+## Log-Likelihood = -3252.692
+## 
+## Multivariate normal mixture
+## Outcome dimension: 2
+## Mixture Components:
+##                          comp1       comp2       comp3      
+## w                         0.37748737  0.37130812  0.25120451
+## m[intercept]             -2.62052660 -2.62077157 -3.09269497
+## m[log_slope]             -0.36785969 -0.78173676 -0.08761646
+## s[intercept]              0.42385373  0.66468212  0.66682656
+## s[log_slope]              0.40861667  0.51156577  0.40148441
+## rho[log_slope,intercept] -0.39229212 -0.05739021 -0.50121005</code></pre>
+<p>The appropriateness of the parametric approximation to the MCMC
+sample can be visually inspected using the <code>plot</code> function
+from <code>RBesT</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">plot</span>(map_mix_A)<span class="sc">$</span>mixpairs</span></code></pre></div>
+<pre><code>## Diagnostic plots for mixture multivariate normal densities are experimental.
+## Please note that these are subject to changes in future releases.</code></pre>
+<p><img role="img" src="data:image/png;base64,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" width="100%" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># plot(map_mix_B)$mixpairs  # respective plot for drug B</span></span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="combination-model-with-map-priors-for-the-new-study" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Combination model with
+MAP priors for the new study</h1>
+<p>Finally, these mixtures become the prior distributions for the
+combination dose-toxicity model in the new study. In this combination
+model we now do not need any longer a hierarchical model structure such
+we turn this part of the model off by setting
+<code>tau_prior_dist=NULL</code>. Note that doing so merely setups the
+model to use known heterogeneities <span class="math inline">\(\tau\)</span> which are fixed to a zero mean,
+which is what subsequent output will display. A detailed description of
+this model is found in Appendix 7.2.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># one row of dummy data with number of patients set to zero in order</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co"># to allow the model to be fit</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>dummy_data_AB <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="at">group_id =</span> <span class="fu">factor</span>(<span class="st">&quot;trial_AB&quot;</span>, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;trial_AB&quot;</span>)),</span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>  <span class="at">drug_A =</span> <span class="dv">1</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>  <span class="at">drug_B =</span> <span class="dv">1</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>  <span class="at">num_patients =</span> <span class="dv">0</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a>  <span class="at">num_toxicities =</span> <span class="dv">0</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a>)</span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a>interaction_prior <span class="ot">&lt;-</span> <span class="fu">mixmvnorm</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, (<span class="fu">log</span>(<span class="dv">9</span>)<span class="sc">/</span><span class="fl">1.96</span>)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="co"># fit a double-combination model using the MAP priors</span></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a>map_combo <span class="ot">&lt;-</span> <span class="fu">blrm_exnex</span>(</span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a>  <span class="fu">cbind</span>(num_toxicities, num_patients <span class="sc">-</span> num_toxicities) <span class="sc">~</span></span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a>    <span class="dv">1</span> <span class="sc">+</span> <span class="fu">I</span>(<span class="fu">log</span>(drug_A <span class="sc">/</span> dref_A)) <span class="sc">|</span></span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a>    <span class="dv">1</span> <span class="sc">+</span> <span class="fu">I</span>(<span class="fu">log</span>(drug_B <span class="sc">/</span> dref_B)) <span class="sc">|</span></span>
+<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a>    <span class="dv">0</span> <span class="sc">+</span> <span class="fu">I</span>(<span class="dv">2</span> <span class="sc">*</span> (drug_A<span class="sc">/</span>dref_A <span class="sc">*</span> drug_B<span class="sc">/</span>dref_B) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> drug_A<span class="sc">/</span>dref_A <span class="sc">*</span> drug_B<span class="sc">/</span>dref_B)) <span class="sc">|</span></span>
+<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a>    group_id,</span>
+<span id="cb16-20"><a href="#cb16-20" tabindex="-1"></a>  <span class="at">data =</span> dummy_data_AB,</span>
+<span id="cb16-21"><a href="#cb16-21" tabindex="-1"></a>  <span class="at">prior_EX_mu_comp =</span> <span class="fu">list</span>(map_mix_A, map_mix_B), <span class="co"># BVN mixtures for (log-alpha, log-beta) for drugs A and B</span></span>
+<span id="cb16-22"><a href="#cb16-22" tabindex="-1"></a>  <span class="at">prior_EX_mu_inter =</span> interaction_prior,</span>
+<span id="cb16-23"><a href="#cb16-23" tabindex="-1"></a>  </span>
+<span id="cb16-24"><a href="#cb16-24" tabindex="-1"></a>  <span class="co"># shut off hierarchical part of model --</span></span>
+<span id="cb16-25"><a href="#cb16-25" tabindex="-1"></a>  <span class="at">prior_tau_dist =</span> <span class="cn">NULL</span></span>
+<span id="cb16-26"><a href="#cb16-26" tabindex="-1"></a>)</span></code></pre></div>
+<p>This defines the prior distribution for the dose-toxicity
+relationship in the novel combination. We can visualize the prior
+distributions for the DLT rates:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>doses <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="at">group_id =</span> <span class="st">&quot;trial_AB&quot;</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="at">drug_A =</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">80</span>, <span class="dv">100</span>),</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="at">drug_B =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>  <span class="fu">arrange</span>(drug_B, drug_A)</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="fu">plot_toxicity_curve</span>(map_combo,</span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>                    <span class="at">newdata =</span> doses,</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>                    <span class="at">x =</span> <span class="fu">vars</span>(drug_A),</span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>                    <span class="at">group =</span> <span class="sc">~</span> drug_B)  <span class="sc">+</span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;bottom&quot;</span>)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" width="100%" style="display: block; margin: auto;" /></p>
+<p>We also now have an understanding of which combination doses may have
+a high risk of DLTs in terms of the posterior mean,</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>map_summ <span class="ot">&lt;-</span> <span class="fu">summary</span>(map_combo, <span class="at">newdata =</span> doses, <span class="at">interval_prob =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.16</span>, <span class="fl">0.33</span>, <span class="dv">1</span>))</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">kable</span>(</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>  <span class="fu">cbind</span>(doses[<span class="fu">c</span>(<span class="st">&quot;drug_A&quot;</span>, <span class="st">&quot;drug_B&quot;</span>)], map_summ[<span class="fu">c</span>(<span class="st">&quot;mean&quot;</span>, <span class="st">&quot;sd&quot;</span>, <span class="st">&quot;(0.33,1]&quot;</span>)]),</span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Drug A&quot;</span>, <span class="st">&quot;Drug B&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;sd&quot;</span>, <span class="st">&quot;P(DLT rate &gt; 0.33)&quot;</span>),</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">&quot;Posterior summary statistics for P(DLT) by dose&quot;</span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>)</span></code></pre></div>
+<table>
+<caption>Posterior summary statistics for P(DLT) by dose</caption>
+<thead>
+<tr>
+<th align="right">Drug A</th>
+<th align="right">Drug B</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">P(DLT rate &gt; 0.33)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">25</td>
+<td align="right">0.5</td>
+<td align="right">0.10</td>
+<td align="right">0.08</td>
+<td align="right">0.01</td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td align="right">0.5</td>
+<td align="right">0.16</td>
+<td align="right">0.12</td>
+<td align="right">0.08</td>
+</tr>
+<tr>
+<td align="right">80</td>
+<td align="right">0.5</td>
+<td align="right">0.24</td>
+<td align="right">0.17</td>
+<td align="right">0.26</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">0.5</td>
+<td align="right">0.30</td>
+<td align="right">0.20</td>
+<td align="right">0.37</td>
+</tr>
+<tr>
+<td align="right">25</td>
+<td align="right">1.0</td>
+<td align="right">0.13</td>
+<td align="right">0.10</td>
+<td align="right">0.05</td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td align="right">1.0</td>
+<td align="right">0.19</td>
+<td align="right">0.16</td>
+<td align="right">0.19</td>
+</tr>
+<tr>
+<td align="right">80</td>
+<td align="right">1.0</td>
+<td align="right">0.28</td>
+<td align="right">0.22</td>
+<td align="right">0.33</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">1.0</td>
+<td align="right">0.33</td>
+<td align="right">0.25</td>
+<td align="right">0.43</td>
+</tr>
+<tr>
+<td align="right">25</td>
+<td align="right">3.0</td>
+<td align="right">0.23</td>
+<td align="right">0.19</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td align="right">3.0</td>
+<td align="right">0.29</td>
+<td align="right">0.25</td>
+<td align="right">0.36</td>
+</tr>
+<tr>
+<td align="right">80</td>
+<td align="right">3.0</td>
+<td align="right">0.35</td>
+<td align="right">0.29</td>
+<td align="right">0.45</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">3.0</td>
+<td align="right">0.39</td>
+<td align="right">0.31</td>
+<td align="right">0.49</td>
+</tr>
+</tbody>
+</table>
+<p>and the posterior predictive distribution when assuming a specific
+cohort size (6 used as example here):</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>map_pred_summ <span class="ot">&lt;-</span> <span class="fu">summary</span>(map_combo,</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>                         <span class="at">newdata =</span> <span class="fu">mutate</span>(doses, <span class="at">num_toxicities=</span><span class="dv">0</span>, <span class="at">num_patients=</span><span class="dv">6</span>),</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>                         <span class="at">predictive=</span><span class="cn">TRUE</span>, <span class="at">interval_prob =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">6</span>))</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="fu">kable</span>(</span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>  <span class="fu">cbind</span>(doses[<span class="fu">c</span>(<span class="st">&quot;drug_A&quot;</span>, <span class="st">&quot;drug_B&quot;</span>)], map_pred_summ[<span class="fu">c</span>(<span class="st">&quot;(-1,0]&quot;</span>, <span class="st">&quot;(0,1]&quot;</span>, <span class="st">&quot;(1,6]&quot;</span>)]),</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Drug A&quot;</span>, <span class="st">&quot;Drug B&quot;</span>, <span class="st">&quot;Pr(0 of 6 DLT)&quot;</span>, <span class="st">&quot;Pr(1 of 6 DLT)&quot;</span>, <span class="st">&quot;Pr(&gt;=2 of 6 DLT)&quot;</span>),</span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">&quot;Posterior predictive summary for Pr(DLT) by dose&quot;</span></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a>)</span></code></pre></div>
+<table>
+<caption>Posterior predictive summary for Pr(DLT) by dose</caption>
+<thead>
+<tr>
+<th align="right">Drug A</th>
+<th align="right">Drug B</th>
+<th align="right">Pr(0 of 6 DLT)</th>
+<th align="right">Pr(1 of 6 DLT)</th>
+<th align="right">Pr(&gt;=2 of 6 DLT)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">25</td>
+<td align="right">0.5</td>
+<td align="right">0.58</td>
+<td align="right">0.29</td>
+<td align="right">0.13</td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td align="right">0.5</td>
+<td align="right">0.45</td>
+<td align="right">0.31</td>
+<td align="right">0.24</td>
+</tr>
+<tr>
+<td align="right">80</td>
+<td align="right">0.5</td>
+<td align="right">0.32</td>
+<td align="right">0.29</td>
+<td align="right">0.40</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">0.5</td>
+<td align="right">0.26</td>
+<td align="right">0.26</td>
+<td align="right">0.49</td>
+</tr>
+<tr>
+<td align="right">25</td>
+<td align="right">1.0</td>
+<td align="right">0.51</td>
+<td align="right">0.30</td>
+<td align="right">0.19</td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td align="right">1.0</td>
+<td align="right">0.40</td>
+<td align="right">0.28</td>
+<td align="right">0.31</td>
+</tr>
+<tr>
+<td align="right">80</td>
+<td align="right">1.0</td>
+<td align="right">0.31</td>
+<td align="right">0.24</td>
+<td align="right">0.44</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">1.0</td>
+<td align="right">0.27</td>
+<td align="right">0.22</td>
+<td align="right">0.51</td>
+</tr>
+<tr>
+<td align="right">25</td>
+<td align="right">3.0</td>
+<td align="right">0.37</td>
+<td align="right">0.26</td>
+<td align="right">0.37</td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td align="right">3.0</td>
+<td align="right">0.34</td>
+<td align="right">0.22</td>
+<td align="right">0.45</td>
+</tr>
+<tr>
+<td align="right">80</td>
+<td align="right">3.0</td>
+<td align="right">0.29</td>
+<td align="right">0.19</td>
+<td align="right">0.52</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">3.0</td>
+<td align="right">0.26</td>
+<td align="right">0.17</td>
+<td align="right">0.56</td>
+</tr>
+</tbody>
+</table>
+<p>One can see that under the combination one has to decrease the
+starting doses well below the declared MTDs for each drug. This is a
+consequence of their combination in a new trial such that the
+between-trial heterogeneity leads to an increased uncertainty in the
+dose-toxicity. The uncertainty is additionally increased through the
+introduction of a possible interaction between the two drugs. With the
+increased uncertainty in the dose-toxicity curve, the escalation with
+overdose criterion EWOC automatically penalizes this lack of knowledge
+and requires a conservative starting dose for escalation.</p>
+<div id="robustification" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Robustification</h2>
+<p>Direct use of the MAP priors assumes ex-changeability of the
+historical and the new trial data. However, this assumption can be
+violated such that we may wish to robustify the analysis. This can be
+achieved by complementing the MAP prior by a weakly informative mixture
+component with some non-zero weight. While the hierarchical model itself
+down-weights the historical data already, that is we admit through the
+interchangeability differences between trials, adding in this way an
+additional weakly informative mixture component leads to an even greater
+robustness against a prior-data conflict. This process is sometimes
+referred to as “robustification”, and the resulting prior known as a
+robust MAP (rMAP) prior. The robustification step is conceptually
+equivalent to the use of the EXNEX model under a MAC approach. However,
+the two techniques - robustification and EXNEX - differ in that
+robustification is a step done after derivation of the MAP prior while
+the EXNEX model is a joint model fit.</p>
+<p>The robust MAP approach is implemented as:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co"># weakly-informative mixture component is chosen here to be equal to</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co"># the priors used in the first place</span></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>weak_A <span class="ot">&lt;-</span> prior_A</span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>weak_B <span class="ot">&lt;-</span> prior_B</span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co"># adding this to the drug-A and drug-B MAP priors with weight 0.1</span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a>mix_A_robust <span class="ot">&lt;-</span> <span class="fu">mixcombine</span>(map_mix_A, weak_A, <span class="at">weight =</span> <span class="fu">c</span>(<span class="fl">0.9</span>, <span class="fl">0.1</span>))</span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a>mix_B_robust <span class="ot">&lt;-</span> <span class="fu">mixcombine</span>(map_mix_B, weak_B, <span class="at">weight =</span> <span class="fu">c</span>(<span class="fl">0.9</span>, <span class="fl">0.1</span>))</span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co"># robust MAP priors</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a>mix_robust <span class="ot">&lt;-</span> <span class="fu">list</span>(mix_A_robust, mix_B_robust)</span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="co"># fit a double-combination model using the rMAP priors</span></span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a>robust_map_combo <span class="ot">&lt;-</span> <span class="fu">update</span>(map_combo, <span class="at">prior_EX_mu_comp =</span> mix_robust)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="co"># disabled plot here</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="fu">plot_toxicity_curve</span>(robust_map_combo,</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>                    <span class="at">newdata =</span> doses,</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>                    <span class="at">x =</span> <span class="fu">vars</span>(drug_A),</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>                    <span class="at">group =</span> <span class="sc">~</span> drug_B)  <span class="sc">+</span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;bottom&quot;</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="equivalence-of-map-and-mac-advanced" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Equivalence of MAP and
+MAC (advanced)</h1>
+<p>To demonstrate the equivalence of MAP and MAC, we will illustrate
+implementation of the latter approach.</p>
+<p>First, we combine the data from all three sources.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>groups <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;trial_A&quot;</span>, <span class="st">&quot;trial_B&quot;</span>, <span class="st">&quot;trial_AB&quot;</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>mac_data <span class="ot">&lt;-</span> <span class="fu">bind_rows_0</span>(hist_A, hist_B)</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>mac_data<span class="sc">$</span>group_id <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">as.character</span>(mac_data<span class="sc">$</span>group_id), <span class="at">levels =</span> groups)</span></code></pre></div>
+<p>Next, we jointly model all available data using a hierarchical
+double-combination BLRM, whose detailed specification can be found in
+Appendix 7.3. Note that the hierarchical model on the interaction
+parameter is not present in the combination model. This cannot be turned
+off here such that we assign a negligibly small mean value for the <span class="math inline">\(\tau\)</span> interaction heterogeneity.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>dummy_tau_inter <span class="ot">&lt;-</span> <span class="fu">mixmvnorm</span>(<span class="fu">c</span>(<span class="fl">1.0</span>, <span class="fu">log</span>(<span class="fl">1E-4</span>), (<span class="fu">log</span>(<span class="dv">2</span>) <span class="sc">/</span> <span class="fl">1.96</span>)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a>num_comp   <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="co"># number of treatment components</span></span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>num_inter  <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>num_groups <span class="ot">&lt;-</span> <span class="fu">length</span>(groups)</span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>mac_combo <span class="ot">&lt;-</span> <span class="fu">blrm_exnex</span>(</span>
+<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a>  <span class="fu">cbind</span>(num_toxicities, num_patients <span class="sc">-</span> num_toxicities) <span class="sc">~</span></span>
+<span id="cb23-9"><a href="#cb23-9" tabindex="-1"></a>    <span class="dv">1</span> <span class="sc">+</span> <span class="fu">I</span>(<span class="fu">log</span>(drug_A <span class="sc">/</span> dref_A)) <span class="sc">|</span></span>
+<span id="cb23-10"><a href="#cb23-10" tabindex="-1"></a>    <span class="dv">1</span> <span class="sc">+</span> <span class="fu">I</span>(<span class="fu">log</span>(drug_B <span class="sc">/</span> dref_B)) <span class="sc">|</span></span>
+<span id="cb23-11"><a href="#cb23-11" tabindex="-1"></a>    <span class="dv">0</span> <span class="sc">+</span> <span class="fu">I</span>(<span class="dv">2</span> <span class="sc">*</span> (drug_A<span class="sc">/</span>dref_A <span class="sc">*</span> drug_B<span class="sc">/</span>dref_B) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> drug_A<span class="sc">/</span>dref_A <span class="sc">*</span> drug_B<span class="sc">/</span>dref_B)) <span class="sc">|</span></span>
+<span id="cb23-12"><a href="#cb23-12" tabindex="-1"></a>    group_id,</span>
+<span id="cb23-13"><a href="#cb23-13" tabindex="-1"></a>  <span class="at">data =</span> mac_data,</span>
+<span id="cb23-14"><a href="#cb23-14" tabindex="-1"></a>  <span class="at">prior_EX_mu_comp =</span> <span class="fu">list</span>(prior_A, prior_B),</span>
+<span id="cb23-15"><a href="#cb23-15" tabindex="-1"></a>  <span class="at">prior_EX_tau_comp =</span> <span class="fu">list</span>(tau_substantial_prior, tau_small_prior),</span>
+<span id="cb23-16"><a href="#cb23-16" tabindex="-1"></a>  <span class="at">prior_EX_mu_inter =</span> interaction_prior,</span>
+<span id="cb23-17"><a href="#cb23-17" tabindex="-1"></a>  <span class="at">prior_EX_tau_inter =</span> dummy_tau_inter,</span>
+<span id="cb23-18"><a href="#cb23-18" tabindex="-1"></a>  <span class="at">prior_is_EXNEX_comp =</span> <span class="fu">rep</span>(<span class="cn">FALSE</span>, num_comp),</span>
+<span id="cb23-19"><a href="#cb23-19" tabindex="-1"></a>  <span class="at">prior_is_EXNEX_inter =</span> <span class="fu">rep</span>(<span class="cn">FALSE</span>, num_inter),</span>
+<span id="cb23-20"><a href="#cb23-20" tabindex="-1"></a>  <span class="at">prior_EX_prob_comp =</span> <span class="fu">matrix</span>(<span class="dv">1</span>, <span class="at">nrow =</span> num_groups, <span class="at">ncol =</span> num_comp),</span>
+<span id="cb23-21"><a href="#cb23-21" tabindex="-1"></a>  <span class="at">prior_EX_prob_inter =</span> <span class="fu">matrix</span>(<span class="dv">1</span>, <span class="at">nrow =</span> num_groups, <span class="at">ncol =</span> num_inter),</span>
+<span id="cb23-22"><a href="#cb23-22" tabindex="-1"></a>  <span class="at">prior_tau_dist =</span> <span class="dv">1</span></span>
+<span id="cb23-23"><a href="#cb23-23" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## Info: The group(s) trial_AB have undefined strata. Assigning first stratum 1.</code></pre>
+<p>Now we compare posterior inference for the DLT rates:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>mac_summ <span class="ot">&lt;-</span> <span class="fu">summary</span>(mac_combo, <span class="at">newdata =</span> doses, <span class="at">interval_prob =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.16</span>, <span class="fl">0.33</span>, <span class="dv">1</span>))</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="fu">kable</span>(</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>  <span class="fu">cbind</span>(doses[<span class="fu">c</span>(<span class="st">&quot;drug_A&quot;</span>, <span class="st">&quot;drug_B&quot;</span>)],</span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>        map_summ<span class="sc">$</span>mean, mac_summ<span class="sc">$</span>mean,</span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>        <span class="fu">abs</span>(map_summ<span class="sc">$</span>mean <span class="sc">-</span> mac_summ<span class="sc">$</span>mean),</span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>        map_summ[[<span class="st">&quot;(0.33,1]&quot;</span>]], mac_summ[[<span class="st">&quot;(0.33,1]&quot;</span>]]),</span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Drug A&quot;</span>, <span class="st">&quot;Drug B&quot;</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a>                <span class="st">&quot;MAP mean&quot;</span>, <span class="st">&quot;MAC mean&quot;</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" tabindex="-1"></a>                <span class="st">&quot;|MAP mean - MAC mean|&quot;</span>,</span>
+<span id="cb25-10"><a href="#cb25-10" tabindex="-1"></a>                <span class="st">&quot;MAP P(DLT rate &gt; 0.33)&quot;</span>, <span class="st">&quot;MAC P(DLT rate &gt; 0.33)&quot;</span>),</span>
+<span id="cb25-11"><a href="#cb25-11" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb25-12"><a href="#cb25-12" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">&quot;Posterior summary statistics for P(DLT) by dose&quot;</span></span>
+<span id="cb25-13"><a href="#cb25-13" tabindex="-1"></a>)</span></code></pre></div>
+<table>
+<caption>Posterior summary statistics for P(DLT) by dose</caption>
+<colgroup>
+<col width="6%" />
+<col width="6%" />
+<col width="8%" />
+<col width="8%" />
+<col width="29%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead>
+<tr>
+<th align="right">Drug A</th>
+<th align="right">Drug B</th>
+<th align="right">MAP mean</th>
+<th align="right">MAC mean</th>
+<th align="right">|MAP mean - MAC mean|</th>
+<th align="right">MAP P(DLT rate &gt; 0.33)</th>
+<th align="right">MAC P(DLT rate &gt; 0.33)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">25</td>
+<td align="right">0.5</td>
+<td align="right">0.10</td>
+<td align="right">0.10</td>
+<td align="right">0</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td align="right">0.5</td>
+<td align="right">0.16</td>
+<td align="right">0.16</td>
+<td align="right">0</td>
+<td align="right">0.08</td>
+<td align="right">0.09</td>
+</tr>
+<tr>
+<td align="right">80</td>
+<td align="right">0.5</td>
+<td align="right">0.24</td>
+<td align="right">0.24</td>
+<td align="right">0</td>
+<td align="right">0.26</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">0.5</td>
+<td align="right">0.30</td>
+<td align="right">0.30</td>
+<td align="right">0</td>
+<td align="right">0.37</td>
+<td align="right">0.37</td>
+</tr>
+<tr>
+<td align="right">25</td>
+<td align="right">1.0</td>
+<td align="right">0.13</td>
+<td align="right">0.13</td>
+<td align="right">0</td>
+<td align="right">0.05</td>
+<td align="right">0.05</td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td align="right">1.0</td>
+<td align="right">0.19</td>
+<td align="right">0.19</td>
+<td align="right">0</td>
+<td align="right">0.19</td>
+<td align="right">0.17</td>
+</tr>
+<tr>
+<td align="right">80</td>
+<td align="right">1.0</td>
+<td align="right">0.28</td>
+<td align="right">0.28</td>
+<td align="right">0</td>
+<td align="right">0.33</td>
+<td align="right">0.33</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">1.0</td>
+<td align="right">0.33</td>
+<td align="right">0.33</td>
+<td align="right">0</td>
+<td align="right">0.43</td>
+<td align="right">0.42</td>
+</tr>
+<tr>
+<td align="right">25</td>
+<td align="right">3.0</td>
+<td align="right">0.23</td>
+<td align="right">0.23</td>
+<td align="right">0</td>
+<td align="right">0.25</td>
+<td align="right">0.23</td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td align="right">3.0</td>
+<td align="right">0.29</td>
+<td align="right">0.29</td>
+<td align="right">0</td>
+<td align="right">0.36</td>
+<td align="right">0.35</td>
+</tr>
+<tr>
+<td align="right">80</td>
+<td align="right">3.0</td>
+<td align="right">0.35</td>
+<td align="right">0.35</td>
+<td align="right">0</td>
+<td align="right">0.45</td>
+<td align="right">0.44</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">3.0</td>
+<td align="right">0.39</td>
+<td align="right">0.39</td>
+<td align="right">0</td>
+<td align="right">0.49</td>
+<td align="right">0.51</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="appendix-model-specification" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Appendix: Model
+specification</h1>
+<div id="combination-blrm-new-study-model" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Combination BLRM (new
+study model)</h2>
+<p>Let <span class="math inline">\(d_A\)</span> and <span class="math inline">\(d_B\)</span> represent the doses of drugs A and B,
+respectively. The dose-toxicity model for the combination expresses the
+DLT probability <span class="math inline">\(\pi_{AB}(d_A, d_B)\)</span>
+as a function of the doses, through the following model for the DLT
+odds</p>
+<p><span class="math display">\[ \frac{\pi_{AB}(d_A, d_B)}{1 -
+\pi_{AB}(d_A, d_B)} =
+\frac{\pi_\perp(d_A, d_B)}{1 - \pi_\perp(d_A, d_B)} \cdot \exp\left\{
+2 \eta \frac{(d_A d_B) / (d_A^* d_B^*) }{1 + (d_A d_B) / (d_A^*
+d_B^*)}\right\}. \]</span></p>
+<p>The two terms on the right-hand side are, respectively, the odds of
+DLT under assumed independence of action for the two drugs, i.e.</p>
+<p><span class="math display">\[\pi_\perp(d_A, d_B) = 1 - (1 -
+\pi_A(d_A))(1 - \pi_B(d_B)) \]</span></p>
+<p>and an interaction term which allows for modelling drug toxicity
+interactions. See Widmer et al (2023) for a discussion of the
+interaction model.</p>
+<p>The terms <span class="math inline">\(\pi_A(d_A)\)</span> and <span class="math inline">\(\pi_B(d_B)\)</span> represent the toxicity risk
+under each single-agent, respectively, and are modelled with logistic
+regression as in Neuenschwander et al (2008):</p>
+<p><span class="math display">\[ \pi_A(d_A) = \log(\alpha_A) + \beta_A
+\log(d_A / d_A^*)\]</span></p>
+<p><span class="math display">\[ \pi_B(d_B) = \log(\alpha_B) + \beta_B
+\log(d_B / d_B^*)\]</span></p>
+<p>The model parameters are hence <span class="math inline">\(\alpha_A,
+\beta_A, \alpha_B\)</span> and <span class="math inline">\(\beta_B\)</span> (the intercepts and slopes
+determining the dose-toxicity curve for the two single agents), and
+<span class="math inline">\(\eta\)</span> (controlling the magnitude of
+drug toxicity interactions), while <span class="math inline">\(d_A^*\)</span> and <span class="math inline">\(d_B^*\)</span> are fixed pre-specified reference
+doses for each drug.</p>
+<p>This parametrization is convenient because in many such situations,
+relevant information is available to inform prior distributions for the
+intercepts and slopes. Specifically, in this example, we have used MAP
+priors based on analysis of the historical data under meta-analytic
+models.</p>
+<div id="prior-specification" class="section level3" number="6.1.1">
+<h3><span class="header-section-number">6.1.1</span> Prior
+specification</h3>
+<p>For the intercepts and slopes, the MAP priors have the form</p>
+<p><span class="math display">\[ (\log \alpha_A, \log \beta_A ) \sim
+\sum_{k = 1}^{K_A} w_{Ak} \mbox{BVN}( \mathbf m_{Ak}, \mathbf S_{Ak} ),
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[ (\log \alpha_B, \log \beta_B ) \sim
+\sum_{k = 1}^{K_B} w_{Bk} \mbox{BVN}( \mathbf m_{Bk}, \mathbf S_{Bk} ),
+\]</span></p>
+<p>where the bivariate normal mixtures have been chosen to approximate
+the MAP distribution, i.e.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>map_mix_A</span></code></pre></div>
+<pre><code>## EM for Multivariate Normal Mixture Model
+## Log-Likelihood = -4557.01
+## 
+## Multivariate normal mixture
+## Outcome dimension: 2
+## Mixture Components:
+##                          comp1       comp2      
+## w                         0.56206771  0.43793229
+## m[intercept]             -1.88227571 -1.52601780
+## m[log_slope]              0.59136954  0.01259954
+## s[intercept]              0.68030368  0.92524450
+## s[log_slope]              0.59829373  0.73241598
+## rho[log_slope,intercept] -0.29870546  0.12832698</code></pre>
+<p>and</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>map_mix_B</span></code></pre></div>
+<pre><code>## EM for Multivariate Normal Mixture Model
+## Log-Likelihood = -3252.692
+## 
+## Multivariate normal mixture
+## Outcome dimension: 2
+## Mixture Components:
+##                          comp1       comp2       comp3      
+## w                         0.37748737  0.37130812  0.25120451
+## m[intercept]             -2.62052660 -2.62077157 -3.09269497
+## m[log_slope]             -0.36785969 -0.78173676 -0.08761646
+## s[intercept]              0.42385373  0.66468212  0.66682656
+## s[log_slope]              0.40861667  0.51156577  0.40148441
+## rho[log_slope,intercept] -0.39229212 -0.05739021 -0.50121005</code></pre>
+<p>For the interaction, the prior distribution <span class="math inline">\(\eta \sim \mbox{N}(0,
+(\log(9)/1.96)^2)\)</span> was used. This prior is centered at zero
+interaction, and 95% of the probability mass falls between DLT odds
+multipliers of <span class="math inline">\(1/9\)</span> and <span class="math inline">\(9\)</span> (relative to the no-interaction
+model).</p>
+</div>
+</div>
+<div id="meta-analytic-models-for-the-historical-data" class="section level2" number="6.2">
+<h2><span class="header-section-number">6.2</span> Meta-analytic models
+for the historical data</h2>
+<p>The MAP approach begins with hierarchical meta-analytic modelling of
+the historical data, allowing for the possibility of between-study
+heterogeneity.</p>
+<p>We describe this model for drug A (drug B being analogous). For
+historical studies <span class="math inline">\(h =1 ,\ldots, H\)</span>
+(in this case <span class="math inline">\(H=1\)</span>), the DLT
+probability for dose <span class="math inline">\(d_A\)</span> is
+modelled as</p>
+<p><span class="math display">\[ \pi_{Ah}(d_A) = \log \alpha_{Ah} +
+\beta_{Ah} \log(d_A / d_A^*). \]</span></p>
+<p>Model parameters are assumed to be exchangeable across studies:</p>
+<p><span class="math display">\[ (\log \alpha_{Ah}, \log \beta_{Ah})  \,
+\, \sim \, \,
+\mbox{BVN}\bigl( (\mu_{\alpha A}, \mu_{\beta A}), \boldsymbol \Sigma_A
+\bigr) \hspace{20pt} \text{for }h = 1,\ldots, H, \]</span></p>
+<p>and to facilitate prediction of the dose-toxicity curve in a new
+study, we additionally assume that the study-level parameters for the
+new study are exchangeable with those of the historical studies:</p>
+<p><span class="math display">\[ (\log \alpha_{A\star}, \log
+\beta_{A\star}) \, \, \sim \, \,
+\mbox{BVN}\bigl( (\mu_{\alpha A}, \mu_{\beta A}), \boldsymbol \Sigma_A
+\bigr). \]</span></p>
+<p>Here, <span class="math inline">\(\boldsymbol \Sigma_A\)</span> is a
+<span class="math inline">\(2 \times 2\)</span> covariance matrix with
+standard deviations <span class="math inline">\(\tau_{\alpha A}\)</span>
+and <span class="math inline">\(\tau_{\beta A}\)</span>, and correlation
+<span class="math inline">\(\rho_A\)</span>.</p>
+<p>This exchangeability assumption allows for posterior estimation of
+the MAP distribution for a study-level parameters in a new study, given
+historical data:</p>
+<p><span class="math display">\[ f(\alpha_{A\star}, \beta_{A\star} |
+\mathbf x_{\text{hist}}) = \int f(\alpha_{A\star}, \beta_{A\star} |
+\mu_{\alpha A}, \mu_{\beta A}, \tau_{\alpha A}, \tau_{\beta A}, \rho) \,
+\, dF(\mu_{\alpha A}, \mu_{\beta A}, \tau_{\alpha A}, \tau_{\beta A} |
+\mathbf x_{\text{hist}}). \]</span></p>
+<p>The model is completed with normal priors for the means</p>
+<p><span class="math display">\[ \mu_{\alpha A} \sim \mbox{N} (
+m_{\alpha A}, s^2_{\alpha A}) \]</span> <span class="math display">\[
+\mu_{\beta A} \sim \mbox{N} ( m_{\beta A}, s^2_{\beta A}) \]</span></p>
+<p>lognormal priors for the standard deviations,</p>
+<p><span class="math display">\[ \log \tau_{\alpha A} \sim \mbox{N}(
+m_{\tau \alpha A}, s^2_{\tau \alpha A}) \]</span> <span class="math display">\[ \log \tau_{\beta A} \sim \mbox{N}( m_{\tau \beta
+A}, s^2_{\tau \beta A}) \]</span></p>
+<p>and for the correlation,</p>
+<p><span class="math display">\[ \rho_A \sim \mbox{U}(-1, 1).
+\]</span></p>
+<div id="prior-specification-1" class="section level3" number="6.2.1">
+<h3><span class="header-section-number">6.2.1</span> Prior
+specification</h3>
+<p>Both models, for drugs A and B, used the same set of
+hyper-parameters:</p>
+<ul>
+<li>Intercept mean and standard deviation:</li>
+</ul>
+<p><span class="math display">\[m_{\alpha A} = m_{\alpha B} =
+\mbox{logit}(0.2)\]</span> <span class="math display">\[s_{\alpha A} =
+s_{\alpha B} = 1\]</span></p>
+<ul>
+<li>Slope mean and standard deviation:</li>
+</ul>
+<p><span class="math display">\[m_{\beta A} = m_{\beta B} =
+\log(1)\]</span> <span class="math display">\[s_{\beta A} = s_{\beta B}
+= (\log 4) / 1.96\]</span></p>
+<ul>
+<li>Heterogeneity standard deviations:</li>
+</ul>
+<p><span class="math display">\[m_{\tau \alpha A} = m_{\tau \alpha B} =
+\log(0.25)\]</span> <span class="math display">\[m_{\tau \beta A} =
+m_{\tau \beta B} = \log(0.125)\]</span> <span class="math display">\[s_{\tau \alpha A} = s_{\tau \beta A} = s_{\tau
+\alpha B} = s_{\tau \beta B} = (\log 2) / 1.96\]</span></p>
+</div>
+</div>
+<div id="hierarchical-model-for-combined-data-mac" class="section level2" number="6.3">
+<h2><span class="header-section-number">6.3</span> Hierarchical model
+for combined data (MAC)</h2>
+<p>The MAC model is a combined model for data from all sources (both
+single-agent trials and the planned combination study). Letting <span class="math inline">\(i\)</span> index these sources, the model covers
+toxicity of any combination of doses of the two agents:</p>
+<p><span class="math display">\[ \frac{\pi_i(d_A, d_B)}{1 - \pi_i(d_A,
+d_B)} = \frac{\pi_{\perp, i}(d_A, d_B)}{1 - \pi_{\perp, i}(d_A, d_B)}
+\cdot \exp\left\{ 2 \eta_i \frac{(d_A d_B) / (d_A^* d_B^*) }{1 + (d_A
+d_B) / (d_A^* d_B^*)}\right\}. \]</span> With, as before</p>
+<p><span class="math display">\[\pi_{\perp,i}(d_A, d_B) = 1 - (1 -
+\pi_{Ai}(d_A))(1 - \pi_{Bi}(d_B)) \]</span></p>
+<p>and <span class="math display">\[ \pi_{Ai}(d_A) = \log(\alpha_{Ai}) +
+\beta_{Ai} \log(d_A / d_A^*)\]</span> <span class="math display">\[
+\pi_{Bi}(d_B) = \log(\alpha_{Bi}) + \beta_{Bi} \log(d_B /
+d_B^*)\]</span></p>
+<p>And as before, ex-changeability assumptions facilitate information
+borrowing across data sources.</p>
+<p><span class="math display">\[ (\log \alpha_{Ai}, \log \beta_{Ai})  \,
+\, \sim \, \, \mbox{BVN}\bigl( (\mu_{\alpha A}, \mu_{\beta A}),
+\boldsymbol \Sigma_A \bigr) \hspace{20pt} \text{for }i = 1,\ldots, I
+\]</span> <span class="math display">\[ (\log \alpha_{Bi}, \log
+\beta_{Bi})  \, \, \sim \, \, \mbox{BVN}\bigl( (\mu_{\alpha B},
+\mu_{\beta B}), \boldsymbol \Sigma_B \bigr) \hspace{20pt} \text{for }i =
+1,\ldots, I \]</span> and</p>
+<p><span class="math display">\[ \eta_i \sim \mbox{N}(\mu_\eta,
+\tau^2_\eta). \]</span></p>
+<p>Priors for the exchangeable means <span class="math inline">\(\mu\)</span> and variances <span class="math inline">\(\tau\)</span> are identical to the meta-analytic
+models for the historical single-agent data in section 7.2.</p>
+</div>
+</div>
+<div id="session-info" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Session Info</h1>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<pre><code>## R version 4.4.2 (2024-10-31)
+## Platform: aarch64-apple-darwin20
+## Running under: macOS Sequoia 15.3.1
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib 
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## time zone: Europe/Zurich
+## tzcode source: internal
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] tibble_3.2.1     tidyr_1.3.1      dplyr_1.1.4      ggplot2_3.5.1   
+## [5] knitr_1.47       posterior_1.6.0  OncoBayes2_0.9-1 RBesT_1.8-1     
+## 
+## loaded via a namespace (and not attached):
+##  [1] gtable_0.3.5          tensorA_0.36.2.1      xfun_0.45            
+##  [4] bslib_0.7.0           QuickJSR_1.2.2        inline_0.3.19        
+##  [7] vctrs_0.6.5           tools_4.4.2           generics_0.1.3       
+## [10] stats4_4.4.2          curl_5.2.1            parallel_4.4.2       
+## [13] fansi_1.0.6           highr_0.11            pkgconfig_2.0.3      
+## [16] checkmate_2.3.1       RColorBrewer_1.1-3    distributional_0.4.0 
+## [19] RcppParallel_5.1.7    assertthat_0.2.1      lifecycle_1.0.4      
+## [22] stringr_1.5.1         farver_2.1.2          compiler_4.4.2       
+## [25] textshaping_0.4.0     munsell_0.5.1         codetools_0.2-20     
+## [28] htmltools_0.5.8.1     sass_0.4.9            bayesplot_1.11.1     
+## [31] yaml_2.3.8            Formula_1.2-5         pillar_1.9.0         
+## [34] jquerylib_0.1.4       cachem_1.1.0          StanHeaders_2.32.9   
+## [37] abind_1.4-5           rstan_2.32.6          tidyselect_1.2.1     
+## [40] digest_0.6.35         stringi_1.8.4         mvtnorm_1.2-5        
+## [43] reshape2_1.4.4        purrr_1.0.2           labeling_0.4.3       
+## [46] fastmap_1.2.0         grid_4.4.2            colorspace_2.1-0     
+## [49] cli_3.6.2             magrittr_2.0.3        loo_2.7.0            
+## [52] pkgbuild_1.4.4        utf8_1.2.4            withr_3.0.0          
+## [55] scales_1.3.0          backports_1.5.0       rmarkdown_2.27       
+## [58] matrixStats_1.3.0     gridExtra_2.3         ragg_1.3.2           
+## [61] evaluate_0.24.0       V8_4.4.2              rstantools_2.4.0.9000
+## [64] rlang_1.1.4           isoband_0.2.7         Rcpp_1.0.12          
+## [67] glue_1.7.0            jsonlite_1.8.8        plyr_1.8.9           
+## [70] R6_2.5.1              systemfonts_1.1.0</code></pre>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
