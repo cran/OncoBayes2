@@ -18,8 +18,8 @@
 #' the logits or inverse logit of the input values.  The logit and
 #' inverse transformation equates to
 #'
-#' \deqn{\mbox{logit}(\mu) = \log(\mu/(1-\mu))}{logit(\mu) = log(\mu/(1-\mu))}
-#' \deqn{\mbox{logit}^{-1}(\eta)= \exp(\eta)/(1 + \exp(\eta)).}{logit^-1(\eta) = exp(\eta)/(1 + exp(\eta)).}
+#' \deqn{\text{logit}(\mu) = \log(\mu/(1-\mu))}{logit(\mu) = log(\mu/(1-\mu))}
+#' \deqn{\text{logit}^{-1}(\eta)= \exp(\eta)/(1 + \exp(\eta)).}{logit^-1(\eta) = exp(\eta)/(1 + exp(\eta)).}
 #'
 #' @examples
 #' logit(0.2)

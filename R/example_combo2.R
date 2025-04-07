@@ -20,9 +20,9 @@
 #' The model described in Neuenschwander, et al (2016) is adapted as follows.
 #' For groups \eqn{j = 1,\ldots, 4} representing each of the four sources
 #' of data mentioned above,
-#' \deqn{\mbox{logit}\, \pi_{1j}(d_1) = \log\, \alpha_{1j} + \beta_{1j} \, \log\, \Bigl(\frac{d_1}{d_1^*}\Bigr),}
+#' \deqn{\text{logit}\, \pi_{1j}(d_1) = \log\, \alpha_{1j} + \beta_{1j} \, \log\, \Bigl(\frac{d_1}{d_1^*}\Bigr),}
 #' and
-#' \deqn{\mbox{logit}\, \pi_{2j}(d_2) = \log\, \alpha_{2j} + \beta_{2j} \, \log\, \Bigl(\frac{d_2}{d_2^*}\Bigr),}
+#' \deqn{\text{logit}\, \pi_{2j}(d_2) = \log\, \alpha_{2j} + \beta_{2j} \, \log\, \Bigl(\frac{d_2}{d_2^*}\Bigr),}
 #' are logistic regressions for the single-agent toxicity of drugs A and B,
 #' respectively, when administered in group \eqn{j}. Conditional on the
 #' regression parameters
@@ -32,34 +32,34 @@
 #' the combination is modeled as the "no-interaction" DLT rate,
 #' \deqn{\tilde\pi_{j}(d_1, d_2) = 1 - (1-\pi_{1j}(d_1) )(1- \pi_{2j}(d_2))}
 #' with a single interaction term added on the log odds scale,
-#' \deqn{\mbox{logit} \, \pi_{j}(d_1, d_2) = \mbox{logit} \, \tilde\pi_{j}(d_1, d_2) + \eta_j \frac{d_1}{d_1^*}\frac{d_2}{d_2^*}.}
+#' \deqn{\text{logit} \, \pi_{j}(d_1, d_2) = \text{logit} \, \tilde\pi_{j}(d_1, d_2) + \eta_j \frac{d_1}{d_1^*}\frac{d_2}{d_2^*}.}
 #' A hierarchical model across the four groups \eqn{j} allows
 #' dose-toxicity information to be shared through common hyperparameters.
 #'
 #' For the component parameters \eqn{\boldsymbol\theta_{ij}},
-#' \deqn{\boldsymbol\theta_{ij} \sim \mbox{BVN}(\boldsymbol \mu_i, \boldsymbol\Sigma_i).}
+#' \deqn{\boldsymbol\theta_{ij} \sim \text{BVN}(\boldsymbol \mu_i, \boldsymbol\Sigma_i).}
 #' For the mean, a further prior is specified as
-#' \deqn{\boldsymbol\mu_i = (\mu_{\alpha i}, \mu_{\beta i}) \sim \mbox{BVN}(\boldsymbol m_i, \boldsymbol S_i),}
-#' while in the manuscript the prior \eqn{\boldsymbol m_i = (\mbox{logit}\, 0.1, \log 1)} and
-#' \eqn{\boldsymbol S_i  = \mbox{diag}(3.33^2, 1^2)} for each \eqn{i = 1,2} is
-#' used, we deviate here and use instead \eqn{\boldsymbol m_i = (\mbox{logit}\, 0.2, \log 1)} and
-#' \eqn{\boldsymbol S_i  = \mbox{diag}(2^2, 1^2)}.
+#' \deqn{\boldsymbol\mu_i = (\mu_{\alpha i}, \mu_{\beta i}) \sim \text{BVN}(\boldsymbol m_i, \boldsymbol S_i),}
+#' while in the manuscript the prior \eqn{\boldsymbol m_i = (\text{logit}\, 0.1, \log 1)} and
+#' \eqn{\boldsymbol S_i  = \text{diag}(3.33^2, 1^2)} for each \eqn{i = 1,2} is
+#' used, we deviate here and use instead \eqn{\boldsymbol m_i = (\text{logit}\, 0.2, \log 1)} and
+#' \eqn{\boldsymbol S_i  = \text{diag}(2^2, 1^2)}.
 #' For the standard deviations and correlation parameters in the covariance matrix,
 #' \deqn{\boldsymbol\Sigma_i = \left( \begin{array}{cc}
 #' \tau^2_{\alpha i} & \rho_i \tau_{\alpha i} \tau_{\beta i}\\
 #' \rho_i \tau_{\alpha i} \tau_{\beta i} & \tau^2_{\beta i}
 #' \end{array} \right), }
 #' the specified priors are
-#' \eqn{\tau_{\alpha i} \sim \mbox{Log-Normal}(\log\, 0.25, ((\log 4) / 1.96)^2)},
+#' \eqn{\tau_{\alpha i} \sim \text{Log-Normal}(\log\, 0.25, ((\log 4) / 1.96)^2)},
 #'
-#' \eqn{\tau_{\beta i} \sim \mbox{Log-Normal}(\log\, 0.125, ((\log 4) / 1.96)^2)},
-#' and \eqn{\rho_i \sim \mbox{U}(-1,1)} for \eqn{i = 1,2}.
+#' \eqn{\tau_{\beta i} \sim \text{Log-Normal}(\log\, 0.125, ((\log 4) / 1.96)^2)},
+#' and \eqn{\rho_i \sim \text{U}(-1,1)} for \eqn{i = 1,2}.
 #'
 #' For the interaction parameters \eqn{\eta_j} in each group, the hierarchical
 #' model has
-#' \deqn{\eta_j \sim \mbox{N}(\mu_\eta, \tau^2_\eta),}
-#' for \eqn{j = 1,\ldots, 4}, with \eqn{\mu_\eta \sim \mbox{N}(0, 1.121^2)}
-#' and \eqn{\tau_\eta \sim \mbox{Log-Normal}(\log\, 0.125, ((\log 4) / 1.96)^2).}
+#' \deqn{\eta_j \sim \text{N}(\mu_\eta, \tau^2_\eta),}
+#' for \eqn{j = 1,\ldots, 4}, with \eqn{\mu_\eta \sim \text{N}(0, 1.121^2)}
+#' and \eqn{\tau_\eta \sim \text{Log-Normal}(\log\, 0.125, ((\log 4) / 1.96)^2).}
 #'
 #' Below is the syntax for specifying this fully exchangeable model in
 #' \code{blrm_exnex}.

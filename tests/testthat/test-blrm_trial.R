@@ -1529,3 +1529,17 @@ test_that(
   "ewoc_check contains all columns needed (combo3)",
   check_ewoc_check_fields(examples$combo3, c(0, 0.16, 0.33, 1), c(prob_under = 1, target = 0.9, over = 0.5))
 )
+
+
+test_that(
+  "prior_tau_dist=NULL argument gets forwarded to blrm_exnex", {
+
+    with(examples$single_agent, {
+      suppressWarnings(trial <- blrm_trial(histdata, dose_info, drug_info))
+      expect_no_error(update(trial,
+                             prior_EX_mu_comp=mixmvnorm(c(1, 0, 0, diag(c(1, 1), 2, 2) )),
+                             prior_EX_prob_comp=matrix(1, 4, 1),
+                             prior_tau_dist=NULL))
+    })
+    
+  })

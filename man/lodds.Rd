@@ -22,8 +22,8 @@ A numeric object of the same type as mu and eta containing
 the logits or inverse logit of the input values.  The logit and
 inverse transformation equates to
 
-\deqn{\mbox{logit}(\mu) = \log(\mu/(1-\mu))}{logit(\mu) = log(\mu/(1-\mu))}
-\deqn{\mbox{logit}^{-1}(\eta)= \exp(\eta)/(1 + \exp(\eta)).}{logit^-1(\eta) = exp(\eta)/(1 + exp(\eta)).}
+\deqn{\text{logit}(\mu) = \log(\mu/(1-\mu))}{logit(\mu) = log(\mu/(1-\mu))}
+\deqn{\text{logit}^{-1}(\eta)= \exp(\eta)/(1 + \exp(\eta)).}{logit^-1(\eta) = exp(\eta)/(1 + exp(\eta)).}
 }
 \description{
 Calculates the logit (log-odds) and inverse-logit.

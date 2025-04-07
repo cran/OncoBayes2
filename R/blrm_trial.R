@@ -664,9 +664,9 @@ print.blrm_trial <- function(x, ...) {
 .blrm_trial_predict <- function(trial, newdata, ...) {
   .assert_is_blrm_trial_and_prior_is_set(trial)
   assert_tibble(newdata)
-  dots <- list(...)
+  dots <- rlang::list2(...)
 
-  summary_call <- modifyList(list(object = trial$blrmfit, newdata = newdata), dots)
+  summary_call <- modifyList(list(object = trial$blrmfit, newdata = newdata), dots, keep.null=TRUE)
   trial_est <- do.call(summary, summary_call)
 
   ## For EWOC determiniation we must use the mean predictor and apply
@@ -808,22 +808,22 @@ print.blrm_trial <- function(x, ...) {
 .blrm_trial_compute_prior <- function(object, ...) {
   .assert_is_blrm_trial(object)
   trial <- object
-
-  dot.args <- list(...) # Evaluate arguments here
+  
+  dot.args <- rlang::list2(...) # Evaluate arguments here
   ref_doses <- trial[["ref_doses"]]
   formula <- as.formula(trial[["formula"]][["blrm_formula"]])
   data <- .blrm_trial_merge_data(trial, bind_rows(trial[["group_to_stratum_mapping"]], trial[["data"]]))
   ## SW: the as.name is something I picked up here:
   ## https://github.com/WinVector/wrapr/blob/master/extras/MacrosInR.md
   ## (just delete this comment if you fine with this change)
-  dot.args <- modifyList(list(formula = formula, data = as.name("data")), dot.args)
-
+  dot.args <- modifyList(list(formula = formula, data = as.name("data")), dot.args, keep.null=TRUE)
+  
   trial$blrmfit <- do.call("blrm_exnex", dot.args)
 
   trial$update_blrmfit <- function(trial, ...) {
     .assert_is_blrm_trial_and_prior_is_set(trial)
 
-    args <- list(...)
+    args <- rlang::list2(...)
     if (has_name(args, "data")) {
       args[["data"]] <- .blrm_trial_sanitize_data(trial = trial, data = args[["data"]])
       trial$data <- args[["data"]]
@@ -980,7 +980,7 @@ print.blrm_trial <- function(x, ...) {
   ## Add group to stratum mapping so groups are mapped correctly even
   ## if they do not contain data (not yet)
   group_to_stratum_mapping <- bind_rows(data[0, ], group_to_stratum_mapping)
-  group_to_stratum_mapping <- mutate(group_to_stratum_mapping, across(c(.data$num_patients, .data$num_toxicities), function(x) (0)))
+  group_to_stratum_mapping <- mutate(group_to_stratum_mapping, across(c(.data[["num_patients"]], .data[["num_toxicities"]]), function(x) (0)))
 
   group_to_stratum_mapping <- mutate(group_to_stratum_mapping, across(any_of(drug_names), function(x) (1)))
 

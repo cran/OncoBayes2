@@ -2,9 +2,8 @@
 title: "Meta-Analytic-Predictive (MAP) approach for dose-toxicity modelling"
 author: "Andrew Bean, Sebastian Weber, Lukas Widmer"
 date: "`r Sys.Date()`"
-output: 
+output:
   rmarkdown::html_vignette:
-    number_sections: TRUE
     toc: TRUE
 vignette: >
   %\VignetteIndexEntry{MAP approach to historical data}
@@ -34,7 +33,7 @@ There are two broad categories for statistical approaches to this:
   jointly analyze both the historical data and data from the current
   study. External data from concurrently running trials may also be
   incorporated in such an approach. The [introductory
-  vignette](introduction.html) illustrates this approach.
+  vignette](introduction.html) illustrates this approach. 
 - Meta-Analytic Predictive (MAP) approaches involve two stages. In the
   first, an initial hierarchical model is estimated from the
   historical data, and from this model one extracts a posterior
@@ -164,7 +163,7 @@ single-agent data. Note, equivalently, a single hierarchical
 double-combination model without any interaction could have been fit
 to those data, and would have produced the same MAP priors for the
 drug-level intercepts and slopes. A detailed specification of the
-models being fit below is given in Appendix 7.1.
+models being fit below is given in the appendix.
 
 In this example we assume that the historical data for drug A comes
 from a relatively different population (for example different line of
@@ -326,7 +325,7 @@ such we turn this part of the model off by setting
 `tau_prior_dist=NULL`. Note that doing so merely setups the model to
 use known heterogeneities $\tau$ which are fixed to a zero mean, which
 is what subsequent output will display. A detailed description of this
-model is found in Appendix 7.2.
+model is found in appendix.
 
 ```{r map_combo}
 # one row of dummy data with number of patients set to zero in order
@@ -478,7 +477,7 @@ mac_data$group_id <- factor(as.character(mac_data$group_id), levels = groups)
 
 Next, we jointly model all available data using a hierarchical
 double-combination BLRM, whose detailed specification can be found in
-Appendix 7.3. Note that the hierarchical model on the interaction
+the appendix. Note that the hierarchical model on the interaction
 parameter is not present in the combination model. This cannot be
 turned off here such that we assign a negligibly small mean value for
 the $\tau$ interaction heterogeneity.
@@ -555,9 +554,9 @@ The terms $\pi_A(d_A)$ and $\pi_B(d_B)$ represent the toxicity risk
 under each single-agent, respectively, and are modelled with logistic
 regression as in Neuenschwander et al (2008):
 
-$$ \pi_A(d_A) = \log(\alpha_A) + \beta_A \log(d_A / d_A^*)$$
+$$\pi_A(d_A) = \log(\alpha_A) + \beta_A \log(d_A / d_A^*)$$
 
-$$ \pi_B(d_B) = \log(\alpha_B) + \beta_B \log(d_B / d_B^*)$$
+$$\pi_B(d_B) = \log(\alpha_B) + \beta_B \log(d_B / d_B^*)$$
 
 The model parameters are hence $\alpha_A, \beta_A, \alpha_B$ and
 $\beta_B$ (the intercepts and slopes determining the dose-toxicity
@@ -696,7 +695,7 @@ $$ \eta_i \sim \mbox{N}(\mu_\eta, \tau^2_\eta). $$
 
 Priors for the exchangeable means $\mu$ and variances $\tau$ are
 identical to the meta-analytic models for the historical single-agent
-data in section 7.2.
+data in the previous section.
 
 # Session Info
 

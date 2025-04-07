@@ -1,3 +1,16 @@
+# OncoBayes2 0.9-2 - April 7th, 2025
+
+## Enhancements
+
+* Extend `as_draws_*` functions to `blrm_trial` inputs.
+
+## Bug fixes
+
+* Ensure that the new option `prior_tau_dist=NULL` is forwarded when
+  used via `blrm_trial` to `blrm_exnex`.
+* Make sure that `rvars` are exported as arrays when the underyling
+  parameter is structured.
+
 # OncoBayes2 0.9-1 - March 17th, 2025
 
 ## Enhancements
@@ -8,7 +21,7 @@
   MAP prior for all defined strata of the model. When set to `TRUE`
   the posterior draws contain `map_log_beta` and `map_eta` which
   correspond to respective MAP priors per stratum for new trials.
-* Allow argument `tau_prior_dist` of `blrm_exnex` to be set to
+* Allow argument `prior_tau_dist` of `blrm_exnex` to be set to
   `NULL`. This will disable the hierarchical model structure entirely
   and this simplifies specifying such models without a hierarchical
   structure (data will then be pooled across groups).

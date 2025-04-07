@@ -2,7 +2,9 @@
 title: "Guiding Oncology Dose-Escalation Trials"
 author: "Andrew Bean, Sebastian Weber, Lukas Widmer"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: TRUE
 vignette: >
   %\VignetteIndexEntry{Guiding Oncology Dose-Escalation Trials}
   %\VignetteEncoding{UTF-8}

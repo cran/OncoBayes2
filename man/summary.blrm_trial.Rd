@@ -56,13 +56,13 @@ will return these columns:
 \item{\code{rhat}}{the Monte-Carlo non-convergence diagnostic Rhat as determined with the \code{\link[posterior]{rhat} function}.}
 }
 
-For the common case of requiring that 33\\% DLT probability is not
-exceeded by more than 25\\% of the posterior probability mass, the
-estimate column \code{est} contains the 75\\% quantile
+For the common case of requiring that 33\% DLT probability is not
+exceeded by more than 25\% of the posterior probability mass, the
+estimate column \code{est} contains the 75\% quantile
 \eqn{q_{75\%}}{q75\%} and the standardized statistic \code{stat} is
 defined as:
 
-\deqn{\mbox{stat} = \frac{q_{75\%} - 33\%}{\mbox{mcse}_{q_{75\%}}}}{stat = (q75\% - 33\%)/mcse_q75\%}
+\deqn{\text{stat} = \frac{q_{75\%} - 33\%}{\text{mcse}_{q_{75\%}}}}{stat = (q75\% - 33\%)/mcse_q75\%}
 
 The statistic is approximately distributed as a standard normal
 variate. The \code{ewoc_check} summary can be used to ensure that

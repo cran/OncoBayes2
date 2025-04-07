@@ -2,6 +2,7 @@ context("posterior evaluations")
 
 ## DO NOT USE fake_sampling()
 combo2 <- run_example("combo2")
+combo2_trial <- run_example("combo2_trial")
 combo3 <- run_example("combo3")
 
 test_that("Outputs of posterior_* functions have expected shapes.", {
@@ -161,5 +162,59 @@ test_that("as_draws_rvars exports dimension labels", {
                        c("I(log(drug_A/dref[1]))", "I(log(drug_B/dref[2]))"),
                        c("intercept", "slope"))
   expect_equal(dimnames(rv$beta_group), ref_dimnames)
+})
+
+test_that("as_draws_rvars exports expected dimensions for MAP samples", {
+  suppressWarnings(combo_map <- with(combo3, update(blrmfit, sample_map=TRUE)))
+  rv <- as_draws_rvars(combo_map, variable="map_log_beta")
+  expect_equal(dim(rv$map_log_beta), c(2, 3, 2))
+})
+
+
+
+test_that("as_draws and friends have resonable outputs for blrm_trial", {
+  draws <- as_draws(combo2_trial$combo2_trial, variable = "mu_log_beta[I(log(drug_A/6)),intercept]")
+  expect_s3_class(draws, "draws_list")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/6)),intercept]")
+  expect_equal(ndraws(draws), nsamples(combo2_trial$combo2_trial))
+
+  draws <- suppressMessages(as_draws_matrix(combo2_trial$combo2_trial, variable = "mu_log_beta[I(log(drug_A/6)),intercept]"))
+  expect_s3_class(draws, "draws_matrix")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/6)),intercept]")
+  expect_equal(ndraws(draws), nsamples(combo2_trial$combo2_trial))
+
+  draws <- as_draws_array(combo2_trial$combo2_trial, variable = "mu_log_beta[I(log(drug_A/6)),intercept]")
+  expect_s3_class(draws, "draws_array")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/6)),intercept]")
+  expect_equal(ndraws(draws), nsamples(combo2_trial$combo2_trial))
+
+  draws <- as_draws_df(combo2_trial$combo2_trial, variable = "mu_log_beta[I(log(drug_A/6)),intercept]")
+  expect_s3_class(draws, "draws_df")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/6)),intercept]")
+  expect_equal(ndraws(draws), nsamples(combo2_trial$combo2_trial))
+  
+  draws <- as_draws_list(combo2_trial$combo2_trial, variable = "mu_log_beta[I(log(drug_A/6)),intercept]")
+  expect_s3_class(draws, "draws_list")
+  expect_equal(variables(draws), "mu_log_beta[I(log(drug_A/6)),intercept]")
+  expect_equal(ndraws(draws), nsamples(combo2_trial$combo2_trial))
+  
+  draws <- as_draws_rvars(combo2_trial$combo2_trial)
+  expect_s3_class(draws, "draws_rvars")
+  expect_true(nvariables(draws) > 0)
+  expect_equal(ndraws(draws), nsamples(combo2_trial$combo2_trial))
+})
+
+test_that("as_draws_rvars exports dimension labels for blrm_trial", {
+  rv <- as_draws_rvars(combo2_trial$combo2_trial, variable = "beta_group")
+  ref_dimnames <- list(c("trial_A", "trial_B", "IIT", "trial_AB"),
+                       c("I(log(drug_A/6))", "I(log(drug_B/1500))"),
+                       c("intercept", "slope"))
+  expect_equal(dimnames(rv$beta_group), ref_dimnames)
+})
+
+test_that("as_draws_rvars exports expected dimensions for MAP samples for blrm_trial", {
+  suppressWarnings(combo_map <- with(combo2_trial$combo2_trial, update(blrmfit, sample_map=TRUE)))
+  rv <- as_draws_rvars(combo_map, variable="map_log_beta")
+  expect_equal(dim(rv$map_log_beta), c(1, 2, 2))
 })
 

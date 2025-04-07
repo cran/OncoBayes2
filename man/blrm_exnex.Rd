@@ -168,7 +168,7 @@ column per interaction and one row per group. Values must lie in
 
 \item{prior_NEX_mu_comp}{List of bivariate normal mixture priors
 \eqn{\boldsymbol m_{ij}} and \eqn{\boldsymbol s_{ij} =
-  \mbox{diag}(\boldsymbol S_{ij})} of each component for
+  \text{diag}(\boldsymbol S_{ij})} of each component for
 non-exchangable case. If missing set to the same prior as given
 for the EX part. It is required that the specification be the
 same across groups j.}
@@ -180,7 +180,7 @@ same across groups j.}
 
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use \code{prior_NEX_mu_comp}
 instead. Prior mean \eqn{\boldsymbol m_{ij}} and sd
-\eqn{\boldsymbol s_{ij} = \mbox{diag}(\boldsymbol S_{ij})} of
+\eqn{\boldsymbol s_{ij} = \text{diag}(\boldsymbol S_{ij})} of
 each component for non-exchangable case. Two column matrix
 (intercept, log-slope) with one row per component. If missing set
 to the same prior as given for the EX part. It is required that
@@ -278,7 +278,7 @@ In the simplest case, the aim is to model the probability \eqn{\pi} that
 a patient experiences a DLT, by complementing the binomial likelihood with
 a monotone logistic regression
 
-\deqn{\mbox{logit}\,\pi(d) = \log\,\alpha + \beta \, t(d),}
+\deqn{\text{logit}\,\pi(d) = \log\,\alpha + \beta \, t(d),}
 
 where \eqn{\beta > 0}. Most typically, \eqn{d} represents the dose,
 and \eqn{t(d)} is an appropriate transformation, such as \eqn{t(d)
@@ -308,7 +308,7 @@ driven by the single-agent toxicity of each component, and (2)
 optional interaction terms \eqn{\gamma(d_1,d_2)} representing
 synergy or antagonism between the drugs. On the log-odds scale,
 
-\deqn{\mbox{logit} \,\pi(d_1,d_2) = \mbox{logit} \, \tilde \pi(d_1,d_2) + \eta \, \gamma(d_1,d_2). }
+\deqn{\text{logit} \,\pi(d_1,d_2) = \text{logit} \, \tilde \pi(d_1,d_2) + \eta \, \gamma(d_1,d_2). }
 
 The "no interaction" part \eqn{\tilde \pi(d_1,d_2)} represents the probability
 of a DLT triggered by either treatment component acting \emph{independently}.
@@ -318,7 +318,7 @@ In simple terms, P(no DLT for combination) = P(no DLT for drug 1) * P(no DLT fro
 To complete this part, the treatment components can then be modeled with monotone
 logistic regressions as before.
 
-\deqn{\mbox{logit} \, \pi_i(d_i) = \log\, \alpha_i + \beta_i \, t(d_i),}
+\deqn{\text{logit} \, \pi_i(d_i) = \log\, \alpha_i + \beta_i \, t(d_i),}
 
 where \eqn{t(d_i)} is a monotone transformation of the doses of the
 respective drug component $i$, such as \eqn{t(d_i) = \log (d_i \big
@@ -347,7 +347,7 @@ The model is extended to general combination treatments consisting
 of \eqn{N} components by expressing the probability \eqn{\pi} on
 the logit scale as
 
-\deqn{ \mbox{logit} \, \pi(d_1,\ldots,d_N) = \mbox{logit} \Bigl( 1 - \prod_{i = 1}^N ( 1 - \pi_i(d_i) ) \Bigr) + \sum_{k=1}^K \eta_k \, \gamma_k(d_1,\ldots,d_N), }
+\deqn{ \text{logit} \, \pi(d_1,\ldots,d_N) = \text{logit} \Bigl( 1 - \prod_{i = 1}^N ( 1 - \pi_i(d_i) ) \Bigr) + \sum_{k=1}^K \eta_k \, \gamma_k(d_1,\ldots,d_N), }
 
 Multiple drug-drug interactions among the \eqn{N} components are
 now possible, and are represented through the \eqn{K} interaction
@@ -356,7 +356,7 @@ terms \eqn{\gamma_k}.
 Regression models can be again be specified for each \eqn{\pi_i}
 and \eqn{\gamma_k}, such as
 
-\deqn{ \mbox{logit}\, \pi_i(d_i) = \log\, \alpha_i + \beta_i \, t(d_i) }
+\deqn{ \text{logit}\, \pi_i(d_i) = \log\, \alpha_i + \beta_i \, t(d_i) }
 
 Interactions for some subset \eqn{I(k) \subset \{1,\ldots,N \}} of
 the treatment components can be modeled with regression as well,
@@ -391,7 +391,7 @@ denotes the \eqn{J} groups. The resulting model allows the DLT rate
 to differ across the groups. The general \eqn{N}-component model
 becomes
 
-\deqn{ \mbox{logit} \, \pi_j(d_1,\ldots,d_N) = \mbox{logit} \Bigl( 1 - \prod_{i = 1}^N ( 1 - \pi_{ij}(d_i) ) \Bigr) + \sum_{k=1}^K \eta_{kj} \, \gamma_{k}(d_1,\ldots,d_N), }
+\deqn{ \text{logit} \, \pi_j(d_1,\ldots,d_N) = \text{logit} \Bigl( 1 - \prod_{i = 1}^N ( 1 - \pi_{ij}(d_i) ) \Bigr) + \sum_{k=1}^K \eta_{kj} \, \gamma_{k}(d_1,\ldots,d_N), }
 
 for groups \eqn{j = 1,\ldots,J}. The component toxicities
 \eqn{\pi_{ij}} and interaction terms \eqn{\gamma_{k}} are
@@ -419,7 +419,7 @@ choices are available in the function.
 \item \emph{EX (Full exchangeability):} One can assume the
 parameters are conditionally exchangeable given hyperparameters
 
-\deqn{\boldsymbol \theta_{ij} \sim \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta i} \bigr), }
+\deqn{\boldsymbol \theta_{ij} \sim \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta i} \bigr), }
 
 independently across groups \eqn{j = 1,\ldots, J} and treatment
 components \eqn{i=1,\ldots,N}. The covariance matrix
@@ -429,7 +429,7 @@ heterogeneity, and is parametrized with standard deviations
 \tau_{\beta i})} and the correlation \eqn{\rho_i}. Similarly for the
 interactions, the fully-exchangeable model is
 
-\deqn{\boldsymbol \nu_{j} \sim \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu} \bigr)}
+\deqn{\boldsymbol \nu_{j} \sim \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu} \bigr)}
 
 for groups \eqn{j = 1,\ldots, J} and interactions
 \eqn{k=1,\ldots,K}, and the prior on the covariance matrix
@@ -444,14 +444,14 @@ larger deviations of \eqn{\boldsymbol\theta_{ij}} may be expected from the mean
 \eqn{\mu_{\eta,k}}. Such differential heterogeneity can be modeled by mapping the groups
 \eqn{j = 1,\ldots,J} to \emph{strata} through \eqn{s_j \in \{1,\ldots,S\}},
 and modifying the model specification to
-\deqn{\boldsymbol \theta_{ij} \sim \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta ij} \bigr), }
+\deqn{\boldsymbol \theta_{ij} \sim \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta ij} \bigr), }
 where
 \deqn{\boldsymbol \Sigma_{\boldsymbol \theta ij} = \left( \begin{array}{cc}
 \tau^2_{\alpha s_j i} & \rho_i \tau_{\alpha s_j i} \tau_{\beta s_j i}\\
 \rho_i \tau_{\alpha s_j i} \tau_{\beta s_j i} & \tau^2_{\beta s_j i}
 \end{array} \right).}
 For the interactions, the model becomes
-\deqn{\boldsymbol \nu_{j} \sim \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu j} \bigr),}
+\deqn{\boldsymbol \nu_{j} \sim \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu j} \bigr),}
 where the covariance matrix \eqn{\boldsymbol \Sigma_{\boldsymbol \nu j}} is modelled as stratum specific standard deviations \eqn{(\tau_{\eta 1 s_j}, \ldots, \tau_{\eta K s_j})} and a stratum independent correlation matrix.
 Each stratum
 \eqn{s=1,\ldots,S} then corresponds to its own set of standard deviations \eqn{\tau} leading to different discounting per stratum.
@@ -467,11 +467,11 @@ robustness is to introduce mixture priors for the group-specific parameters,
 where one mixture component is shared across groups, and the other is group-specific.
 The result, known as an EXchangeable-NonEXchangeable (EXNEX) type prior, has a form
 
-\deqn{\boldsymbol \theta_{ij} \sim p_{\boldsymbol \theta ij}\, \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta i} \bigr) +(1-p_{\boldsymbol \theta ij})\, \mbox{N}\bigl(\boldsymbol m_{\boldsymbol \theta ij}, \boldsymbol S_{\boldsymbol \theta ij}\bigr)}
+\deqn{\boldsymbol \theta_{ij} \sim p_{\boldsymbol \theta ij}\, \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta i} \bigr) +(1-p_{\boldsymbol \theta ij})\, \text{N}\bigl(\boldsymbol m_{\boldsymbol \theta ij}, \boldsymbol S_{\boldsymbol \theta ij}\bigr)}
 
 when applied to the treatment-component parameters, and
 
-\deqn{\boldsymbol \nu_{kj} \sim p_{\boldsymbol \nu_{kj}} \,\mbox{N}\bigl(\mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu}\bigr)_k + (1-p_{\boldsymbol \nu_{kj}})\, \mbox{N}(m_{\boldsymbol \nu_{kj}}, s^2_{\boldsymbol \nu_{kj}})}
+\deqn{\boldsymbol \nu_{kj} \sim p_{\boldsymbol \nu_{kj}} \,\text{N}\bigl(\mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu}\bigr)_k + (1-p_{\boldsymbol \nu_{kj}})\, \text{N}(m_{\boldsymbol \nu_{kj}}, s^2_{\boldsymbol \nu_{kj}})}
 
 when applied to the interaction parameters. The \emph{exchangeability weights}
 \eqn{p_{\boldsymbol \theta ij}} and \eqn{p_{\boldsymbol \nu_{kj}}} are fixed constants in the interval \eqn{[0,1]}

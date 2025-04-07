@@ -30,7 +30,7 @@
 #' @template ref-bayesindustry
 #'
 #' @references
-#' Stan Development Team (2019). RStan: the R interface to Stan. R package version 2.19.2. https://mc-stan.org
+#' Stan Development Team (2024). RStan: the R interface to Stan. R package version 2.32.6. https://mc-stan.org
 
 #' @name OncoBayes2
 #' @aliases OncoBayes2

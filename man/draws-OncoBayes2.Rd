@@ -14,7 +14,13 @@
 \alias{as_draws_df.blrmfit}
 \alias{as_draws_list.blrmfit}
 \alias{as_draws_rvars.blrmfit}
-\title{Transform \code{blrmfit} to \code{draws} objects}
+\alias{as_draws.blrm_trial}
+\alias{as_draws_matrix.blrm_trial}
+\alias{as_draws_array.blrm_trial}
+\alias{as_draws_df.blrm_trial}
+\alias{as_draws_list.blrm_trial}
+\alias{as_draws_rvars.blrm_trial}
+\title{Transform \code{blrmfit} or \code{blrm_trial} to \code{draws} objects}
 \usage{
 \method{as_draws}{blrmfit}(x, variable = NULL, regex = FALSE, inc_warmup = FALSE, ...)
 
@@ -27,9 +33,21 @@
 \method{as_draws_list}{blrmfit}(x, variable = NULL, regex = FALSE, inc_warmup = FALSE, ...)
 
 \method{as_draws_rvars}{blrmfit}(x, variable = NULL, regex = FALSE, inc_warmup = FALSE, ...)
+
+\method{as_draws}{blrm_trial}(x, variable = NULL, regex = FALSE, inc_warmup = FALSE, ...)
+
+\method{as_draws_matrix}{blrm_trial}(x, variable = NULL, regex = FALSE, inc_warmup = FALSE, ...)
+
+\method{as_draws_array}{blrm_trial}(x, variable = NULL, regex = FALSE, inc_warmup = FALSE, ...)
+
+\method{as_draws_df}{blrm_trial}(x, variable = NULL, regex = FALSE, inc_warmup = FALSE, ...)
+
+\method{as_draws_list}{blrm_trial}(x, variable = NULL, regex = FALSE, inc_warmup = FALSE, ...)
+
+\method{as_draws_rvars}{blrm_trial}(x, variable = NULL, regex = FALSE, inc_warmup = FALSE, ...)
 }
 \arguments{
-\item{x}{A \code{blrmfit} object.}
+\item{x}{A \code{blrmfit} or \code{blrm_trial} object.}
 
 \item{variable}{A character vector providing the variables to
 extract.  By default, all variables are extracted.}
@@ -47,13 +65,13 @@ one of the regular expressions will be selected. Defaults to
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-Transform a \code{blrmfit} object to a format supported by the
+Transform a \code{blrmfit} or \code{blrm_trial} object to a format supported by the
 \pkg{posterior} package.
 }
 \details{
 To subset iterations, chains, or draws, use the
 \code{\link[posterior:subset_draws]{subset_draws}} method after
-transforming the \code{blrmfit} to a \code{draws} object.
+transforming the input object to a \code{draws} object.
 
 The function is experimental as the set of exported posterior
 variables are subject to updates.

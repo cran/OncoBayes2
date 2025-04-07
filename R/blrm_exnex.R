@@ -82,14 +82,14 @@
 #'   \eqn{[0-1]} range.
 #' @param prior_NEX_mu_comp List of bivariate normal mixture priors
 #'   \eqn{\boldsymbol m_{ij}} and \eqn{\boldsymbol s_{ij} =
-#'   \mbox{diag}(\boldsymbol S_{ij})} of each component for
+#'   \text{diag}(\boldsymbol S_{ij})} of each component for
 #'   non-exchangable case. If missing set to the same prior as given
 #'   for the EX part. It is required that the specification be the
 #'   same across groups j.
 #' @param prior_NEX_mu_mean_comp,prior_NEX_mu_sd_comp <!----------->
 #'   `r lifecycle::badge("deprecated")` Please use `prior_NEX_mu_comp`
 #'   instead. Prior mean \eqn{\boldsymbol m_{ij}} and sd
-#'   \eqn{\boldsymbol s_{ij} = \mbox{diag}(\boldsymbol S_{ij})} of
+#'   \eqn{\boldsymbol s_{ij} = \text{diag}(\boldsymbol S_{ij})} of
 #'   each component for non-exchangable case. Two column matrix
 #'   (intercept, log-slope) with one row per component. If missing set
 #'   to the same prior as given for the EX part. It is required that
@@ -147,7 +147,7 @@
 #' a patient experiences a DLT, by complementing the binomial likelihood with
 #' a monotone logistic regression
 #'
-#' \deqn{\mbox{logit}\,\pi(d) = \log\,\alpha + \beta \, t(d),}
+#' \deqn{\text{logit}\,\pi(d) = \log\,\alpha + \beta \, t(d),}
 #'
 #' where \eqn{\beta > 0}. Most typically, \eqn{d} represents the dose,
 #' and \eqn{t(d)} is an appropriate transformation, such as \eqn{t(d)
@@ -171,7 +171,7 @@
 #' optional interaction terms \eqn{\gamma(d_1,d_2)} representing
 #' synergy or antagonism between the drugs. On the log-odds scale,
 #'
-#' \deqn{\mbox{logit} \,\pi(d_1,d_2) = \mbox{logit} \, \tilde \pi(d_1,d_2) + \eta \, \gamma(d_1,d_2). }
+#' \deqn{\text{logit} \,\pi(d_1,d_2) = \text{logit} \, \tilde \pi(d_1,d_2) + \eta \, \gamma(d_1,d_2). }
 #'
 #' The "no interaction" part \eqn{\tilde \pi(d_1,d_2)} represents the probability
 #' of a DLT triggered by either treatment component acting \emph{independently}.
@@ -181,7 +181,7 @@
 #' To complete this part, the treatment components can then be modeled with monotone
 #' logistic regressions as before.
 #'
-#' \deqn{\mbox{logit} \, \pi_i(d_i) = \log\, \alpha_i + \beta_i \, t(d_i),}
+#' \deqn{\text{logit} \, \pi_i(d_i) = \log\, \alpha_i + \beta_i \, t(d_i),}
 #'
 #' where \eqn{t(d_i)} is a monotone transformation of the doses of the
 #' respective drug component $i$, such as \eqn{t(d_i) = \log (d_i \big
@@ -208,7 +208,7 @@
 #' of \eqn{N} components by expressing the probability \eqn{\pi} on
 #' the logit scale as
 #'
-#' \deqn{ \mbox{logit} \, \pi(d_1,\ldots,d_N) = \mbox{logit} \Bigl( 1 - \prod_{i = 1}^N ( 1 - \pi_i(d_i) ) \Bigr) + \sum_{k=1}^K \eta_k \, \gamma_k(d_1,\ldots,d_N), }
+#' \deqn{ \text{logit} \, \pi(d_1,\ldots,d_N) = \text{logit} \Bigl( 1 - \prod_{i = 1}^N ( 1 - \pi_i(d_i) ) \Bigr) + \sum_{k=1}^K \eta_k \, \gamma_k(d_1,\ldots,d_N), }
 #'
 #' Multiple drug-drug interactions among the \eqn{N} components are
 #' now possible, and are represented through the \eqn{K} interaction
@@ -217,7 +217,7 @@
 #' Regression models can be again be specified for each \eqn{\pi_i}
 #' and \eqn{\gamma_k}, such as
 #'
-#' \deqn{ \mbox{logit}\, \pi_i(d_i) = \log\, \alpha_i + \beta_i \, t(d_i) }
+#' \deqn{ \text{logit}\, \pi_i(d_i) = \log\, \alpha_i + \beta_i \, t(d_i) }
 #'
 #' Interactions for some subset \eqn{I(k) \subset \{1,\ldots,N \}} of
 #' the treatment components can be modeled with regression as well,
@@ -250,7 +250,7 @@
 #' to differ across the groups. The general \eqn{N}-component model
 #' becomes
 #'
-#' \deqn{ \mbox{logit} \, \pi_j(d_1,\ldots,d_N) = \mbox{logit} \Bigl( 1 - \prod_{i = 1}^N ( 1 - \pi_{ij}(d_i) ) \Bigr) + \sum_{k=1}^K \eta_{kj} \, \gamma_{k}(d_1,\ldots,d_N), }
+#' \deqn{ \text{logit} \, \pi_j(d_1,\ldots,d_N) = \text{logit} \Bigl( 1 - \prod_{i = 1}^N ( 1 - \pi_{ij}(d_i) ) \Bigr) + \sum_{k=1}^K \eta_{kj} \, \gamma_{k}(d_1,\ldots,d_N), }
 #'
 #' for groups \eqn{j = 1,\ldots,J}. The component toxicities
 #' \eqn{\pi_{ij}} and interaction terms \eqn{\gamma_{k}} are
@@ -278,7 +278,7 @@
 #' \item \emph{EX (Full exchangeability):} One can assume the
 #' parameters are conditionally exchangeable given hyperparameters
 #'
-#' \deqn{\boldsymbol \theta_{ij} \sim \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta i} \bigr), }
+#' \deqn{\boldsymbol \theta_{ij} \sim \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta i} \bigr), }
 #'
 #' independently across groups \eqn{j = 1,\ldots, J} and treatment
 #' components \eqn{i=1,\ldots,N}. The covariance matrix
@@ -288,7 +288,7 @@
 #' \tau_{\beta i})} and the correlation \eqn{\rho_i}. Similarly for the
 #' interactions, the fully-exchangeable model is
 #'
-#' \deqn{\boldsymbol \nu_{j} \sim \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu} \bigr)}
+#' \deqn{\boldsymbol \nu_{j} \sim \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu} \bigr)}
 #'
 #' for groups \eqn{j = 1,\ldots, J} and interactions
 #' \eqn{k=1,\ldots,K}, and the prior on the covariance matrix
@@ -303,14 +303,14 @@
 #' \eqn{\mu_{\eta,k}}. Such differential heterogeneity can be modeled by mapping the groups
 #' \eqn{j = 1,\ldots,J} to \emph{strata} through \eqn{s_j \in \{1,\ldots,S\}},
 #' and modifying the model specification to
-#' \deqn{\boldsymbol \theta_{ij} \sim \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta ij} \bigr), }
+#' \deqn{\boldsymbol \theta_{ij} \sim \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta ij} \bigr), }
 #' where
 #' \deqn{\boldsymbol \Sigma_{\boldsymbol \theta ij} = \left( \begin{array}{cc}
 #' \tau^2_{\alpha s_j i} & \rho_i \tau_{\alpha s_j i} \tau_{\beta s_j i}\\
 #' \rho_i \tau_{\alpha s_j i} \tau_{\beta s_j i} & \tau^2_{\beta s_j i}
 #' \end{array} \right).}
 #' For the interactions, the model becomes
-#' \deqn{\boldsymbol \nu_{j} \sim \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu j} \bigr),}
+#' \deqn{\boldsymbol \nu_{j} \sim \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu j} \bigr),}
 #' where the covariance matrix \eqn{\boldsymbol \Sigma_{\boldsymbol \nu j}} is modelled as stratum specific standard deviations \eqn{(\tau_{\eta 1 s_j}, \ldots, \tau_{\eta K s_j})} and a stratum independent correlation matrix.
 #' Each stratum
 #' \eqn{s=1,\ldots,S} then corresponds to its own set of standard deviations \eqn{\tau} leading to different discounting per stratum.
@@ -327,11 +327,11 @@
 #' where one mixture component is shared across groups, and the other is group-specific.
 #' The result, known as an EXchangeable-NonEXchangeable (EXNEX) type prior, has a form
 #'
-#' \deqn{\boldsymbol \theta_{ij} \sim p_{\boldsymbol \theta ij}\, \mbox{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta i} \bigr) +(1-p_{\boldsymbol \theta ij})\, \mbox{N}\bigl(\boldsymbol m_{\boldsymbol \theta ij}, \boldsymbol S_{\boldsymbol \theta ij}\bigr)}
+#' \deqn{\boldsymbol \theta_{ij} \sim p_{\boldsymbol \theta ij}\, \text{N}\bigl( \boldsymbol \mu_{\boldsymbol \theta i}, \boldsymbol \Sigma_{\boldsymbol \theta i} \bigr) +(1-p_{\boldsymbol \theta ij})\, \text{N}\bigl(\boldsymbol m_{\boldsymbol \theta ij}, \boldsymbol S_{\boldsymbol \theta ij}\bigr)}
 #'
 #' when applied to the treatment-component parameters, and
 #'
-#' \deqn{\boldsymbol \nu_{kj} \sim p_{\boldsymbol \nu_{kj}} \,\mbox{N}\bigl(\mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu}\bigr)_k + (1-p_{\boldsymbol \nu_{kj}})\, \mbox{N}(m_{\boldsymbol \nu_{kj}}, s^2_{\boldsymbol \nu_{kj}})}
+#' \deqn{\boldsymbol \nu_{kj} \sim p_{\boldsymbol \nu_{kj}} \,\text{N}\bigl(\mu_{\boldsymbol \nu}, \boldsymbol \Sigma_{\boldsymbol \nu}\bigr)_k + (1-p_{\boldsymbol \nu_{kj}})\, \text{N}(m_{\boldsymbol \nu_{kj}}, s^2_{\boldsymbol \nu_{kj}})}
 #'
 #' when applied to the interaction parameters. The \emph{exchangeability weights}
 #' \eqn{p_{\boldsymbol \theta ij}} and \eqn{p_{\boldsymbol \nu_{kj}}} are fixed constants in the interval \eqn{[0,1]}
@@ -717,23 +717,23 @@ blrm_exnex <- function(formula,
   }
   assert_numeric(prior_EX_corr_eta_comp, lower = 0, finite = TRUE, any.missing = FALSE, len = num_comp)
 
-  if(use_non_mixture_prior_args) { 
+  if(use_non_mixture_prior_args) {
     if (!has_inter & missing(prior_EX_mu_mean_inter)) {
       prior_EX_mu_mean_inter <- array(0, dim = 0)
     }
     if (!has_inter & missing(prior_EX_mu_sd_inter)) {
       prior_EX_mu_sd_inter <- array(0, dim = 0)
     }
-    assert_numeric(prior_EX_mu_mean_inter, any.missing = FALSE, len = num_inter)
-    assert_numeric(prior_EX_mu_sd_inter, any.missing = FALSE, len = num_inter, lower = 0)
+    assert_double(prior_EX_mu_mean_inter, any.missing = FALSE, len = num_inter)
+    assert_double(prior_EX_mu_sd_inter, any.missing = FALSE, len = num_inter, lower = 0)
 
     if (has_inter) {
-      prior_EX_mu_inter <- .args2mix(prior_EX_mu_mean_inter, prior_EX_mu_sd_inter)
+      prior_EX_mu_inter <- .args2mix(as.vector(prior_EX_mu_mean_inter), as.vector(prior_EX_mu_sd_inter))
     }
   }
 
   if(!missing(prior_EX_mu_inter)) {
-    .assert_mixmvnorm(prior_EX_mu_inter, dim=num_inter)
+    .assert_mixmvnorm(prior_EX_mu_inter, dim=num_inter, null.ok=TRUE)
   }
   
   if (has_inter) {
@@ -758,8 +758,8 @@ blrm_exnex <- function(formula,
       prior_EX_tau_inter <- list()
       for (s in 1:num_strata) {
         prior_EX_tau_inter[[s]] <- .args2mix(
-          adrop(prior_EX_tau_mean_inter[s, , drop = FALSE], 1),
-          adrop(prior_EX_tau_sd_inter[s, , drop = FALSE], 1)
+          prior_EX_tau_mean_inter[s, , drop = TRUE],
+          prior_EX_tau_sd_inter[s, , drop = TRUE]
         )
       }
       standata_prior_EX_tau_inter_strata <- lapply(prior_EX_tau_inter, .priormix2stan, prefix = "prior_EX_tau_inter_")
@@ -837,7 +837,7 @@ blrm_exnex <- function(formula,
     assert_numeric(prior_NEX_mu_sd_inter, any.missing = FALSE, len = num_inter, lower = 0)
     
     if (has_inter) {
-      prior_NEX_mu_inter <- .args2mix(prior_NEX_mu_mean_inter, prior_NEX_mu_sd_inter)
+      prior_NEX_mu_inter <- .args2mix(as.vector(prior_NEX_mu_mean_inter), as.vector(prior_NEX_mu_sd_inter))
     }
   }
   
@@ -1136,7 +1136,7 @@ blrm_exnex <- function(formula,
     }    
   }
   names(prior_comp) <- paste0("comp_", 1:num_comp)
-  prior_comp
+  return(prior_comp)
 }
 
 #' @keywords internal
@@ -1160,17 +1160,18 @@ blrm_exnex <- function(formula,
       }
     }
   }
-  mix
+  return(mix)
 }
 
 #' @keywords internal
-.assert_mixmvnorm <- function(mix, dim, .var.name=checkmate::vname(mix)) {
+.assert_mixmvnorm <- function(mix, dim, .var.name=checkmate::vname(mix), null.ok=FALSE) {
+  if (null.ok & is.null(mix)) return(invisible(TRUE))
   assert_class(mix, "mvnormMix")
   if(!missing(dim)) {
     mix_dim <- .mvnormdim(mix[-1,1])
     assert_that(mix_dim == dim, msg=paste0("Assertion on '", .var.name, "' failed: Dimensionality must be ", dim, ", but found ", mix_dim, "."))
   }
-  invisible(TRUE)
+  return(invisible(TRUE))
 }
 
 #' @keywords internal
@@ -1181,7 +1182,7 @@ blrm_exnex <- function(formula,
   for(i in seq_len(length(list_mix))) {
     checks[i] <- .assert_mixmvnorm(list_mix[[i]], dim, paste0(vn, "[[", i, "]]"))
   }
-  invisible(checks)
+  return(invisible(checks))
 }
 
 #' @keywords internal
@@ -1192,7 +1193,7 @@ blrm_exnex <- function(formula,
   prior_mix$m <- array(0, c(0, p))
   prior_mix$sigma <- array(0, c(0, p, p))
   names(prior_mix) <- paste0(prefix, names(prior_mix))
-  prior_mix
+  return(prior_mix)
 }
 
 #' @keywords internal

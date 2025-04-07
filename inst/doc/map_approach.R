@@ -3,6 +3,8 @@
 library(OncoBayes2)
 library(posterior)
 library(RBesT)
+library(dplyr)
+library(tidyr)
 library(knitr)
 library(ggplot2)
 ggplot2::theme_set(bayesplot::bayesplot_theme_get())

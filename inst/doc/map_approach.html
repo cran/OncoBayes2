@@ -12,7 +12,7 @@
 
 <meta name="author" content="Andrew Bean, Sebastian Weber, Lukas Widmer" />
 
-<meta name="date" content="2025-03-17" />
+<meta name="date" content="2025-04-07" />
 
 <title>Meta-Analytic-Predictive (MAP) approach for dose-toxicity modelling</title>
 
@@ -342,54 +342,56 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">Meta-Analytic-Predictive (MAP) approach for
 dose-toxicity modelling</h1>
 <h4 class="author">Andrew Bean, Sebastian Weber, Lukas Widmer</h4>
-<h4 class="date">2025-03-17</h4>
+<h4 class="date">2025-04-07</h4>
 
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a></li>
-<li><a href="#application-background" id="toc-application-background"><span class="toc-section-number">2</span> Application background</a>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#application-background" id="toc-application-background">Application background</a>
 <ul>
-<li><a href="#historical-data" id="toc-historical-data"><span class="toc-section-number">2.1</span> Historical data</a></li>
+<li><a href="#historical-data" id="toc-historical-data">Historical
+data</a></li>
 </ul></li>
-<li><a href="#derivation-of-map-priors" id="toc-derivation-of-map-priors"><span class="toc-section-number">3</span> Derivation of MAP priors</a>
+<li><a href="#derivation-of-map-priors" id="toc-derivation-of-map-priors">Derivation of MAP priors</a>
 <ul>
-<li><a href="#drug-a-model" id="toc-drug-a-model"><span class="toc-section-number">3.1</span> Drug A model</a></li>
-<li><a href="#drug-b-model" id="toc-drug-b-model"><span class="toc-section-number">3.2</span> Drug B model</a></li>
-<li><a href="#extraction-of-map-priors" id="toc-extraction-of-map-priors"><span class="toc-section-number">3.3</span> Extraction of MAP priors</a>
+<li><a href="#drug-a-model" id="toc-drug-a-model">Drug A model</a></li>
+<li><a href="#drug-b-model" id="toc-drug-b-model">Drug B model</a></li>
+<li><a href="#extraction-of-map-priors" id="toc-extraction-of-map-priors">Extraction of MAP priors</a>
 <ul>
-<li><a href="#mcmc-samples" id="toc-mcmc-samples"><span class="toc-section-number">3.3.1</span> MCMC samples</a></li>
-<li><a href="#mixture-approximation" id="toc-mixture-approximation"><span class="toc-section-number">3.3.2</span> Mixture approximation</a></li>
+<li><a href="#mcmc-samples" id="toc-mcmc-samples">MCMC samples</a></li>
+<li><a href="#mixture-approximation" id="toc-mixture-approximation">Mixture approximation</a></li>
 </ul></li>
 </ul></li>
-<li><a href="#combination-model-with-map-priors-for-the-new-study" id="toc-combination-model-with-map-priors-for-the-new-study"><span class="toc-section-number">4</span> Combination model with MAP priors
-for the new study</a>
+<li><a href="#combination-model-with-map-priors-for-the-new-study" id="toc-combination-model-with-map-priors-for-the-new-study">Combination
+model with MAP priors for the new study</a>
 <ul>
-<li><a href="#robustification" id="toc-robustification"><span class="toc-section-number">4.1</span> Robustification</a></li>
+<li><a href="#robustification" id="toc-robustification">Robustification</a></li>
 </ul></li>
-<li><a href="#equivalence-of-map-and-mac-advanced" id="toc-equivalence-of-map-and-mac-advanced"><span class="toc-section-number">5</span> Equivalence of MAP and MAC
+<li><a href="#equivalence-of-map-and-mac-advanced" id="toc-equivalence-of-map-and-mac-advanced">Equivalence of MAP and MAC
 (advanced)</a></li>
-<li><a href="#appendix-model-specification" id="toc-appendix-model-specification"><span class="toc-section-number">6</span> Appendix: Model specification</a>
+<li><a href="#appendix-model-specification" id="toc-appendix-model-specification">Appendix: Model specification</a>
 <ul>
-<li><a href="#combination-blrm-new-study-model" id="toc-combination-blrm-new-study-model"><span class="toc-section-number">6.1</span> Combination BLRM (new study
+<li><a href="#combination-blrm-new-study-model" id="toc-combination-blrm-new-study-model">Combination BLRM (new study
 model)</a>
 <ul>
-<li><a href="#prior-specification" id="toc-prior-specification"><span class="toc-section-number">6.1.1</span> Prior specification</a></li>
+<li><a href="#prior-specification" id="toc-prior-specification">Prior
+specification</a></li>
 </ul></li>
-<li><a href="#meta-analytic-models-for-the-historical-data" id="toc-meta-analytic-models-for-the-historical-data"><span class="toc-section-number">6.2</span> Meta-analytic models for the
-historical data</a>
+<li><a href="#meta-analytic-models-for-the-historical-data" id="toc-meta-analytic-models-for-the-historical-data">Meta-analytic
+models for the historical data</a>
 <ul>
-<li><a href="#prior-specification-1" id="toc-prior-specification-1"><span class="toc-section-number">6.2.1</span> Prior specification</a></li>
+<li><a href="#prior-specification-1" id="toc-prior-specification-1">Prior specification</a></li>
 </ul></li>
-<li><a href="#hierarchical-model-for-combined-data-mac" id="toc-hierarchical-model-for-combined-data-mac"><span class="toc-section-number">6.3</span> Hierarchical model for combined
-data (MAC)</a></li>
+<li><a href="#hierarchical-model-for-combined-data-mac" id="toc-hierarchical-model-for-combined-data-mac">Hierarchical model for
+combined data (MAC)</a></li>
 </ul></li>
-<li><a href="#session-info" id="toc-session-info"><span class="toc-section-number">7</span> Session Info</a></li>
+<li><a href="#session-info" id="toc-session-info">Session Info</a></li>
 </ul>
 </div>
 
-<div id="introduction" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Introduction</h1>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <p>A common characteristic of modern applications of the Bayesian
 Logistic Regression Model (BLRM) for model-based dose escalation is the
 availability of relevant historical data on the study treatment(s). For
@@ -438,32 +440,31 @@ application.</p>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(knitr)</span></code></pre></div>
 </div>
-<div id="application-background" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Application
-background</h1>
+<div id="application-background" class="section level1">
+<h1>Application background</h1>
 <p>We consider a case study involving a Phase-I dose-escalation study of
 a combination therapy of two compounds, drug A and drug B, in a
 population of adult patients with solid-tumor cancers. The primary
 objective of the study was to identify the Maximum Tolerated Dose (MTD)
 or Recommended Phase-2 Dose (RP2D) of the combination.</p>
-<div id="historical-data" class="section level2" number="2.1">
-<h2><span class="header-section-number">2.1</span> Historical data</h2>
+<div id="historical-data" class="section level2">
+<h2>Historical data</h2>
 <p>In this application, each of the two compounds had previously been
 tested in single-agent Phase-I dose escalation studies. MTDs had been
 declared for each drug:</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th align="left">Drug</th>
 <th align="left">Declared MTD</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td align="left">Drug A</td>
 <td align="left">100mg</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">Drug B</td>
 <td align="left">3mg</td>
 </tr>
@@ -474,39 +475,39 @@ dose-toxicity data from the two single-agent studies.</p>
 <table>
 <caption>Historical data from single-agent study of Drug A</caption>
 <thead>
-<tr>
+<tr class="header">
 <th align="right">Drug A</th>
 <th align="right">Evaluable patients</th>
 <th align="right">DLTs</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td align="right">12.5</td>
 <td align="right">1</td>
 <td align="right">0</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">25.0</td>
 <td align="right">1</td>
 <td align="right">0</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">50.0</td>
 <td align="right">3</td>
 <td align="right">0</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">80.0</td>
 <td align="right">9</td>
 <td align="right">1</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">100.0</td>
 <td align="right">23</td>
 <td align="right">4</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">150.0</td>
 <td align="right">3</td>
 <td align="right">2</td>
@@ -516,49 +517,49 @@ dose-toxicity data from the two single-agent studies.</p>
 <table>
 <caption>Historical data from single-agent study of Drug B</caption>
 <thead>
-<tr>
+<tr class="header">
 <th align="right">Drug B dose</th>
 <th align="right">Evaluable patients</th>
 <th align="right">DLTs</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td align="right">0.125</td>
 <td align="right">2</td>
 <td align="right">0</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">0.250</td>
 <td align="right">1</td>
 <td align="right">0</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">0.500</td>
 <td align="right">2</td>
 <td align="right">0</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">1.000</td>
 <td align="right">2</td>
 <td align="right">0</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">2.000</td>
 <td align="right">3</td>
 <td align="right">1</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">2.500</td>
 <td align="right">7</td>
 <td align="right">0</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">3.000</td>
 <td align="right">12</td>
 <td align="right">0</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">4.000</td>
 <td align="right">3</td>
 <td align="right">1</td>
@@ -572,9 +573,8 @@ priors for the respective parameters - <span class="math inline">\(\alpha_A\)</s
 meta-analysis of the historical data.</p>
 </div>
 </div>
-<div id="derivation-of-map-priors" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Derivation of MAP
-priors</h1>
+<div id="derivation-of-map-priors" class="section level1">
+<h1>Derivation of MAP priors</h1>
 <p>In the MAP approach, we begin with meta-analytic hierarchical
 modelling of the historical data, accounting for the possibility of
 between-trial heterogeneity. It is important to note that this is done
@@ -588,34 +588,34 @@ population and further factors which depend on a specific case:</p>
 <table>
 <caption>Heterogeneity categorization for intercept <span class="math inline">\(\alpha\)</span> and slope <span class="math inline">\(\beta\)</span></caption>
 <thead>
-<tr>
+<tr class="header">
 <th align="left">Heterogeneity degree</th>
 <th align="right"><span class="math inline">\(\tau_\alpha\)</span></th>
 <th align="right"><span class="math inline">\(\tau_\beta\)</span></th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td align="left">small</td>
 <td align="right">0.125</td>
 <td align="right">0.0625</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">moderate</td>
 <td align="right">0.250</td>
 <td align="right">0.1250</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="left">substantial</td>
 <td align="right">0.500</td>
 <td align="right">0.2500</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">large</td>
 <td align="right">1.000</td>
 <td align="right">0.5000</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="left">very large</td>
 <td align="right">2.000</td>
 <td align="right">1.0000</td>
@@ -627,14 +627,14 @@ single-agent data. Note, equivalently, a single hierarchical
 double-combination model without any interaction could have been fit to
 those data, and would have produced the same MAP priors for the
 drug-level intercepts and slopes. A detailed specification of the models
-being fit below is given in Appendix 7.1.</p>
+being fit below is given in the appendix.</p>
 <p>In this example we assume that the historical data for drug A comes
 from a relatively different population (for example different line of
 therapy) and the historical data for drug B stems from a very closely
 related patient population. This translates into respective choices for
 the between-trial heterogeneity priors according to the table above.</p>
-<div id="drug-a-model" class="section level2" number="3.1">
-<h2><span class="header-section-number">3.1</span> Drug A model</h2>
+<div id="drug-a-model" class="section level2">
+<h2>Drug A model</h2>
 <p>Implementation of this meta-analysis of single-agent data is done
 using <code>blrm_exnex()</code>. In order to obtain directly a sample of
 the MAP prior, we set the <code>sample_map</code> argument to
@@ -674,8 +674,8 @@ the MAP prior, we set the <code>sample_map</code> argument to
 <span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>  <span class="at">sample_map =</span> <span class="cn">TRUE</span></span>
 <span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>)</span></code></pre></div>
 </div>
-<div id="drug-b-model" class="section level2" number="3.2">
-<h2><span class="header-section-number">3.2</span> Drug B model</h2>
+<div id="drug-b-model" class="section level2">
+<h2>Drug B model</h2>
 <p>Similarly, for drug B:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># historical data for drug B</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>hist_B <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -711,14 +711,13 @@ the MAP prior, we set the <code>sample_map</code> argument to
 <span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>  <span class="at">sample_map =</span> <span class="cn">TRUE</span></span>
 <span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>)</span></code></pre></div>
 </div>
-<div id="extraction-of-map-priors" class="section level2" number="3.3">
-<h2><span class="header-section-number">3.3</span> Extraction of MAP
-priors</h2>
+<div id="extraction-of-map-priors" class="section level2">
+<h2>Extraction of MAP priors</h2>
 <p>We now illustrate how these meta-analytic model fits can be used to
 produce a parametric MAP prior for the new study intercepts and
 slopes.</p>
-<div id="mcmc-samples" class="section level3" number="3.3.1">
-<h3><span class="header-section-number">3.3.1</span> MCMC samples</h3>
+<div id="mcmc-samples" class="section level3">
+<h3>MCMC samples</h3>
 <p>Since we called <code>blrm_exnex</code> with the
 <code>sample_map=TRUE</code> argument, the posterior now contains the
 respective MAP prior MCMC samples for <code>&quot;map_log_beta&quot;</code>
@@ -743,9 +742,8 @@ array):</p>
 ##     intercept     log_slope 
 ## -2.74 ± 0.62  -0.45 ± 0.53</code></pre>
 </div>
-<div id="mixture-approximation" class="section level3" number="3.3.2">
-<h3><span class="header-section-number">3.3.2</span> Mixture
-approximation</h3>
+<div id="mixture-approximation" class="section level3">
+<h3>Mixture approximation</h3>
 <p>In order to leverage these MAP distributions in analyzing the new
 combination study data, we need to operationalize them as parametric
 prior distributions for the combination model. This is done by
@@ -797,9 +795,8 @@ from <code>RBesT</code>:</p>
 </div>
 </div>
 </div>
-<div id="combination-model-with-map-priors-for-the-new-study" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> Combination model with
-MAP priors for the new study</h1>
+<div id="combination-model-with-map-priors-for-the-new-study" class="section level1">
+<h1>Combination model with MAP priors for the new study</h1>
 <p>Finally, these mixtures become the prior distributions for the
 combination dose-toxicity model in the new study. In this combination
 model we now do not need any longer a hierarchical model structure such
@@ -807,7 +804,7 @@ we turn this part of the model off by setting
 <code>tau_prior_dist=NULL</code>. Note that doing so merely setups the
 model to use known heterogeneities <span class="math inline">\(\tau\)</span> which are fixed to a zero mean,
 which is what subsequent output will display. A detailed description of
-this model is found in Appendix 7.2.</p>
+this model is found in appendix.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># one row of dummy data with number of patients set to zero in order</span></span>
 <span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co"># to allow the model to be fit</span></span>
 <span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>dummy_data_AB <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -862,7 +859,7 @@ a high risk of DLTs in terms of the posterior mean,</p>
 <table>
 <caption>Posterior summary statistics for P(DLT) by dose</caption>
 <thead>
-<tr>
+<tr class="header">
 <th align="right">Drug A</th>
 <th align="right">Drug B</th>
 <th align="right">mean</th>
@@ -871,84 +868,84 @@ a high risk of DLTs in terms of the posterior mean,</p>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td align="right">25</td>
 <td align="right">0.5</td>
 <td align="right">0.10</td>
 <td align="right">0.08</td>
 <td align="right">0.01</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">50</td>
 <td align="right">0.5</td>
 <td align="right">0.16</td>
 <td align="right">0.12</td>
 <td align="right">0.08</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">80</td>
 <td align="right">0.5</td>
 <td align="right">0.24</td>
 <td align="right">0.17</td>
 <td align="right">0.26</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">100</td>
 <td align="right">0.5</td>
 <td align="right">0.30</td>
 <td align="right">0.20</td>
 <td align="right">0.37</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">25</td>
 <td align="right">1.0</td>
 <td align="right">0.13</td>
 <td align="right">0.10</td>
 <td align="right">0.05</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">50</td>
 <td align="right">1.0</td>
 <td align="right">0.19</td>
 <td align="right">0.16</td>
 <td align="right">0.19</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">80</td>
 <td align="right">1.0</td>
 <td align="right">0.28</td>
 <td align="right">0.22</td>
 <td align="right">0.33</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">100</td>
 <td align="right">1.0</td>
 <td align="right">0.33</td>
 <td align="right">0.25</td>
 <td align="right">0.43</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">25</td>
 <td align="right">3.0</td>
 <td align="right">0.23</td>
 <td align="right">0.19</td>
 <td align="right">0.25</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">50</td>
 <td align="right">3.0</td>
 <td align="right">0.29</td>
 <td align="right">0.25</td>
 <td align="right">0.36</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">80</td>
 <td align="right">3.0</td>
 <td align="right">0.35</td>
 <td align="right">0.29</td>
 <td align="right">0.45</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">100</td>
 <td align="right">3.0</td>
 <td align="right">0.39</td>
@@ -971,7 +968,7 @@ cohort size (6 used as example here):</p>
 <table>
 <caption>Posterior predictive summary for Pr(DLT) by dose</caption>
 <thead>
-<tr>
+<tr class="header">
 <th align="right">Drug A</th>
 <th align="right">Drug B</th>
 <th align="right">Pr(0 of 6 DLT)</th>
@@ -980,84 +977,84 @@ cohort size (6 used as example here):</p>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td align="right">25</td>
 <td align="right">0.5</td>
 <td align="right">0.58</td>
 <td align="right">0.29</td>
 <td align="right">0.13</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">50</td>
 <td align="right">0.5</td>
 <td align="right">0.45</td>
 <td align="right">0.31</td>
 <td align="right">0.24</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">80</td>
 <td align="right">0.5</td>
 <td align="right">0.32</td>
 <td align="right">0.29</td>
 <td align="right">0.40</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">100</td>
 <td align="right">0.5</td>
 <td align="right">0.26</td>
 <td align="right">0.26</td>
 <td align="right">0.49</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">25</td>
 <td align="right">1.0</td>
 <td align="right">0.51</td>
 <td align="right">0.30</td>
 <td align="right">0.19</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">50</td>
 <td align="right">1.0</td>
 <td align="right">0.40</td>
 <td align="right">0.28</td>
 <td align="right">0.31</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">80</td>
 <td align="right">1.0</td>
 <td align="right">0.31</td>
 <td align="right">0.24</td>
 <td align="right">0.44</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">100</td>
 <td align="right">1.0</td>
 <td align="right">0.27</td>
 <td align="right">0.22</td>
 <td align="right">0.51</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">25</td>
 <td align="right">3.0</td>
 <td align="right">0.37</td>
 <td align="right">0.26</td>
 <td align="right">0.37</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">50</td>
 <td align="right">3.0</td>
 <td align="right">0.34</td>
 <td align="right">0.22</td>
 <td align="right">0.45</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">80</td>
 <td align="right">3.0</td>
 <td align="right">0.29</td>
 <td align="right">0.19</td>
 <td align="right">0.52</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">100</td>
 <td align="right">3.0</td>
 <td align="right">0.26</td>
@@ -1075,8 +1072,8 @@ introduction of a possible interaction between the two drugs. With the
 increased uncertainty in the dose-toxicity curve, the escalation with
 overdose criterion EWOC automatically penalizes this lack of knowledge
 and requires a conservative starting dose for escalation.</p>
-<div id="robustification" class="section level2" number="4.1">
-<h2><span class="header-section-number">4.1</span> Robustification</h2>
+<div id="robustification" class="section level2">
+<h2>Robustification</h2>
 <p>Direct use of the MAP priors assumes ex-changeability of the
 historical and the new trial data. However, this assumption can be
 violated such that we may wish to robustify the analysis. This can be
@@ -1115,9 +1112,8 @@ the EXNEX model is a joint model fit.</p>
 <span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;bottom&quot;</span>)</span></code></pre></div>
 </div>
 </div>
-<div id="equivalence-of-map-and-mac-advanced" class="section level1" number="5">
-<h1><span class="header-section-number">5</span> Equivalence of MAP and
-MAC (advanced)</h1>
+<div id="equivalence-of-map-and-mac-advanced" class="section level1">
+<h1>Equivalence of MAP and MAC (advanced)</h1>
 <p>To demonstrate the equivalence of MAP and MAC, we will illustrate
 implementation of the latter approach.</p>
 <p>First, we combine the data from all three sources.</p>
@@ -1126,7 +1122,7 @@ implementation of the latter approach.</p>
 <span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>mac_data<span class="sc">$</span>group_id <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">as.character</span>(mac_data<span class="sc">$</span>group_id), <span class="at">levels =</span> groups)</span></code></pre></div>
 <p>Next, we jointly model all available data using a hierarchical
 double-combination BLRM, whose detailed specification can be found in
-Appendix 7.3. Note that the hierarchical model on the interaction
+the appendix. Note that the hierarchical model on the interaction
 parameter is not present in the combination model. This cannot be turned
 off here such that we assign a negligibly small mean value for the <span class="math inline">\(\tau\)</span> interaction heterogeneity.</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>dummy_tau_inter <span class="ot">&lt;-</span> <span class="fu">mixmvnorm</span>(<span class="fu">c</span>(<span class="fl">1.0</span>, <span class="fu">log</span>(<span class="fl">1E-4</span>), (<span class="fu">log</span>(<span class="dv">2</span>) <span class="sc">/</span> <span class="fl">1.96</span>)<span class="sc">^</span><span class="dv">2</span>))</span>
@@ -1179,7 +1175,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <col width="20%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th align="right">Drug A</th>
 <th align="right">Drug B</th>
 <th align="right">MAP mean</th>
@@ -1190,7 +1186,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td align="right">25</td>
 <td align="right">0.5</td>
 <td align="right">0.10</td>
@@ -1199,7 +1195,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.01</td>
 <td align="right">0.02</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">50</td>
 <td align="right">0.5</td>
 <td align="right">0.16</td>
@@ -1208,7 +1204,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.08</td>
 <td align="right">0.09</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">80</td>
 <td align="right">0.5</td>
 <td align="right">0.24</td>
@@ -1217,7 +1213,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.26</td>
 <td align="right">0.25</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">100</td>
 <td align="right">0.5</td>
 <td align="right">0.30</td>
@@ -1226,7 +1222,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.37</td>
 <td align="right">0.37</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">25</td>
 <td align="right">1.0</td>
 <td align="right">0.13</td>
@@ -1235,7 +1231,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.05</td>
 <td align="right">0.05</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">50</td>
 <td align="right">1.0</td>
 <td align="right">0.19</td>
@@ -1244,7 +1240,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.19</td>
 <td align="right">0.17</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">80</td>
 <td align="right">1.0</td>
 <td align="right">0.28</td>
@@ -1253,7 +1249,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.33</td>
 <td align="right">0.33</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">100</td>
 <td align="right">1.0</td>
 <td align="right">0.33</td>
@@ -1262,7 +1258,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.43</td>
 <td align="right">0.42</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">25</td>
 <td align="right">3.0</td>
 <td align="right">0.23</td>
@@ -1271,7 +1267,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.25</td>
 <td align="right">0.23</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">50</td>
 <td align="right">3.0</td>
 <td align="right">0.29</td>
@@ -1280,7 +1276,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.36</td>
 <td align="right">0.35</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="right">80</td>
 <td align="right">3.0</td>
 <td align="right">0.35</td>
@@ -1289,7 +1285,7 @@ off here such that we assign a negligibly small mean value for the <span class="
 <td align="right">0.45</td>
 <td align="right">0.44</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="right">100</td>
 <td align="right">3.0</td>
 <td align="right">0.39</td>
@@ -1301,12 +1297,10 @@ off here such that we assign a negligibly small mean value for the <span class="
 </tbody>
 </table>
 </div>
-<div id="appendix-model-specification" class="section level1" number="6">
-<h1><span class="header-section-number">6</span> Appendix: Model
-specification</h1>
-<div id="combination-blrm-new-study-model" class="section level2" number="6.1">
-<h2><span class="header-section-number">6.1</span> Combination BLRM (new
-study model)</h2>
+<div id="appendix-model-specification" class="section level1">
+<h1>Appendix: Model specification</h1>
+<div id="combination-blrm-new-study-model" class="section level2">
+<h2>Combination BLRM (new study model)</h2>
 <p>Let <span class="math inline">\(d_A\)</span> and <span class="math inline">\(d_B\)</span> represent the doses of drugs A and B,
 respectively. The dose-toxicity model for the combination expresses the
 DLT probability <span class="math inline">\(\pi_{AB}(d_A, d_B)\)</span>
@@ -1327,9 +1321,9 @@ interaction model.</p>
 <p>The terms <span class="math inline">\(\pi_A(d_A)\)</span> and <span class="math inline">\(\pi_B(d_B)\)</span> represent the toxicity risk
 under each single-agent, respectively, and are modelled with logistic
 regression as in Neuenschwander et al (2008):</p>
-<p><span class="math display">\[ \pi_A(d_A) = \log(\alpha_A) + \beta_A
+<p><span class="math display">\[\pi_A(d_A) = \log(\alpha_A) + \beta_A
 \log(d_A / d_A^*)\]</span></p>
-<p><span class="math display">\[ \pi_B(d_B) = \log(\alpha_B) + \beta_B
+<p><span class="math display">\[\pi_B(d_B) = \log(\alpha_B) + \beta_B
 \log(d_B / d_B^*)\]</span></p>
 <p>The model parameters are hence <span class="math inline">\(\alpha_A,
 \beta_A, \alpha_B\)</span> and <span class="math inline">\(\beta_B\)</span> (the intercepts and slopes
@@ -1342,9 +1336,8 @@ relevant information is available to inform prior distributions for the
 intercepts and slopes. Specifically, in this example, we have used MAP
 priors based on analysis of the historical data under meta-analytic
 models.</p>
-<div id="prior-specification" class="section level3" number="6.1.1">
-<h3><span class="header-section-number">6.1.1</span> Prior
-specification</h3>
+<div id="prior-specification" class="section level3">
+<h3>Prior specification</h3>
 <p>For the intercepts and slopes, the MAP priors have the form</p>
 <p><span class="math display">\[ (\log \alpha_A, \log \beta_A ) \sim
 \sum_{k = 1}^{K_A} w_{Ak} \mbox{BVN}( \mathbf m_{Ak}, \mathbf S_{Ak} ),
@@ -1391,9 +1384,8 @@ multipliers of <span class="math inline">\(1/9\)</span> and <span class="math in
 model).</p>
 </div>
 </div>
-<div id="meta-analytic-models-for-the-historical-data" class="section level2" number="6.2">
-<h2><span class="header-section-number">6.2</span> Meta-analytic models
-for the historical data</h2>
+<div id="meta-analytic-models-for-the-historical-data" class="section level2">
+<h2>Meta-analytic models for the historical data</h2>
 <p>The MAP approach begins with hierarchical meta-analytic modelling of
 the historical data, allowing for the possibility of between-study
 heterogeneity.</p>
@@ -1440,9 +1432,8 @@ A}, s^2_{\tau \beta A}) \]</span></p>
 <p>and for the correlation,</p>
 <p><span class="math display">\[ \rho_A \sim \mbox{U}(-1, 1).
 \]</span></p>
-<div id="prior-specification-1" class="section level3" number="6.2.1">
-<h3><span class="header-section-number">6.2.1</span> Prior
-specification</h3>
+<div id="prior-specification-1" class="section level3">
+<h3>Prior specification</h3>
 <p>Both models, for drugs A and B, used the same set of
 hyper-parameters:</p>
 <ul>
@@ -1466,9 +1457,8 @@ m_{\tau \beta B} = \log(0.125)\]</span> <span class="math display">\[s_{\tau \al
 \alpha B} = s_{\tau \beta B} = (\log 2) / 1.96\]</span></p>
 </div>
 </div>
-<div id="hierarchical-model-for-combined-data-mac" class="section level2" number="6.3">
-<h2><span class="header-section-number">6.3</span> Hierarchical model
-for combined data (MAC)</h2>
+<div id="hierarchical-model-for-combined-data-mac" class="section level2">
+<h2>Hierarchical model for combined data (MAC)</h2>
 <p>The MAC model is a combined model for data from all sources (both
 single-agent trials and the planned combination study). Letting <span class="math inline">\(i\)</span> index these sources, the model covers
 toxicity of any combination of doses of the two agents:</p>
@@ -1494,15 +1484,15 @@ borrowing across data sources.</p>
 <p><span class="math display">\[ \eta_i \sim \mbox{N}(\mu_\eta,
 \tau^2_\eta). \]</span></p>
 <p>Priors for the exchangeable means <span class="math inline">\(\mu\)</span> and variances <span class="math inline">\(\tau\)</span> are identical to the meta-analytic
-models for the historical single-agent data in section 7.2.</p>
+models for the historical single-agent data in the previous section.</p>
 </div>
 </div>
-<div id="session-info" class="section level1" number="7">
-<h1><span class="header-section-number">7</span> Session Info</h1>
+<div id="session-info" class="section level1">
+<h1>Session Info</h1>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 4.4.2 (2024-10-31)
 ## Platform: aarch64-apple-darwin20
-## Running under: macOS Sequoia 15.3.1
+## Running under: macOS Sequoia 15.3.2
 ## 
 ## Matrix products: default
 ## BLAS:   /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib 
@@ -1518,8 +1508,8 @@ models for the historical single-agent data in section 7.2.</p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] tibble_3.2.1     tidyr_1.3.1      dplyr_1.1.4      ggplot2_3.5.1   
-## [5] knitr_1.47       posterior_1.6.0  OncoBayes2_0.9-1 RBesT_1.8-1     
+## [1] tibble_3.2.1     ggplot2_3.5.1    knitr_1.47       tidyr_1.3.1     
+## [5] dplyr_1.1.4      posterior_1.6.0  OncoBayes2_0.9-2 RBesT_1.8-1     
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] gtable_0.3.5          tensorA_0.36.2.1      xfun_0.45            
@@ -1540,7 +1530,7 @@ models for the historical single-agent data in section 7.2.</p>
 ## [46] fastmap_1.2.0         grid_4.4.2            colorspace_2.1-0     
 ## [49] cli_3.6.2             magrittr_2.0.3        loo_2.7.0            
 ## [52] pkgbuild_1.4.4        utf8_1.2.4            withr_3.0.0          
-## [55] scales_1.3.0          backports_1.5.0       rmarkdown_2.27       
+## [55] scales_1.3.0          backports_1.5.0       rmarkdown_2.29       
 ## [58] matrixStats_1.3.0     gridExtra_2.3         ragg_1.3.2           
 ## [61] evaluate_0.24.0       V8_4.4.2              rstantools_2.4.0.9000
 ## [64] rlang_1.1.4           isoband_0.2.7         Rcpp_1.0.12          
