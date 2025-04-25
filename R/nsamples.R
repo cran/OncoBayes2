@@ -18,7 +18,10 @@
 #' @aliases nsamples
 #' @export
 nsamples.blrmfit <- function(object, ...) {
-  return(object$stanfit@sim$chains * (object$stanfit@sim$iter - object$stanfit@sim$warmup))
+  return(
+    object$stanfit@sim$chains *
+      (object$stanfit@sim$iter - object$stanfit@sim$warmup)
+  )
 }
 
 #' @method nsamples blrm_trial

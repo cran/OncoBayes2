@@ -1,3 +1,12 @@
+# OncoBayes2 0.9-3 - April 25th, 2025
+
+## Bug fixes
+
+* Fix issue with using multiple strata and the new argument
+  `prior_tau_dist=NULL` of `blrm_exnex`.
+* Fix issues with draws extraction functions which ignored the
+  `inc_warmup` argument.
+
 # OncoBayes2 0.9-2 - April 7th, 2025
 
 ## Enhancements

@@ -9,10 +9,12 @@ test_that("blrm_exnex meets SBC requirements wrt to a Chi-Square statistic.", {
     ungroup()
   num_tests <- nrow(sbc_chisq_test)
   num_failed <- sum(sbc_chisq_test$p.value < 0.05)
-  expect_integer(num_failed,
-                 lower=qbinom(0.025, num_tests, 0.05),
-                 upper=qbinom(0.975, num_tests, 0.05),
-                 any.missing=FALSE)
+  expect_integer(
+    num_failed,
+    lower = qbinom(0.025, num_tests, 0.05),
+    upper = qbinom(0.975, num_tests, 0.05),
+    any.missing = FALSE
+  )
 })
 
 test_that("blrm_exnex meets SBC requirements per bin.", {
@@ -25,16 +27,22 @@ test_that("blrm_exnex meets SBC requirements per bin.", {
   crit_low <- qbinom(alpha / 2, S, ptrue)
   crit_high <- qbinom(1 - alpha / 2, S, ptrue)
   sbc_binom_test <- OncoBayes2:::calibration_data |>
-    summarise(crit = sum(count < crit_low | count > crit_high),
-              .by=c(data_scenario, param)) |>
-    mutate(pvalue = pbinom(crit, B, alpha),
-           extreme = pvalue < 0.025 | pvalue > 0.975)
+    summarise(
+      crit = sum(count < crit_low | count > crit_high),
+      .by = c(data_scenario, param)
+    ) |>
+    mutate(
+      pvalue = pbinom(crit, B, alpha),
+      extreme = pvalue < 0.025 | pvalue > 0.975
+    )
   num_tests <- nrow(sbc_binom_test)
   num_failed <- sum(sbc_binom_test$extreme)
-  expect_integer(num_failed,
-                 lower=qbinom(0.025, num_tests, 0.05),
-                 upper=qbinom(0.975, num_tests, 0.05),
-                 any.missing=FALSE)
+  expect_integer(
+    num_failed,
+    lower = qbinom(0.025, num_tests, 0.05),
+    upper = qbinom(0.975, num_tests, 0.05),
+    any.missing = FALSE
+  )
 })
 
 test_that("blrm_exnex data was up to date at package creation.", {

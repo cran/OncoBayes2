@@ -18,12 +18,17 @@ test_that("critical interval probabilites are consistent for blrmfit objects", {
   ## recovering the respective doses
 
   nd <- mutate(hist_SA, drug_A = drug_A + 5)
-  post_inter_1 <- summary(single_agent_fit, newdata = nd, interval_prob = c(0, 0.1, 1))
-  
+  post_inter_1 <- summary(
+    single_agent_fit,
+    newdata = nd,
+    interval_prob = c(0, 0.1, 1)
+  )
+
   ## now recover the doses which the summary corresponds to, lower tails & upper tails
   for (r in seq_len(nrow(nd))) {
     ndr <- nd[r, , drop = FALSE]
-    crit_dose_low <- critical_quantile(single_agent_fit,
+    crit_dose_low <- critical_quantile(
+      single_agent_fit,
       newdata = ndr,
       x = "drug_A",
       p = post_inter_1[r, "[0,0.1]"],
@@ -32,7 +37,8 @@ test_that("critical interval probabilites are consistent for blrmfit objects", {
       interval.x = c(0, 20)
     )
     expect_equal(crit_dose_low, ndr$drug_A, tolerance = eps)
-    crit_dose_up <- critical_quantile(single_agent_fit,
+    crit_dose_up <- critical_quantile(
+      single_agent_fit,
       newdata = ndr,
       x = "drug_A",
       p = post_inter_1[r, "(0.1,1]"],
@@ -45,15 +51,21 @@ test_that("critical interval probabilites are consistent for blrmfit objects", {
 
   ## check interval probs... these are not entierly unique. Solution
   ## depends on search range, but it's determinstic what you get.
-  post_inter_2 <- summary(single_agent_fit, newdata = nd, interval_prob = c(0, 0.1, 0.8, 1))
+  post_inter_2 <- summary(
+    single_agent_fit,
+    newdata = nd,
+    interval_prob = c(0, 0.1, 0.8, 1)
+  )
   for (r in seq_len(nrow(nd))) {
     ndr <- nd[r, , drop = FALSE]
-    crit_dose_inter <- critical_quantile(single_agent_fit,
+    crit_dose_inter <- critical_quantile(
+      single_agent_fit,
       newdata = ndr,
       x = "drug_A",
       p = post_inter_2[r, "(0.1,0.8]"],
       qc = c(0.1, 0.8),
-      interval.x = c(2, 30), maxiter = 500
+      interval.x = c(2, 30),
+      maxiter = 500
     )
     expect_equal(crit_dose_inter, ndr$drug_A, tolerance = eps)
   }
@@ -68,12 +80,19 @@ test_that("predictive critical interval probabilites are consistent for blrmfit 
   ## recovering the respective doses
 
   nd <- mutate(hist_SA, drug_A = drug_A + 5, num_patients = 10)
-  post_inter_1 <- summary(single_agent_fit, newdata = nd, interval_prob = c(-0.1, 0.101, 1), predictive = TRUE, transform = TRUE)
-  
+  post_inter_1 <- summary(
+    single_agent_fit,
+    newdata = nd,
+    interval_prob = c(-0.1, 0.101, 1),
+    predictive = TRUE,
+    transform = TRUE
+  )
+
   ## now recover the doses which the summary corresponds to, lower tails & upper tails
   for (r in seq_len(nrow(nd))) {
     ndr <- nd[r, , drop = FALSE]
-    crit_dose_low <- critical_quantile(single_agent_fit,
+    crit_dose_low <- critical_quantile(
+      single_agent_fit,
       newdata = ndr,
       x = "drug_A",
       p = post_inter_1[r, "(-0.1,0.101]"],
@@ -83,7 +102,8 @@ test_that("predictive critical interval probabilites are consistent for blrmfit 
       predictive = TRUE
     )
     expect_equal(crit_dose_low, ndr$drug_A, tolerance = eps)
-    crit_dose_up <- critical_quantile(single_agent_fit,
+    crit_dose_up <- critical_quantile(
+      single_agent_fit,
       newdata = ndr,
       x = "drug_A",
       p = post_inter_1[r, "(0.101,1]"],
@@ -97,11 +117,18 @@ test_that("predictive critical interval probabilites are consistent for blrmfit 
 
   ## check interval probs... these are not entierly unique. Solution
   ## depends on search range, but it's determinstic what you get.
-  post_inter_2 <- summary(single_agent_fit, newdata = nd, interval_prob = c(0, 0.101, 0.79, 1), predictive = TRUE, transform = TRUE)
-  
+  post_inter_2 <- summary(
+    single_agent_fit,
+    newdata = nd,
+    interval_prob = c(0, 0.101, 0.79, 1),
+    predictive = TRUE,
+    transform = TRUE
+  )
+
   for (r in seq_len(nrow(nd))) {
     ndr <- nd[r, , drop = FALSE]
-    crit_dose_inter <- critical_quantile(single_agent_fit,
+    crit_dose_inter <- critical_quantile(
+      single_agent_fit,
       newdata = ndr,
       x = "drug_A",
       p = post_inter_2[r, "(0.101,0.79]"],
@@ -122,17 +149,39 @@ test_that("critical interval probabilites defaults for blrm_trial objects are co
   with(example, {
     ## create basic blrm trial
     dose_info <- mutate(dose_info, drug1 = 1.0 * drug1)
-    suppressWarnings(trial <- blrm_trial(histdata, dose_info, drug_info, simplified_prior = TRUE, interval_prob = c(0, 0.16, 0.33, 1), interval_max_mass = c(under = 1, target = 1, over = 0.25)))
+    suppressWarnings(
+      trial <- blrm_trial(
+        histdata,
+        dose_info,
+        drug_info,
+        simplified_prior = TRUE,
+        interval_prob = c(0, 0.16, 0.33, 1),
+        interval_max_mass = c(under = 1, target = 1, over = 0.25)
+      )
+    )
     dc <- critical_quantile(trial)
 
-    sc <- summary(trial, newdata = mutate(dose_info, drug1 = dc), interval_prob = c(0.33, 1))
+    sc <- summary(
+      trial,
+      newdata = mutate(dose_info, drug1 = dc),
+      interval_prob = c(0.33, 1)
+    )
     ref <- rep(0.25, times = nrow(dose_info))
     test <- pull(sc, "[0.33,1]")
-    
+
     expect_equal(test, ref, tolerance = 2 * eps)
 
     ## trial with non-standard EWOC will trigger an error with defaults
-    suppressWarnings(trial2 <- blrm_trial(histdata, dose_info, drug_info, simplified_prior = TRUE, interval_prob = c(0, 0.16, 0.33, 1), interval_max_mass = c(under = 0.2, target = 1, over = 0.25)))
+    suppressWarnings(
+      trial2 <- blrm_trial(
+        histdata,
+        dose_info,
+        drug_info,
+        simplified_prior = TRUE,
+        interval_prob = c(0, 0.16, 0.33, 1),
+        interval_max_mass = c(under = 0.2, target = 1, over = 0.25)
+      )
+    )
     expect_error(critical_quantile(trial2))
   })
 })
@@ -145,7 +194,20 @@ test_that("critical interval probabilites work for fractionals", {
   ## were wrong in this case leading to no output from the
   ## function. Thus, the expectation here is to get output.
   nd <- mutate(hist_SA, drug_A = drug_A + 5)
-  crit <- critical_quantile(single_agent_fit, newdata = nd, x = "drug_A", p = 0.25, qc = c(1 / 3, 1))
+  crit <- critical_quantile(
+    single_agent_fit,
+    newdata = nd,
+    x = "drug_A",
+    p = 0.25,
+    qc = c(1 / 3, 1)
+  )
 
-  expect_numeric(crit, lower = 0, finite = TRUE, any.missing = FALSE, all.missing = FALSE, len = nrow(nd))
+  expect_numeric(
+    crit,
+    lower = 0,
+    finite = TRUE,
+    any.missing = FALSE,
+    all.missing = FALSE,
+    len = nrow(nd)
+  )
 })

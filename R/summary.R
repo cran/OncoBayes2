@@ -57,8 +57,23 @@
 #'
 #' @method summary blrmfit
 #' @export
-summary.blrmfit <- function(object, newdata, transform = !predictive, prob = 0.95, interval_prob, predictive = FALSE, ...) {
-  assert_numeric(prob, lower = 0, upper = 1, finite = TRUE, any.missing = FALSE, min.len = 1)
+summary.blrmfit <- function(
+  object,
+  newdata,
+  transform = !predictive,
+  prob = 0.95,
+  interval_prob,
+  predictive = FALSE,
+  ...
+) {
+  assert_numeric(
+    prob,
+    lower = 0,
+    upper = 1,
+    finite = TRUE,
+    any.missing = FALSE,
+    min.len = 1
+  )
 
   data <- object$data
   if (!missing(newdata)) {
@@ -93,9 +108,14 @@ summary.blrmfit <- function(object, newdata, transform = !predictive, prob = 0.9
       outcomes_row <- 0:sizes[r]
       nor <- length(outcomes_row)
       Pr <- matrix(post_prob[, r], nrow = nor, ncol = draws, byrow = TRUE)
-      pred_lpmf[seq_len(nor), r] <- apply(dbinom(outcomes_row, sizes[r], prob = Pr, log = TRUE), 1, log_mean_exp)
+      pred_lpmf[seq_len(nor), r] <- apply(
+        dbinom(outcomes_row, sizes[r], prob = Pr, log = TRUE),
+        1,
+        log_mean_exp
+      )
       ## normalize to sum-to-one per column
-      pred_lpmf[seq_len(nor), r] <- pred_lpmf[seq_len(nor), r] - matrixStats::logSumExp(pred_lpmf[seq_len(nor), r])
+      pred_lpmf[seq_len(nor), r] <- pred_lpmf[seq_len(nor), r] -
+        matrixStats::logSumExp(pred_lpmf[seq_len(nor), r])
       pred_pmf[, r] <- exp(pred_lpmf[, r])
       pred_cpmf[seq_len(nor), r] <- cumsum(pred_pmf[seq_len(nor), r])
       ## ensure that largest number is truly 1.0
@@ -109,7 +129,11 @@ summary.blrmfit <- function(object, newdata, transform = !predictive, prob = 0.9
       ## transform outcomes to 0-1 scaled response rates
       all_outcomes <- sweep(all_outcomes, 2, sizes, "/")
       if (any(sizes == 0)) {
-        warning("Data rows ", paste(which(sizes == 0), collapse = ", "), " contain trials of size 0.")
+        warning(
+          "Data rows ",
+          paste(which(sizes == 0), collapse = ", "),
+          " contain trials of size 0."
+        )
       }
     }
 
@@ -118,7 +142,11 @@ summary.blrmfit <- function(object, newdata, transform = !predictive, prob = 0.9
 
     quants <- matrix(NA, nrow = nr, ncol = length(probs))
     for (r in seq_len(nr)) {
-      quants[r, ] <- findInterval(probs, pred_cpmf[seq_len(sizes[r] + 1), r], left.open = FALSE)
+      quants[r, ] <- findInterval(
+        probs,
+        pred_cpmf[seq_len(sizes[r] + 1), r],
+        left.open = FALSE
+      )
     }
     if (transform) {
       quants <- sweep(quants, 1, sizes, "/")
@@ -128,21 +156,38 @@ summary.blrmfit <- function(object, newdata, transform = !predictive, prob = 0.9
 
     if (!missing(interval_prob)) {
       if (transform) {
-        assert_numeric(interval_prob, lower = -1, upper = 1, any.missing = FALSE, sorted = TRUE, finite = TRUE)
+        assert_numeric(
+          interval_prob,
+          lower = -1,
+          upper = 1,
+          any.missing = FALSE,
+          sorted = TRUE,
+          finite = TRUE
+        )
       } else {
         assert_integerish(interval_prob, any.missing = FALSE, sorted = TRUE)
       }
-      
+
       nip <- length(interval_prob)
       out_interval <- matrix(NA, nrow = nr, ncol = nip + 1)
       for (r in seq_len(nr)) {
         all_outcomes_r <- all_outcomes[seq_len(sizes[r] + 1), r]
-        outcome_idx <- findInterval(c(-Inf, interval_prob, Inf), all_outcomes_r, left.open = FALSE)
+        outcome_idx <- findInterval(
+          c(-Inf, interval_prob, Inf),
+          all_outcomes_r,
+          left.open = FALSE
+        )
         cpmf <- c(0, pred_cpmf[, r])
         out_interval[r, ] <- diff(cpmf[outcome_idx + 1])
       }
       out_interval <- out_interval[, -c(1, nip + 1), drop = FALSE]
-      colnames(out_interval) <- paste0("(", interval_prob[seq_len(nip - 1)], ",", interval_prob[1 + seq_len(nip - 1)], "]")
+      colnames(out_interval) <- paste0(
+        "(",
+        interval_prob[seq_len(nip - 1)],
+        ",",
+        interval_prob[1 + seq_len(nip - 1)],
+        "]"
+      )
       out_sum <- cbind(out_sum, as.data.frame(out_interval))
     }
   } else {
@@ -154,7 +199,11 @@ summary.blrmfit <- function(object, newdata, transform = !predictive, prob = 0.9
         if (all(is.na(l))) {
           return(rep(NA, times = 2 + length(probs)))
         }
-        c(mean = mean(l), sd = sd(l), quantile(l, probs = probs, type = quantile_type))
+        c(
+          mean = mean(l),
+          sd = sd(l),
+          quantile(l, probs = probs, type = quantile_type)
+        )
       })))
     } else {
       out_sum <- data.frame(0.0 * matrix(ncol = (2 + length(probs)), nrow = 0))
@@ -164,15 +213,43 @@ summary.blrmfit <- function(object, newdata, transform = !predictive, prob = 0.9
       if (transform) {
         ## negative values are admissable as we otherwise cannot
         ## include 0
-        assert_numeric(interval_prob, lower = -1, upper = 1, any.missing = FALSE, sorted = TRUE, finite = TRUE)
+        assert_numeric(
+          interval_prob,
+          lower = -1,
+          upper = 1,
+          any.missing = FALSE,
+          sorted = TRUE,
+          finite = TRUE
+        )
       } else {
-        assert_numeric(interval_prob, any.missing = FALSE, sorted = TRUE, finite = TRUE)
+        assert_numeric(
+          interval_prob,
+          any.missing = FALSE,
+          sorted = TRUE,
+          finite = TRUE
+        )
       }
       if (ncol(post) > 0) {
-        out_interval <- as.data.frame(t(apply(post, 2, function(l) table(cut(l, breaks = c(interval_prob, Inf), include.lowest = TRUE)) / S)))
+        out_interval <- as.data.frame(t(apply(
+          post,
+          2,
+          function(l)
+            table(cut(
+              l,
+              breaks = c(interval_prob, Inf),
+              include.lowest = TRUE
+            )) /
+              S
+        )))
       } else {
-        out_interval <- data.frame(0.0 * matrix(ncol = length(interval_prob), nrow = 0))
-        colnames(out_interval) <- levels(cut(numeric(0), breaks = c(interval_prob, Inf), include.lowest = TRUE))
+        out_interval <- data.frame(
+          0.0 * matrix(ncol = length(interval_prob), nrow = 0)
+        )
+        colnames(out_interval) <- levels(cut(
+          numeric(0),
+          breaks = c(interval_prob, Inf),
+          include.lowest = TRUE
+        ))
       }
 
       out_interval <- out_interval[, -ncol(out_interval), drop = FALSE]
@@ -180,7 +257,11 @@ summary.blrmfit <- function(object, newdata, transform = !predictive, prob = 0.9
     }
   }
 
-  names(out_sum)[seq_len(2 + length(probs))] <- c("mean", "sd", paste0(100 * probs, "%"))
+  names(out_sum)[seq_len(2 + length(probs))] <- c(
+    "mean",
+    "sd",
+    paste0(100 * probs, "%")
+  )
 
   rownames(out_sum) <- rn
   out_sum
@@ -267,22 +348,23 @@ summary.blrmfit <- function(object, newdata, transform = !predictive, prob = 0.9
 #' @method summary blrm_trial
 #' @export
 summary.blrm_trial <- function(
-    object,
-    summarize = c(
-      "blrmfit",
-      "blrm_exnex_call",
-      "data",
-      "drug_info",
-      "dose_info",
-      "dose_prediction",
-      "data_prediction",
-      "newdata_prediction",
-      "dimensionality",
-      "interval_prob",
-      "interval_max_mass",
-      "ewoc_check"
-    ),
-    ...) {
+  object,
+  summarize = c(
+    "blrmfit",
+    "blrm_exnex_call",
+    "data",
+    "drug_info",
+    "dose_info",
+    "dose_prediction",
+    "data_prediction",
+    "newdata_prediction",
+    "dimensionality",
+    "interval_prob",
+    "interval_max_mass",
+    "ewoc_check"
+  ),
+  ...
+) {
   args <- list(...)
   if (missing(summarize)) {
     if ("newdata" %in% names(args)) {
@@ -294,9 +376,17 @@ summary.blrm_trial <- function(
     summarize <- match.arg(summarize)
   }
 
-
-
-  if (summarize %in% c("blrmfit", "blrm_exnex_call", "dose_prediction", "data_prediction", "newdata_prediction", "ewoc_check")) {
+  if (
+    summarize %in%
+      c(
+        "blrmfit",
+        "blrm_exnex_call",
+        "dose_prediction",
+        "data_prediction",
+        "newdata_prediction",
+        "ewoc_check"
+      )
+  ) {
     .assert_is_blrm_trial_and_prior_is_set(object)
   } else {
     .assert_is_blrm_trial(object)
@@ -313,7 +403,10 @@ summary.blrm_trial <- function(
 
     args_without_newdata <- args
     args_without_newdata[["newdata"]] <- NULL
-    do.call(".blrm_trial_predict", c(list(object, args[["newdata"]]), args_without_newdata))
+    do.call(
+      ".blrm_trial_predict",
+      c(list(object, args[["newdata"]]), args_without_newdata)
+    )
   }
 
   ewoc_check <- function() {
@@ -332,12 +425,16 @@ summary.blrm_trial <- function(
 
     args_without_newdata <- args
     args_without_newdata[["newdata"]] <- NULL
-    ewoc_check <- do.call(".blrm_trial_compute_ewoc_check", c(list(object, newdata = args[["newdata"]]), args_without_newdata))
+    ewoc_check <- do.call(
+      ".blrm_trial_compute_ewoc_check",
+      c(list(object, newdata = args[["newdata"]]), args_without_newdata)
+    )
     .blrm_trial_ewoc_check(object, ewoc_check)
     ewoc_check
   }
 
-  switch(summarize,
+  switch(
+    summarize,
     blrmfit = summary(object$blrmfit, ...),
     blrm_exnex_call = object$blrmfit$call,
     drug_info = object$drug_info,
@@ -346,7 +443,12 @@ summary.blrm_trial <- function(
     data = object$data,
     data_prediction = .blrm_trial_predict(object, object$data, ...),
     newdata_prediction = newdata_predict(),
-    dimensionality = object[c("num_components", "num_interaction_terms", "num_groups", "num_strata")],
+    dimensionality = object[c(
+      "num_components",
+      "num_interaction_terms",
+      "num_groups",
+      "num_strata"
+    )],
     interval_prob = object$interval_prob,
     interval_max_mass = object$interval_max_mass,
     ewoc_check = ewoc_check()

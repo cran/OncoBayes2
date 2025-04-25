@@ -46,7 +46,15 @@ posterior_predict.blrmfit <- function(object, newdata, draws, ...) {
   num_trials <- pp_binomial_trials(object, newdata)
 
   ## pr <- t(apply(dat, 1, rbinom, n=num_obs, size=num_trials))
-  pr <- matrix(rbinom(num_sims * num_obs, matrix(num_trials, nrow = num_sims, ncol = num_obs, byrow = TRUE), dat), nrow = num_sims, ncol = num_obs)
+  pr <- matrix(
+    rbinom(
+      num_sims * num_obs,
+      matrix(num_trials, nrow = num_sims, ncol = num_obs, byrow = TRUE),
+      dat
+    ),
+    nrow = num_sims,
+    ncol = num_obs
+  )
   colnames(pr) <- colnames(dat)
   pr
 }
@@ -56,8 +64,18 @@ posterior_predict.blrmfit <- function(object, newdata, draws, ...) {
 posterior_predict.blrm_trial <- function(object, newdata, draws, ...) {
   .assert_is_blrm_trial_and_prior_is_set(object)
   if (missing(newdata)) {
-    return(posterior_predict.blrmfit(object$blrmfit, newdata = object$data, draws = draws, ...))
+    return(posterior_predict.blrmfit(
+      object$blrmfit,
+      newdata = object$data,
+      draws = draws,
+      ...
+    ))
   } else {
-    return(posterior_predict.blrmfit(object$blrmfit, newdata = newdata, draws = draws, ...))
+    return(posterior_predict.blrmfit(
+      object$blrmfit,
+      newdata = newdata,
+      draws = draws,
+      ...
+    ))
   }
 }

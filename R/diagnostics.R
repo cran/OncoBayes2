@@ -80,5 +80,8 @@ neff_ratio.blrmfit <- function(object, pars = NULL, ...) {
 ## --- internal
 
 .contains_draws <- function(object) {
-  assert_that(nsamples(object) > 0, msg = "The model does not contain posterior draws.")
+  assert_that(
+    nsamples(object) > 0,
+    msg = "The model does not contain posterior draws."
+  )
 }

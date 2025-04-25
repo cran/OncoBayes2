@@ -389,58 +389,60 @@
 #'
 #' # updated posterior summary
 #' summ_upd <- summary(blrmfit_new, newdata = newdata, interval_prob = c(0, 0.16, 0.33, 1))
-#' print(cbind(newdata, summ_upd)) 
+#' print(cbind(newdata, summ_upd))
 #' @template stop-example
 #'
 #' @export
-blrm_exnex <- function(formula,
-                       data,
-                       prior_EX_mu_comp,
-                       prior_EX_mu_mean_comp,
-                       prior_EX_mu_sd_comp,
-                       
-                       prior_EX_tau_comp,
-                       prior_EX_tau_mean_comp,
-                       prior_EX_tau_sd_comp,
+blrm_exnex <- function(
+  formula,
+  data,
+  prior_EX_mu_comp,
+  prior_EX_mu_mean_comp,
+  prior_EX_mu_sd_comp,
 
-                       prior_EX_corr_eta_comp,
+  prior_EX_tau_comp,
+  prior_EX_tau_mean_comp,
+  prior_EX_tau_sd_comp,
 
-                       prior_EX_mu_inter,
-                       prior_EX_mu_mean_inter,
-                       prior_EX_mu_sd_inter,
+  prior_EX_corr_eta_comp,
 
-                       prior_EX_tau_inter,
-                       prior_EX_tau_mean_inter,
-                       prior_EX_tau_sd_inter,
+  prior_EX_mu_inter,
+  prior_EX_mu_mean_inter,
+  prior_EX_mu_sd_inter,
 
-                       prior_EX_corr_eta_inter,
-                       prior_is_EXNEX_inter,
-                       prior_is_EXNEX_comp,
-                       prior_EX_prob_comp,
-                       prior_EX_prob_inter,
+  prior_EX_tau_inter,
+  prior_EX_tau_mean_inter,
+  prior_EX_tau_sd_inter,
 
-                       prior_NEX_mu_comp,
-                       prior_NEX_mu_mean_comp,
-                       prior_NEX_mu_sd_comp,
+  prior_EX_corr_eta_inter,
+  prior_is_EXNEX_inter,
+  prior_is_EXNEX_comp,
+  prior_EX_prob_comp,
+  prior_EX_prob_inter,
 
-                       prior_NEX_mu_inter,
-                       prior_NEX_mu_mean_inter,
-                       prior_NEX_mu_sd_inter,
-                       prior_tau_dist,
+  prior_NEX_mu_comp,
+  prior_NEX_mu_mean_comp,
+  prior_NEX_mu_sd_comp,
 
-                       sample_map=FALSE,
-                       
-                       iter = getOption("OncoBayes2.MC.iter", 2000),
-                       warmup = getOption("OncoBayes2.MC.warmup", 1000),
-                       save_warmup = getOption("OncoBayes2.MC.save_warmup", TRUE),
-                       thin = getOption("OncoBayes2.MC.thin", 1),
-                       init = getOption("OncoBayes2.MC.init", 0.5),
-                       chains = getOption("OncoBayes2.MC.chains", 4),
-                       cores = getOption("mc.cores", 1L),
-                       control = getOption("OncoBayes2.MC.control", list()),
-                       backend = getOption("OncoBayes2.MC.backend", "rstan"),
-                       prior_PD = FALSE,
-                       verbose = FALSE) {
+  prior_NEX_mu_inter,
+  prior_NEX_mu_mean_inter,
+  prior_NEX_mu_sd_inter,
+  prior_tau_dist,
+
+  sample_map = FALSE,
+
+  iter = getOption("OncoBayes2.MC.iter", 2000),
+  warmup = getOption("OncoBayes2.MC.warmup", 1000),
+  save_warmup = getOption("OncoBayes2.MC.save_warmup", TRUE),
+  thin = getOption("OncoBayes2.MC.thin", 1),
+  init = getOption("OncoBayes2.MC.init", 0.5),
+  chains = getOption("OncoBayes2.MC.chains", 4),
+  cores = getOption("mc.cores", 1L),
+  control = getOption("OncoBayes2.MC.control", list()),
+  backend = getOption("OncoBayes2.MC.backend", "rstan"),
+  prior_PD = FALSE,
+  verbose = FALSE
+) {
   call <- match.call()
 
   if (missing(data)) {
@@ -481,64 +483,116 @@ blrm_exnex <- function(formula,
 
   ## check if any of the deprecated non-mixture arguments have been
   ## used
-  non_mixture_prior_args <- c("prior_EX_mu_mean_comp", "prior_EX_mu_sd_comp",
-                              "prior_EX_tau_mean_comp", "prior_EX_tau_sd_comp",
-                              "prior_EX_mu_mean_inter", "prior_EX_mu_sd_inter",
-                              "prior_EX_tau_mean_inter", "prior_EX_tau_sd_inter",
-                              "prior_NEX_mu_mean_comp", "prior_NEX_mu_sd_comp",
-                              "prior_NEX_mu_mean_inter", "prior_NEX_mu_sd_inter")
+  non_mixture_prior_args <- c(
+    "prior_EX_mu_mean_comp",
+    "prior_EX_mu_sd_comp",
+    "prior_EX_tau_mean_comp",
+    "prior_EX_tau_sd_comp",
+    "prior_EX_mu_mean_inter",
+    "prior_EX_mu_sd_inter",
+    "prior_EX_tau_mean_inter",
+    "prior_EX_tau_sd_inter",
+    "prior_NEX_mu_mean_comp",
+    "prior_NEX_mu_sd_comp",
+    "prior_NEX_mu_mean_inter",
+    "prior_NEX_mu_sd_inter"
+  )
 
-  mixture_prior_args <- c("prior_EX_mu_comp", 
-                          "prior_EX_tau_comp",
-                          "prior_EX_mu_inter",
-                          "prior_EX_tau_inter",
-                          "prior_NEX_mu_comp",
-                          "prior_NEX_mu_inter")
+  mixture_prior_args <- c(
+    "prior_EX_mu_comp",
+    "prior_EX_tau_comp",
+    "prior_EX_mu_inter",
+    "prior_EX_tau_inter",
+    "prior_NEX_mu_comp",
+    "prior_NEX_mu_inter"
+  )
 
-  prior_args <- grep("^prior", names(call), value=TRUE)
-  
-  if("prior_EX_mu_mean_comp" %in% prior_args)
-    deprecate_warn("0.9.0", "blrm_exnex(prior_EX_mu_mean_comp)", "blrm_exnex(prior_EX_mu_comp)")
-  if("prior_EX_mu_sd_comp" %in% prior_args)
-    deprecate_warn("0.9.0", "blrm_exnex(prior_EX_mu_sd_comp)", "blrm_exnex(prior_EX_mu_comp)")
+  prior_args <- grep("^prior", names(call), value = TRUE)
 
-  if("prior_EX_mu_mean_inter" %in% prior_args)
-    deprecate_warn("0.9.0", "blrm_exnex(prior_EX_mu_mean_inter)", "blrm_exnex(prior_EX_mu_inter)")
-  if("prior_EX_mu_sd_inter" %in% prior_args)
-    deprecate_warn("0.9.0", "blrm_exnex(prior_EX_mu_sd_inter)", "blrm_exnex(prior_EX_mu_inter)")
-  
-  if("prior_EX_tau_mean_comp" %in% prior_args)
-    deprecate_warn("0.9.0", "blrm_exnex(prior_EX_tau_mean_comp)", "blrm_exnex(prior_EX_tau_comp)")
-  if("prior_EX_tau_sd_comp" %in% prior_args)
-    deprecate_warn("0.9.0", "blrm_exnex(prior_EX_tau_sd_comp)", "blrm_exnex(prior_EX_tau_comp)")
+  if ("prior_EX_mu_mean_comp" %in% prior_args)
+    deprecate_warn(
+      "0.9.0",
+      "blrm_exnex(prior_EX_mu_mean_comp)",
+      "blrm_exnex(prior_EX_mu_comp)"
+    )
+  if ("prior_EX_mu_sd_comp" %in% prior_args)
+    deprecate_warn(
+      "0.9.0",
+      "blrm_exnex(prior_EX_mu_sd_comp)",
+      "blrm_exnex(prior_EX_mu_comp)"
+    )
 
-  if("prior_EX_tau_mean_inter" %in% prior_args)
-    deprecate_warn("0.9.0", "blrm_exnex(prior_EX_tau_mean_inter)", "blrm_exnex(prior_EX_tau_inter)")
-  if("prior_EX_tau_sd_inter" %in% prior_args)
-    deprecate_warn("0.9.0", "blrm_exnex(prior_EX_tau_sd_inter)", "blrm_exnex(prior_EX_tau_inter)")
+  if ("prior_EX_mu_mean_inter" %in% prior_args)
+    deprecate_warn(
+      "0.9.0",
+      "blrm_exnex(prior_EX_mu_mean_inter)",
+      "blrm_exnex(prior_EX_mu_inter)"
+    )
+  if ("prior_EX_mu_sd_inter" %in% prior_args)
+    deprecate_warn(
+      "0.9.0",
+      "blrm_exnex(prior_EX_mu_sd_inter)",
+      "blrm_exnex(prior_EX_mu_inter)"
+    )
+
+  if ("prior_EX_tau_mean_comp" %in% prior_args)
+    deprecate_warn(
+      "0.9.0",
+      "blrm_exnex(prior_EX_tau_mean_comp)",
+      "blrm_exnex(prior_EX_tau_comp)"
+    )
+  if ("prior_EX_tau_sd_comp" %in% prior_args)
+    deprecate_warn(
+      "0.9.0",
+      "blrm_exnex(prior_EX_tau_sd_comp)",
+      "blrm_exnex(prior_EX_tau_comp)"
+    )
+
+  if ("prior_EX_tau_mean_inter" %in% prior_args)
+    deprecate_warn(
+      "0.9.0",
+      "blrm_exnex(prior_EX_tau_mean_inter)",
+      "blrm_exnex(prior_EX_tau_inter)"
+    )
+  if ("prior_EX_tau_sd_inter" %in% prior_args)
+    deprecate_warn(
+      "0.9.0",
+      "blrm_exnex(prior_EX_tau_sd_inter)",
+      "blrm_exnex(prior_EX_tau_inter)"
+    )
 
   ## Determine if any of the old arguments are present
-  if(any(prior_args %in% non_mixture_prior_args)) {
+  if (any(prior_args %in% non_mixture_prior_args)) {
     ## in this case we check that none of the new arguments are used
     ## as we do not permit a mix and match of new and old
     deprecated_args <- intersect(prior_args, non_mixture_prior_args)
-    assert_that(!any(mixture_prior_args %in% prior_args),
-                msg=paste0("Found deprecated (", paste0(deprecated_args, collapse=", "), ") and not deprecated arguments for specification of the prior.\nPlease update all prior arguments to use mixture prior arguments."))
+    assert_that(
+      !any(mixture_prior_args %in% prior_args),
+      msg = paste0(
+        "Found deprecated (",
+        paste0(deprecated_args, collapse = ", "),
+        ") and not deprecated arguments for specification of the prior.\nPlease update all prior arguments to use mixture prior arguments."
+      )
+    )
   }
   use_non_mixture_prior_args <- any(prior_args %in% non_mixture_prior_args)
-
-
 
   ## we only support a single LHS
   assert_that(length(f)[1] == 1)
   ## check that we have an overall intercept for all components
   for (i in seq_len(num_comp)) {
-    assert_that(attr(terms(f, rhs = i), "intercept") == 1, msg = "Intercept must be present for all components.")
+    assert_that(
+      attr(terms(f, rhs = i), "intercept") == 1,
+      msg = "Intercept must be present for all components."
+    )
   }
 
   ## the interaction model must not have an intercept
   if (has_inter) {
-    assert_that(attr(terms(f, rhs = idx_inter_term), "intercept") == 0, msg = "No intercept must be present for the interaction model.")
+    assert_that(
+      attr(terms(f, rhs = idx_inter_term), "intercept") == 0,
+      msg = "No intercept must be present for the interaction model."
+    )
   }
 
   y <- model.response(mf)
@@ -554,7 +608,9 @@ blrm_exnex <- function(formula,
   group_index_term <- model.part(f, data = mf, rhs = idx_group_term)
 
   if (ncol(group_index_term) > 2) {
-    stop("Grouping factor must have at most two terms (study index and optionally a stratum).")
+    stop(
+      "Grouping factor must have at most two terms (study index and optionally a stratum)."
+    )
   }
 
   if (ncol(group_index_term) == 0) {
@@ -596,14 +652,26 @@ blrm_exnex <- function(formula,
 
   ## obtain group => stratum map ordered by group id
   group_strata <- data.frame(group_index = seq_len(num_groups)) %>%
-    left_join(unique(data.frame(group_index = group_index, strata_index = strata_index)), by = "group_index")
+    left_join(
+      unique(data.frame(
+        group_index = group_index,
+        strata_index = strata_index
+      )),
+      by = "group_index"
+    )
   ## since we allow groups to be specified through the factors,
   ## there can be groups without a stratum defined in case one level
   ## of the group is not present in the data. These need to be
   ## assigned to a default stratum which is stratum 1 at the moment.
   if (any(is.na(group_strata$strata_index))) {
     group_strata_undef <- which(is.na(group_strata$strata_index))
-    message("Info: The group(s) ", paste(levels(group_fct)[group_strata_undef], collapse = ", "), " have undefined strata. Assigning first stratum ", levels(strata_fct)[1], ".")
+    message(
+      "Info: The group(s) ",
+      paste(levels(group_fct)[group_strata_undef], collapse = ", "),
+      " have undefined strata. Assigning first stratum ",
+      levels(strata_fct)[1],
+      "."
+    )
     group_strata$strata_index[is.na(group_strata$strata_index)] <- 1
   }
   group_index <- array(group_index)
@@ -619,68 +687,117 @@ blrm_exnex <- function(formula,
   ## check if the EXNEX part of the model is turned off
   assert_number(prior_tau_dist, lower = 0, upper = 2, null.ok = TRUE)
   stan_prior_tau_dist <- prior_tau_dist
-  if(is.null(prior_tau_dist)) {
+  if (is.null(prior_tau_dist)) {
     ## in this case we do not allow for any of the EXNEX arguments for
     ## the heterogeneity or the EXNEX probabilities as we set these
     ## here such that this bit of the model is turned off.
-    hierarchical_args <- c("prior_EX_tau_comp", "prior_EX_tau_mean_comp", "prior_EX_tau_sd_comp",
-                           "prior_EX_tau_inter", "prior_EX_tau_mean_inter", "prior_EX_tau_sd_inter",
-                           "prior_is_EXNEX_comp", "prior_is_EXNEX_inter")
-    assert_that(sum(names(call) %in% hierarchical_args) == 0, msg=paste0("Hierarchical model structure disabled (prior_tau_dist=NULL), but found disabled arguments: ", paste(intersect(names(call), hierarchical_args), collapse=", ")))
+    hierarchical_args <- c(
+      "prior_EX_tau_comp",
+      "prior_EX_tau_mean_comp",
+      "prior_EX_tau_sd_comp",
+      "prior_EX_tau_inter",
+      "prior_EX_tau_mean_inter",
+      "prior_EX_tau_sd_inter",
+      "prior_is_EXNEX_comp",
+      "prior_is_EXNEX_inter"
+    )
+    assert_that(
+      sum(names(call) %in% hierarchical_args) == 0,
+      msg = paste0(
+        "Hierarchical model structure disabled (prior_tau_dist=NULL), but found disabled arguments: ",
+        paste(intersect(names(call), hierarchical_args), collapse = ", ")
+      )
+    )
 
-    if(num_groups != 1) {
-      message("Hierarchical model structure disabled, but found more than one group which will be pooled.")
+    if (num_groups != 1) {
+      message(
+        "Hierarchical model structure disabled, but found more than one group which will be pooled."
+      )
     }
-    if(num_strata != 1) {
-      message("Hierarchical model structure disabled, but found more than one stratum which will be ignored.")
+    if (num_strata != 1) {
+      message(
+        "Hierarchical model structure disabled, but found more than one stratum which will be ignored."
+      )
     }
 
-    prior_EX_tau_comp <- rep.int(replicate(num_comp, mixmvnorm(c(1, c(0, 0), diag(c(1, 1)))), FALSE), num_strata)
-    if(has_inter) {
-      prior_EX_tau_inter <- replicate(num_strata, mixmvnorm(c(1, rep(0, num_inter), diag(1, num_inter, num_inter))), FALSE)
+    prior_EX_tau_comp <- replicate(
+      num_strata,
+      replicate(num_comp, mixmvnorm(c(1, c(0, 0), diag(c(1, 1)))), FALSE),
+      FALSE
+    )
+    if (has_inter) {
+      prior_EX_tau_inter <- replicate(
+        num_strata,
+        mixmvnorm(c(1, rep(0, num_inter), diag(1, num_inter, num_inter))),
+        FALSE
+      )
     }
     prior_is_EXNEX_comp <- rep(FALSE, num_comp)
     prior_is_EXNEX_inter <- rep(FALSE, num_inter)
     prior_EX_prob_comp <- array(1, dim = c(num_groups, num_comp))
     prior_EX_prob_inter <- array(1, dim = c(num_groups, num_inter))
     stan_prior_tau_dist <- 0
-  } 
-  
+  }
+
   ## note: most of the consistency checks of the prior are left for
   ## Stan
 
-  if(use_non_mixture_prior_args) {
-    assert_matrix(prior_EX_mu_mean_comp, any.missing = FALSE, nrows = num_comp, ncols = 2)
-    assert_matrix(prior_EX_mu_sd_comp, any.missing = FALSE, nrows = num_comp, ncols = 2)
+  if (use_non_mixture_prior_args) {
+    assert_matrix(
+      prior_EX_mu_mean_comp,
+      any.missing = FALSE,
+      nrows = num_comp,
+      ncols = 2
+    )
+    assert_matrix(
+      prior_EX_mu_sd_comp,
+      any.missing = FALSE,
+      nrows = num_comp,
+      ncols = 2
+    )
 
-    prior_EX_mu_comp <- .comp_args2mix(prior_EX_mu_mean_comp, prior_EX_mu_sd_comp)
+    prior_EX_mu_comp <- .comp_args2mix(
+      prior_EX_mu_mean_comp,
+      prior_EX_mu_sd_comp
+    )
   }
 
-  if(!is.list(prior_EX_mu_comp) & num_comp == 1) {
+  if (!is.list(prior_EX_mu_comp) & num_comp == 1) {
     prior_EX_mu_comp <- list(prior_EX_mu_comp)
   }
-  
-  .assert_list_mixmvnorm(prior_EX_mu_comp, len=num_comp, dim=2)
-  standata_prior_EX_mu_comp <- .comp_mix2stan(prior_EX_mu_comp, "prior_EX_mu_comp_")
+
+  .assert_list_mixmvnorm(prior_EX_mu_comp, len = num_comp, dim = 2)
+  standata_prior_EX_mu_comp <- .comp_mix2stan(
+    prior_EX_mu_comp,
+    "prior_EX_mu_comp_"
+  )
 
   ## in case a single stratum is used, the user can input a matrix
-  if(use_non_mixture_prior_args) {
+  if (use_non_mixture_prior_args) {
     if (num_strata == 1) {
       if (is.matrix(prior_EX_tau_mean_comp)) {
-        prior_EX_tau_mean_comp <- array(prior_EX_tau_mean_comp, c(1, dim(prior_EX_tau_mean_comp)))
+        prior_EX_tau_mean_comp <- array(
+          prior_EX_tau_mean_comp,
+          c(1, dim(prior_EX_tau_mean_comp))
+        )
       }
       if (is.matrix(prior_EX_tau_sd_comp)) {
-        prior_EX_tau_sd_comp <- array(prior_EX_tau_sd_comp, c(1, dim(prior_EX_tau_sd_comp)))
+        prior_EX_tau_sd_comp <- array(
+          prior_EX_tau_sd_comp,
+          c(1, dim(prior_EX_tau_sd_comp))
+        )
       }
     }
     assert_array(prior_EX_tau_mean_comp, any.missing = FALSE, d = 3)
     assert_array(prior_EX_tau_sd_comp, any.missing = FALSE, d = 3)
-    assert_that(all(dim(prior_EX_tau_mean_comp) == c(num_strata, num_comp, 2)),
-                msg = "prior_EX_tau_mean_comp must have dimensionality of num_strata x num_comp x 2.\nIn case of only one stratum a matrix of num_comp x 2 is sufficient."
-                )
-    assert_that(all(dim(prior_EX_tau_sd_comp) == c(num_strata, num_comp, 2)),
-                msg = "prior_EX_tau_sd_comp must have dimensionality of num_strata x num_comp x 2.\nIn case of only one stratum a matrix of num_comp x 2 is sufficient."
-                )
+    assert_that(
+      all(dim(prior_EX_tau_mean_comp) == c(num_strata, num_comp, 2)),
+      msg = "prior_EX_tau_mean_comp must have dimensionality of num_strata x num_comp x 2.\nIn case of only one stratum a matrix of num_comp x 2 is sufficient."
+    )
+    assert_that(
+      all(dim(prior_EX_tau_sd_comp) == c(num_strata, num_comp, 2)),
+      msg = "prior_EX_tau_sd_comp must have dimensionality of num_strata x num_comp x 2.\nIn case of only one stratum a matrix of num_comp x 2 is sufficient."
+    )
 
     prior_EX_tau_comp <- list()
     for (s in 1:num_strata) {
@@ -690,7 +807,7 @@ blrm_exnex <- function(formula,
       )
     }
   }
-  
+
   if (num_strata == 1) {
     if (num_comp == 1 & .is_mixmvnorm(prior_EX_tau_comp)) {
       prior_EX_tau_comp <- list(list(prior_EX_tau_comp))
@@ -700,24 +817,37 @@ blrm_exnex <- function(formula,
     }
   }
 
-  assert_list(prior_EX_tau_comp, any.missing=FALSE, len=num_strata)
+  assert_list(prior_EX_tau_comp, any.missing = FALSE, len = num_strata)
   ## for each stratum we require a list of bivariate tau priors
-  for(i in seq_len(num_strata)) {
+  for (i in seq_len(num_strata)) {
     .assert_list_mixmvnorm(prior_EX_tau_comp[[i]], num_comp, 2)
   }
 
-  standata_prior_EX_tau_comp_strata <- lapply(prior_EX_tau_comp, .comp_mix2stan, prefix = "prior_EX_tau_comp_")
+  standata_prior_EX_tau_comp_strata <- lapply(
+    prior_EX_tau_comp,
+    .comp_mix2stan,
+    prefix = "prior_EX_tau_comp_"
+  )
   standata_prior_EX_tau_comp <- list()
   for (item in names(standata_prior_EX_tau_comp_strata[[1]])) {
-    standata_prior_EX_tau_comp[[item]] <- abind(lapply(standata_prior_EX_tau_comp_strata, "[[", item), along = 0)
+    standata_prior_EX_tau_comp[[item]] <- abind(
+      lapply(standata_prior_EX_tau_comp_strata, "[[", item),
+      along = 0
+    )
   }
 
   if (missing(prior_EX_corr_eta_comp)) {
     prior_EX_corr_eta_comp <- rep(1.0, times = num_comp)
   }
-  assert_numeric(prior_EX_corr_eta_comp, lower = 0, finite = TRUE, any.missing = FALSE, len = num_comp)
+  assert_numeric(
+    prior_EX_corr_eta_comp,
+    lower = 0,
+    finite = TRUE,
+    any.missing = FALSE,
+    len = num_comp
+  )
 
-  if(use_non_mixture_prior_args) {
+  if (use_non_mixture_prior_args) {
     if (!has_inter & missing(prior_EX_mu_mean_inter)) {
       prior_EX_mu_mean_inter <- array(0, dim = 0)
     }
@@ -725,25 +855,38 @@ blrm_exnex <- function(formula,
       prior_EX_mu_sd_inter <- array(0, dim = 0)
     }
     assert_double(prior_EX_mu_mean_inter, any.missing = FALSE, len = num_inter)
-    assert_double(prior_EX_mu_sd_inter, any.missing = FALSE, len = num_inter, lower = 0)
+    assert_double(
+      prior_EX_mu_sd_inter,
+      any.missing = FALSE,
+      len = num_inter,
+      lower = 0
+    )
 
     if (has_inter) {
-      prior_EX_mu_inter <- .args2mix(as.vector(prior_EX_mu_mean_inter), as.vector(prior_EX_mu_sd_inter))
+      prior_EX_mu_inter <- .args2mix(
+        as.vector(prior_EX_mu_mean_inter),
+        as.vector(prior_EX_mu_sd_inter)
+      )
     }
   }
 
-  if(!missing(prior_EX_mu_inter)) {
-    .assert_mixmvnorm(prior_EX_mu_inter, dim=num_inter, null.ok=TRUE)
+  if (!missing(prior_EX_mu_inter)) {
+    .assert_mixmvnorm(prior_EX_mu_inter, dim = num_inter, null.ok = TRUE)
   }
-  
+
   if (has_inter) {
-    standata_prior_EX_mu_inter <- .priormix2stan(prior_EX_mu_inter, "prior_EX_mu_inter_")
+    standata_prior_EX_mu_inter <- .priormix2stan(
+      prior_EX_mu_inter,
+      "prior_EX_mu_inter_"
+    )
   } else {
-    standata_prior_EX_mu_inter <- .standata_empty_mixture(num_inter, "prior_EX_mu_inter_")
+    standata_prior_EX_mu_inter <- .standata_empty_mixture(
+      num_inter,
+      "prior_EX_mu_inter_"
+    )
   }
 
-
-  if(use_non_mixture_prior_args) {
+  if (use_non_mixture_prior_args) {
     ## old argument case
     if (!has_inter & missing(prior_EX_tau_mean_inter)) {
       prior_EX_tau_mean_inter <- matrix(1, nrow = num_strata, ncol = num_inter)
@@ -751,8 +894,18 @@ blrm_exnex <- function(formula,
     if (!has_inter & missing(prior_EX_tau_sd_inter)) {
       prior_EX_tau_sd_inter <- matrix(1, nrow = num_strata, ncol = num_inter)
     }
-    assert_matrix(prior_EX_tau_mean_inter, any.missing = FALSE, nrows = num_strata, ncols = num_inter)
-    assert_matrix(prior_EX_tau_sd_inter, any.missing = FALSE, nrows = num_strata, ncols = num_inter)
+    assert_matrix(
+      prior_EX_tau_mean_inter,
+      any.missing = FALSE,
+      nrows = num_strata,
+      ncols = num_inter
+    )
+    assert_matrix(
+      prior_EX_tau_sd_inter,
+      any.missing = FALSE,
+      nrows = num_strata,
+      ncols = num_inter
+    )
 
     if (has_inter) {
       prior_EX_tau_inter <- list()
@@ -762,42 +915,80 @@ blrm_exnex <- function(formula,
           prior_EX_tau_sd_inter[s, , drop = TRUE]
         )
       }
-      standata_prior_EX_tau_inter_strata <- lapply(prior_EX_tau_inter, .priormix2stan, prefix = "prior_EX_tau_inter_")
+      standata_prior_EX_tau_inter_strata <- lapply(
+        prior_EX_tau_inter,
+        .priormix2stan,
+        prefix = "prior_EX_tau_inter_"
+      )
     } else {
-      standata_prior_EX_tau_inter_strata <- replicate(num_strata, .standata_empty_mixture(num_inter, "prior_EX_tau_inter_"), FALSE)
+      standata_prior_EX_tau_inter_strata <- replicate(
+        num_strata,
+        .standata_empty_mixture(num_inter, "prior_EX_tau_inter_"),
+        FALSE
+      )
     }
-  
   } else {
     ## new case with mixtures
     if (has_inter) {
-      if(num_strata == 1 & !missing(prior_EX_tau_inter) & .is_mixmvnorm(prior_EX_tau_inter)) {
+      if (
+        num_strata == 1 &
+          !missing(prior_EX_tau_inter) &
+          .is_mixmvnorm(prior_EX_tau_inter)
+      ) {
         prior_EX_tau_inter <- list(prior_EX_tau_inter)
       }
-      .assert_list_mixmvnorm(prior_EX_tau_inter, len=num_strata, dim=num_inter)
-      standata_prior_EX_tau_inter_strata <- lapply(prior_EX_tau_inter, .priormix2stan, prefix = "prior_EX_tau_inter_")
+      .assert_list_mixmvnorm(
+        prior_EX_tau_inter,
+        len = num_strata,
+        dim = num_inter
+      )
+      standata_prior_EX_tau_inter_strata <- lapply(
+        prior_EX_tau_inter,
+        .priormix2stan,
+        prefix = "prior_EX_tau_inter_"
+      )
     } else {
-      standata_prior_EX_tau_inter_strata <- replicate(num_strata, .standata_empty_mixture(num_inter, "prior_EX_tau_inter_"), FALSE)
+      standata_prior_EX_tau_inter_strata <- replicate(
+        num_strata,
+        .standata_empty_mixture(num_inter, "prior_EX_tau_inter_"),
+        FALSE
+      )
     }
   }
-  
+
   standata_prior_EX_tau_inter <- list()
   for (item in names(standata_prior_EX_tau_inter_strata[[1]])) {
-    standata_prior_EX_tau_inter[[item]] <- abind(lapply(standata_prior_EX_tau_inter_strata, "[[", item), along = 0)
+    standata_prior_EX_tau_inter[[item]] <- abind(
+      lapply(standata_prior_EX_tau_inter_strata, "[[", item),
+      along = 0
+    )
   }
-  standata_prior_EX_tau_inter$prior_EX_tau_inter_Nc <- array(standata_prior_EX_tau_inter$prior_EX_tau_inter_Nc)
-  
+  standata_prior_EX_tau_inter$prior_EX_tau_inter_Nc <- array(
+    standata_prior_EX_tau_inter$prior_EX_tau_inter_Nc
+  )
+
   if (!has_inter & missing(prior_EX_prob_inter)) {
     prior_EX_prob_inter <- matrix(1, nrow = num_groups, ncol = num_inter)
   }
-  assert_matrix(prior_EX_prob_comp, any.missing = FALSE, nrows = num_groups, ncols = num_comp)
-  assert_matrix(prior_EX_prob_inter, any.missing = FALSE, nrows = num_groups, ncols = num_inter)
+  assert_matrix(
+    prior_EX_prob_comp,
+    any.missing = FALSE,
+    nrows = num_groups,
+    ncols = num_comp
+  )
+  assert_matrix(
+    prior_EX_prob_inter,
+    any.missing = FALSE,
+    nrows = num_groups,
+    ncols = num_inter
+  )
 
   if (missing(prior_EX_corr_eta_inter)) {
     prior_EX_corr_eta_inter <- 1.0
   }
   assert_number(prior_EX_corr_eta_inter, lower = 0, finite = TRUE)
 
-  if(use_non_mixture_prior_args) {
+  if (use_non_mixture_prior_args) {
     if (missing(prior_NEX_mu_mean_comp)) {
       prior_NEX_mu_mean_comp <- prior_EX_mu_mean_comp
     }
@@ -810,16 +1001,32 @@ blrm_exnex <- function(formula,
     }
   }
 
-  if(use_non_mixture_prior_args) {
-    assert_matrix(prior_NEX_mu_mean_comp, any.missing = FALSE, nrows = num_comp, ncols = 2)
-    assert_matrix(prior_NEX_mu_sd_comp, any.missing = FALSE, nrows = num_comp, ncols = 2)
-    
-    prior_NEX_mu_comp <- .comp_args2mix(prior_NEX_mu_mean_comp, prior_NEX_mu_sd_comp)
-  }
-  
-  standata_prior_NEX_mu_comp <- .comp_mix2stan(prior_NEX_mu_comp, "prior_NEX_mu_comp_")
+  if (use_non_mixture_prior_args) {
+    assert_matrix(
+      prior_NEX_mu_mean_comp,
+      any.missing = FALSE,
+      nrows = num_comp,
+      ncols = 2
+    )
+    assert_matrix(
+      prior_NEX_mu_sd_comp,
+      any.missing = FALSE,
+      nrows = num_comp,
+      ncols = 2
+    )
 
-  if(use_non_mixture_prior_args) {
+    prior_NEX_mu_comp <- .comp_args2mix(
+      prior_NEX_mu_mean_comp,
+      prior_NEX_mu_sd_comp
+    )
+  }
+
+  standata_prior_NEX_mu_comp <- .comp_mix2stan(
+    prior_NEX_mu_comp,
+    "prior_NEX_mu_comp_"
+  )
+
+  if (use_non_mixture_prior_args) {
     if (missing(prior_NEX_mu_mean_inter)) {
       prior_NEX_mu_mean_inter <- prior_EX_mu_mean_inter
     }
@@ -829,22 +1036,40 @@ blrm_exnex <- function(formula,
   } else {
     if (missing(prior_NEX_mu_inter) & !missing(prior_EX_mu_inter)) {
       prior_NEX_mu_inter <- prior_EX_mu_inter
-    }    
-  }
-  
-  if(use_non_mixture_prior_args) {
-    assert_numeric(prior_NEX_mu_mean_inter, any.missing = FALSE, len = num_inter)
-    assert_numeric(prior_NEX_mu_sd_inter, any.missing = FALSE, len = num_inter, lower = 0)
-    
-    if (has_inter) {
-      prior_NEX_mu_inter <- .args2mix(as.vector(prior_NEX_mu_mean_inter), as.vector(prior_NEX_mu_sd_inter))
     }
   }
-  
+
+  if (use_non_mixture_prior_args) {
+    assert_numeric(
+      prior_NEX_mu_mean_inter,
+      any.missing = FALSE,
+      len = num_inter
+    )
+    assert_numeric(
+      prior_NEX_mu_sd_inter,
+      any.missing = FALSE,
+      len = num_inter,
+      lower = 0
+    )
+
+    if (has_inter) {
+      prior_NEX_mu_inter <- .args2mix(
+        as.vector(prior_NEX_mu_mean_inter),
+        as.vector(prior_NEX_mu_sd_inter)
+      )
+    }
+  }
+
   if (has_inter) {
-    standata_prior_NEX_mu_inter <- .priormix2stan(prior_NEX_mu_inter, "prior_NEX_mu_inter_")
+    standata_prior_NEX_mu_inter <- .priormix2stan(
+      prior_NEX_mu_inter,
+      "prior_NEX_mu_inter_"
+    )
   } else {
-    standata_prior_NEX_mu_inter <- .standata_empty_mixture(num_inter, "prior_NEX_mu_inter_")
+    standata_prior_NEX_mu_inter <- .standata_empty_mixture(
+      num_inter,
+      "prior_NEX_mu_inter_"
+    )
   }
 
   if (missing(prior_is_EXNEX_comp)) {
@@ -908,7 +1133,7 @@ blrm_exnex <- function(formula,
   assert_number(stan_prior_tau_dist, lower = 0, upper = 2)
 
   assert_logical(sample_map, any.missing = FALSE, len = 1)
-  
+
   assert_logical(prior_PD, any.missing = FALSE, len = 1)
 
   stan_data <- c(
@@ -948,7 +1173,10 @@ blrm_exnex <- function(formula,
 
   ## return(stan_data)
 
-  control_sampling <- modifyList(list(adapt_delta = 0.99, stepsize = 0.1), control)
+  control_sampling <- modifyList(
+    list(adapt_delta = 0.99, stepsize = 0.1),
+    control
+  )
 
   ## whenever no warmup is saved, we also drop all unneccessary parameters as
   ## - raw parameters
@@ -958,14 +1186,19 @@ blrm_exnex <- function(formula,
     exclude_pars <- c()
   } else {
     exclude_pars <- c(
-      "log_beta_raw", "eta_raw",
-      "tau_log_beta_raw", "tau_eta_raw",
-      "L_corr_log_beta", "L_corr_eta",
-      "beta", "eta",
-      "beta_EX_prob", "eta_EX_prob"
+      "log_beta_raw",
+      "eta_raw",
+      "tau_log_beta_raw",
+      "tau_eta_raw",
+      "L_corr_log_beta",
+      "L_corr_eta",
+      "beta",
+      "eta",
+      "beta_EX_prob",
+      "eta_EX_prob"
     )
   }
-  
+
   stan_msg <- character(0)
   if (backend == "rstan") {
     ## SW: the below call can trigger spurious warnings whenever tau
@@ -997,7 +1230,6 @@ blrm_exnex <- function(formula,
     ## in sampling mode the mode is set to zero; anything else
     ## indicates an error
     stanfit_status_ok <- attr(stanfit, "mode") == 0
-    
   } else if (backend == "cmdstanr") {
     if (!requireNamespace("cmdstanr", quietly = TRUE)) {
       stop("Please install the cmdstanr package.")
@@ -1013,7 +1245,10 @@ blrm_exnex <- function(formula,
       ## CXXFLAGS_OPTIM=-mtune=native -march=native -DNDEBUG -DEIGEN_NO_DEBUG
       ## CXXFLAGS_OPTIM_TBB=-mtune=native -march=native -DNDEBUG -DEIGEN_NO_DEBUG
       ## CXXFLAGS_OPTIM_SUNDIALS=-mtune=native -march=native -DNDEBUG -DEIGEN_NO_DEBUG
-      pkg_env$.cmdstanr_blrm_exnex_model <- cmdstanr::cmdstan_model(stan_model_file, quiet = !verbose)
+      pkg_env$.cmdstanr_blrm_exnex_model <- cmdstanr::cmdstan_model(
+        stan_model_file,
+        quiet = !verbose
+      )
     }
 
     ## serialize out data to json file and manually delete after
@@ -1042,7 +1277,6 @@ blrm_exnex <- function(formula,
       split = verbose
     )
 
-
     ## note: this will not exclude any variables as this is not
     ## possible, maybe we can prune the stanfit object directly??
     stanfit <- brms::read_csv_as_stanfit(
@@ -1055,46 +1289,83 @@ blrm_exnex <- function(formula,
     unlink(stan_data_file)
   }
 
-  if(!stanfit_status_ok) {
-    stop("Calling Stan failed. Sampler output:\n", paste0(stan_msg, collapse="\n"))
+  if (!stanfit_status_ok) {
+    stop(
+      "Calling Stan failed. Sampler output:\n",
+      paste0(stan_msg, collapse = "\n")
+    )
   }
-  
+
   ## label parameters of stanfit object
   labels <- list()
   labels$param_log_beta <- .make_label_factor(c("intercept", "log_slope"))
   labels$param_beta <- .make_label_factor(c("intercept", "slope"))
-  labels$component <- .make_label_factor(.abbreviate_label(sapply(X_comp_cols,
-                                                                  "[", 2)))
-  stanfit <- .label_index(stanfit, "mu_log_beta",
-                          labels$component, labels$param_log_beta)
-  stanfit <- .label_index(stanfit, "tau_log_beta",
-                          strata_fct, labels$component, labels$param_log_beta)
+  labels$component <- .make_label_factor(.abbreviate_label(sapply(
+    X_comp_cols,
+    "[",
+    2
+  )))
+  stanfit <- .label_index(
+    stanfit,
+    "mu_log_beta",
+    labels$component,
+    labels$param_log_beta
+  )
+  stanfit <- .label_index(
+    stanfit,
+    "tau_log_beta",
+    strata_fct,
+    labels$component,
+    labels$param_log_beta
+  )
   stanfit <- .label_index(stanfit, "rho_log_beta", labels$component)
-  stanfit <- .label_index(stanfit, "beta_group", group_fct, labels$component,
-                          labels$param_beta)
+  stanfit <- .label_index(
+    stanfit,
+    "beta_group",
+    group_fct,
+    labels$component,
+    labels$param_beta
+  )
   if (save_warmup) {
-    stanfit <- .label_index(stanfit, "beta_EX_prob", group_fct, labels$component)
+    stanfit <- .label_index(
+      stanfit,
+      "beta_EX_prob",
+      group_fct,
+      labels$component
+    )
   }
   stanfit <- .label_index(stanfit, "log_lik_group", group_fct)
   if (sample_map) {
-    stanfit <- .label_index(stanfit, "map_log_beta",
-                            strata_fct, labels$component, labels$param_log_beta)
+    stanfit <- .label_index(
+      stanfit,
+      "map_log_beta",
+      strata_fct,
+      labels$component,
+      labels$param_log_beta
+    )
   }
 
   if (has_inter) {
     labels$param_eta <- .make_label_factor(.abbreviate_label(colnames(X_inter)))
     stanfit <- .label_index(stanfit, "eta_group", group_fct, labels$param_eta)
     if (save_warmup) {
-      stanfit <- .label_index(stanfit, "eta_EX_prob",
-                              group_fct, labels$param_eta)
+      stanfit <- .label_index(
+        stanfit,
+        "eta_EX_prob",
+        group_fct,
+        labels$param_eta
+      )
     }
     stanfit <- .label_index(stanfit, "mu_eta", labels$param_eta)
     stanfit <- .label_index(stanfit, "tau_eta", strata_fct, labels$param_eta)
-    stanfit <- .label_index(stanfit, "Sigma_corr_eta", labels$param_eta,
-                            labels$param_eta)
+    stanfit <- .label_index(
+      stanfit,
+      "Sigma_corr_eta",
+      labels$param_eta,
+      labels$param_eta
+    )
     if (sample_map) {
-      stanfit <- .label_index(stanfit, "map_eta",
-                              strata_fct, labels$param_eta)
+      stanfit <- .label_index(stanfit, "map_eta", strata_fct, labels$param_eta)
     }
   }
 
@@ -1130,10 +1401,16 @@ blrm_exnex <- function(formula,
     ## correlation matrix and return NA for the the correlation. This
     ## is why we need to work around here. TODO for RBesT to allow
     ## this so that no more workaround is needed here!!!
-    suppressWarnings(prior_comp[[i]] <- RBesT::mixmvnorm(c(1.0, prior_mean[i, 1:2], diag(prior_sd[i, 1:2]^2))))
-    if(any(prior_sd[i, 1:2] == 0)) {
-      prior_comp[[i]][6,] <- 0
-    }    
+    suppressWarnings(
+      prior_comp[[i]] <- RBesT::mixmvnorm(c(
+        1.0,
+        prior_mean[i, 1:2],
+        diag(prior_sd[i, 1:2]^2)
+      ))
+    )
+    if (any(prior_sd[i, 1:2] == 0)) {
+      prior_comp[[i]][6, ] <- 0
+    }
   }
   names(prior_comp) <- paste0("comp_", 1:num_comp)
   return(prior_comp)
@@ -1147,13 +1424,15 @@ blrm_exnex <- function(formula,
   ## a warning that it cannot convert from a covariance to a
   ## correlation matrix and return NA for the the correlation. This
   ## is why we need to work around here.
-  suppressWarnings(mix <- RBesT::mixmvnorm(c(1.0, prior_mean, diag(prior_sd^2, p, p))))
-  d <- .mvnormdim(mix[-1,1])
-  for(i in seq_len(d)) {
-    if(mix[1 + d + i] == 0) {
+  suppressWarnings(
+    mix <- RBesT::mixmvnorm(c(1.0, prior_mean, diag(prior_sd^2, p, p)))
+  )
+  d <- .mvnormdim(mix[-1, 1])
+  for (i in seq_len(d)) {
+    if (mix[1 + d + i] == 0) {
       ## the respective standard deviation is 0 => set the correlation
       ## coefficients to 0 which are involved
-      for(j in seq_len( d - i )) {
+      for (j in seq_len(d - i)) {
         k <- i + j
         idx <- paste0("rho[", k, ",", i, "]")
         mix[idx, 1] <- 0
@@ -1164,23 +1443,43 @@ blrm_exnex <- function(formula,
 }
 
 #' @keywords internal
-.assert_mixmvnorm <- function(mix, dim, .var.name=checkmate::vname(mix), null.ok=FALSE) {
+.assert_mixmvnorm <- function(
+  mix,
+  dim,
+  .var.name = checkmate::vname(mix),
+  null.ok = FALSE
+) {
   if (null.ok & is.null(mix)) return(invisible(TRUE))
   assert_class(mix, "mvnormMix")
-  if(!missing(dim)) {
-    mix_dim <- .mvnormdim(mix[-1,1])
-    assert_that(mix_dim == dim, msg=paste0("Assertion on '", .var.name, "' failed: Dimensionality must be ", dim, ", but found ", mix_dim, "."))
+  if (!missing(dim)) {
+    mix_dim <- .mvnormdim(mix[-1, 1])
+    assert_that(
+      mix_dim == dim,
+      msg = paste0(
+        "Assertion on '",
+        .var.name,
+        "' failed: Dimensionality must be ",
+        dim,
+        ", but found ",
+        mix_dim,
+        "."
+      )
+    )
   }
   return(invisible(TRUE))
 }
 
 #' @keywords internal
-.assert_list_mixmvnorm <- function(list_mix, len=NULL, dim) {
+.assert_list_mixmvnorm <- function(list_mix, len = NULL, dim) {
   vn <- checkmate::vname(list_mix)
-  assert_list(list_mix, len=len, .var.name=vn)
+  assert_list(list_mix, len = len, .var.name = vn)
   checks <- rep.int(FALSE, length(list_mix))
-  for(i in seq_len(length(list_mix))) {
-    checks[i] <- .assert_mixmvnorm(list_mix[[i]], dim, paste0(vn, "[[", i, "]]"))
+  for (i in seq_len(length(list_mix))) {
+    checks[i] <- .assert_mixmvnorm(
+      list_mix[[i]],
+      dim,
+      paste0(vn, "[[", i, "]]")
+    )
   }
   return(invisible(checks))
 }
@@ -1215,10 +1514,24 @@ blrm_exnex <- function(formula,
       prior_mix_comp_m[i, j, 1:2] <- prior_mix_comp[[i]][2:3, j]
       comp_s <- prior_mix_comp[[i]][4:5, j]
       comp_rho <- prior_mix_comp[[i]][6, j]
-      prior_mix_comp_sigma[i, j, 1:2, 1:2] <- matrix(c(comp_s[1]^2, comp_s[1] * comp_s[2] * comp_rho, comp_s[1] * comp_s[2] * comp_rho, comp_s[2]^2), 2, 2)
+      prior_mix_comp_sigma[i, j, 1:2, 1:2] <- matrix(
+        c(
+          comp_s[1]^2,
+          comp_s[1] * comp_s[2] * comp_rho,
+          comp_s[1] * comp_s[2] * comp_rho,
+          comp_s[2]^2
+        ),
+        2,
+        2
+      )
     }
   }
-  res <- list(Nc = prior_mix_comp_Nc, w = prior_mix_comp_w, m = prior_mix_comp_m, sigma = prior_mix_comp_sigma)
+  res <- list(
+    Nc = prior_mix_comp_Nc,
+    w = prior_mix_comp_w,
+    m = prior_mix_comp_m,
+    sigma = prior_mix_comp_sigma
+  )
   names(res) <- paste0(prefix, names(res))
   res
 }
@@ -1232,7 +1545,7 @@ blrm_exnex <- function(formula,
 .is_list_mixmvnorm <- function(list_mix) {
   len <- length(list_mix)
   if (len == 0) return(FALSE)
-  if(!is.list(list_mix)) return(FALSE)
+  if (!is.list(list_mix)) return(FALSE)
   all(sapply(list_mix, .is_mixmvnorm))
 }
 
@@ -1315,7 +1628,9 @@ blrm_exnex <- function(formula,
 #' @export
 #'
 print.blrmfit <- function(x, ..., prob = 0.95, digits = 2) {
-  cat("Bayesian Logistic Regression Model with EXchangeability-NonEXchangeability\n\n")
+  cat(
+    "Bayesian Logistic Regression Model with EXchangeability-NonEXchangeability\n\n"
+  )
   cat("Number of observations:", x$standata$num_obs, "\n")
   cat("Number of groups      :", x$standata$num_groups, "\n")
   cat("Number of strata      :", x$standata$num_strata, "\n")
@@ -1335,7 +1650,11 @@ print.blrmfit <- function(x, ..., prob = 0.95, digits = 2) {
   ds <- as.data.frame(table(x$group_fct))
   rownames(ds) <- match(ds$Var1, levels(x$group_fct))
   names(ds) <- c("Group", "n")
-  totals <- data.frame(Stratum = x$strata_fct, Group = x$group_fct, total = x$standata$nr + x$standata$r) %>%
+  totals <- data.frame(
+    Stratum = x$strata_fct,
+    Group = x$group_fct,
+    total = x$standata$nr + x$standata$r
+  ) %>%
     group_by(Stratum, Group) %>%
     dplyr::summarise(n_total = sum(total)) %>%
     ungroup()
@@ -1343,7 +1662,6 @@ print.blrmfit <- function(x, ..., prob = 0.95, digits = 2) {
   ds$Stratum <- levels(x$strata_fct)[x$group_strata$strata_index]
   ds$n_total[is.na(ds$n_total)] <- 0
   print(ds)
-
 
   cat("\nGroups per stratum:\n")
   si <- levels(x$strata_fct)[x$group_strata$strata_index]
@@ -1370,27 +1688,47 @@ print.blrmfit <- function(x, ..., prob = 0.95, digits = 2) {
 
   cat("\nComponent posterior:\n")
   cat("Population mean posterior mu_log_beta\n")
-  mu_log_beta <- summary(x$stanfit, pars = c("mu_log_beta"), probs = probs)$summary
+  mu_log_beta <- summary(
+    x$stanfit,
+    pars = c("mu_log_beta"),
+    probs = probs
+  )$summary
   rs <- rownames(mu_log_beta)
   idx <- comp_idx(rs)
-  rownames(mu_log_beta) <- gsub("^(.*),intercept|,log_slope$", "\\1", strip_variable(rs))
+  rownames(mu_log_beta) <- gsub(
+    "^(.*),intercept|,log_slope$",
+    "\\1",
+    strip_variable(rs)
+  )
   cat("intercept:\n")
   print(mu_log_beta[idx$inter, ], digits = digits)
   cat("log-slope:\n")
   print(mu_log_beta[idx$slope, ], digits = digits)
 
   cat("\nPopulation heterogeniety posterior tau_log_beta\n")
-  tau_log_beta <- summary(x$stanfit, pars = c("tau_log_beta"), probs = probs)$summary
+  tau_log_beta <- summary(
+    x$stanfit,
+    pars = c("tau_log_beta"),
+    probs = probs
+  )$summary
   rs <- rownames(tau_log_beta)
   idx <- comp_idx(rs)
-  rownames(tau_log_beta) <- gsub("^(.*),intercept|,log_slope$", "\\1", strip_variable(rs))
+  rownames(tau_log_beta) <- gsub(
+    "^(.*),intercept|,log_slope$",
+    "\\1",
+    strip_variable(rs)
+  )
   cat("intercept:\n")
   print(tau_log_beta[idx$inter, ], digits = digits)
   cat("log-slope:\n")
   print(tau_log_beta[idx$slope, ], digits = digits)
 
   cat("\nPopulation correlation posterior rho_log_beta\n")
-  rho_log_beta <- summary(x$stanfit, pars = c("rho_log_beta"), probs = probs)$summary
+  rho_log_beta <- summary(
+    x$stanfit,
+    pars = c("rho_log_beta"),
+    probs = probs
+  )$summary
   rownames(rho_log_beta) <- strip_variable(rownames(rho_log_beta))
   print(rho_log_beta, digits = digits)
 
@@ -1408,7 +1746,11 @@ print.blrmfit <- function(x, ..., prob = 0.95, digits = 2) {
 
     cat("\nPopulation correlation posterior Sigma_corr_eta\n")
     ## TODO: do not display symmetric values
-    Sigma_corr_eta <- summary(x$stanfit, pars = c("Sigma_corr_eta"), probs = probs)$summary
+    Sigma_corr_eta <- summary(
+      x$stanfit,
+      pars = c("Sigma_corr_eta"),
+      probs = probs
+    )$summary
     rownames(Sigma_corr_eta) <- strip_variable(rownames(Sigma_corr_eta))
     print(Sigma_corr_eta, digits = digits)
   } else {
@@ -1420,7 +1762,11 @@ print.blrmfit <- function(x, ..., prob = 0.95, digits = 2) {
     num_sim <- nsamples(x)
     if (div_trans > 0) {
       warning(
-        "The sampler detected ", div_trans, " out of ", num_sim, " transitions ending in a divergence after warmup.\n",
+        "The sampler detected ",
+        div_trans,
+        " out of ",
+        num_sim,
+        " transitions ending in a divergence after warmup.\n",
         "Increasing 'adapt_delta' closer to 1 may help to avoid these. Use for example: \n",
         paste0("options(OncoBayes2.MC.control=list(adapt_delta=0.995))"),
         call. = FALSE
@@ -1455,14 +1801,20 @@ print.blrmfit <- function(x, ..., prob = 0.95, digits = 2) {
   idx <- grep(paste0("^", par, "\\["), names(stanfit))
   str <- names(stanfit)[idx]
   fct <- list(...)
-  idx_str <- t(sapply(strsplit(gsub("(.*)\\[([0-9,]*)\\]$", "\\2", str), ","), as.numeric))
+  idx_str <- t(sapply(
+    strsplit(gsub("(.*)\\[([0-9,]*)\\]$", "\\2", str), ","),
+    as.numeric
+  ))
   if (length(fct) == 1) {
     idx_str <- matrix(idx_str, ncol = 1)
   }
   ni <- ncol(idx_str)
   colnames(idx_str) <- paste0("idx_", seq_len(ni))
   idx_str <- as.data.frame(idx_str)
-  assert_that(ni == length(fct), msg = "Insufficient number of indices specified")
+  assert_that(
+    ni == length(fct),
+    msg = "Insufficient number of indices specified"
+  )
   for (i in seq_len(ni)) {
     f <- fct[[i]]
     key <- data.frame(idx = seq_len(nlevels(f)), label = levels(f))
@@ -1470,11 +1822,14 @@ print.blrmfit <- function(x, ..., prob = 0.95, digits = 2) {
     idx_str <- left_join(idx_str, key, by = paste0("idx_", i))
   }
   labs <- paste0("label_", seq_len(ni))
-  names(stanfit)[idx] <- paste0(par, "[", do.call(paste, c(idx_str[labs], list(sep = ","))), "]")
+  names(stanfit)[idx] <- paste0(
+    par,
+    "[",
+    do.call(paste, c(idx_str[labs], list(sep = ","))),
+    "]"
+  )
   stanfit
 }
-
-
 
 
 #' @keywords internal
@@ -1505,8 +1860,14 @@ model.matrix.blrmfit <- function(object, ...) {
 #' @keywords internal
 .validate_group_stratum_nesting <- function(group_def, strata_def) {
   group_id <- strata_id <- NULL
-  strata_per_group <- data.frame(group_id = group_def, strata_id = strata_def) %>%
+  strata_per_group <- data.frame(
+    group_id = group_def,
+    strata_id = strata_def
+  ) %>%
     group_by(group_id) %>%
     dplyr::summarize(num_strata = length(unique(strata_id)))
-  assert_that(all(strata_per_group$num_strata == 1), msg = "Inconsistent nesting of groups into strata. Any group must belong to a single stratum.")
+  assert_that(
+    all(strata_per_group$num_strata == 1),
+    msg = "Inconsistent nesting of groups into strata. Any group must belong to a single stratum."
+  )
 }

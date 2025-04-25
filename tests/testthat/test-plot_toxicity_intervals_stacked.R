@@ -7,162 +7,163 @@ trial_examples <- gold_runs$trial_examples
 
 # see helper-load_gold.R and setup-gold.R for example runs: single_agent, combo2, and trial_examples
 
-
 # plot_toxicity_intervals_stacked.blrmfit ----------------------------------------------
-test_that(
-  "plot_toxicity_intervals_stacked.blrmfit works for single-agent example",
-  {
-    skip_on_cran()
-  
-    expect_gg(plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = vars(drug_A)
-    ))
+test_that("plot_toxicity_intervals_stacked.blrmfit works for single-agent example", {
+  skip_on_cran()
 
-    a <- plot_toxicity_intervals(single_agent$blrmfit,
-      x = vars(drug_A),
-      group = vars(group_id)
-    )
-    expect_gg(a)
+  expect_gg(plot_toxicity_intervals_stacked(
+    single_agent$blrmfit,
+    x = vars(drug_A)
+  ))
 
-    expect_gg(plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = vars(drug_A),
-      interval_prob = c(0, 0.1, 0.2, 0.5, 1)
-    ))
+  a <- plot_toxicity_intervals(
+    single_agent$blrmfit,
+    x = vars(drug_A),
+    group = vars(group_id)
+  )
+  expect_gg(a)
 
+  expect_gg(plot_toxicity_intervals_stacked(
+    single_agent$blrmfit,
+    x = vars(drug_A),
+    interval_prob = c(0, 0.1, 0.2, 0.5, 1)
+  ))
 
-    # check nonsense variable
-    expect_error(plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = vars(drug_B)
-    ))
+  # check nonsense variable
+  expect_error(plot_toxicity_intervals_stacked(
+    single_agent$blrmfit,
+    x = vars(drug_B)
+  ))
 
+  # check character
+  expect_gg(plot_toxicity_intervals_stacked(single_agent$blrmfit, x = "drug_A"))
 
-    # check character
-    expect_gg(plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = "drug_A"
-    ))
+  # check nonsense character
+  expect_error(plot_toxicity_intervals_stacked(
+    single_agent$blrmfit,
+    x = "drug_B"
+  ))
 
-    # check nonsense character
-    expect_error(plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = "drug_B"
-    ))
+  # one var(), one formula
+  b <- plot_toxicity_intervals_stacked(
+    single_agent$blrmfit,
+    x = vars(drug_A),
+    group = ~group_id
+  )
+  expect_gg(b)
 
-    # one var(), one formula
-    b <- plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = vars(drug_A),
-      group = ~group_id
-    )
-    expect_gg(b)
+  # one var(), one nonsense formula
+  expect_error(plot_toxicity_intervals_stacked(
+    single_agent$blrmfit,
+    x = vars(drug_A),
+    group = ~drug_B
+  ))
 
+  # duplicated arguments
+  expect_error(plot_toxicity_intervals_stacked(
+    single_agent$blrmfit,
+    x = vars(drug_A),
+    group = vars(drug_A)
+  ))
 
-    # one var(), one nonsense formula
-    expect_error(plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = vars(drug_A),
-      group = ~drug_B
-    ))
+  # duplicated arguments
+  expect_error(plot_toxicity_intervals_stacked(
+    single_agent$blrmfit,
+    x = vars(drug_A),
+    group = ~drug_A
+  ))
 
-    # duplicated arguments
-    expect_error(plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = vars(drug_A),
-      group = vars(drug_A)
-    ))
-
-    # duplicated arguments
-    expect_error(plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = vars(drug_A),
-      group = ~drug_A
-    ))
-
-    expect_warning(plot_toxicity_intervals_stacked(single_agent$blrmfit,
-      x = vars(drug_A),
-      transform = FALSE,
-      predictive = FALSE
-    ))
-  }
-)
-
-
-test_that(
-  "plot_toxicity_intervals_stacked.blrmfit works for combo2 example",
-  {
-    skip_on_cran()
-  
-    a <- plot_toxicity_intervals_stacked(combo2$blrmfit,
-      x = vars(drug_A),
-      group = vars(group_id, drug_B)
-    )
+  expect_warning(plot_toxicity_intervals_stacked(
+    single_agent$blrmfit,
+    x = vars(drug_A),
+    transform = FALSE,
+    predictive = FALSE
+  ))
+})
 
 
-    b <- plot_toxicity_intervals_stacked(combo2$blrmfit,
-      x = "drug_A",
-      group = c("group_id", "drug_B")
-    )
+test_that("plot_toxicity_intervals_stacked.blrmfit works for combo2 example", {
+  skip_on_cran()
 
-    di <- dose_info_combo2 %>%
-      filter(group_id == "trial_AB") %>%
-      mutate(num_toxicities = 0, num_patients = 4, label = paste(group_id, num_patients, sep = "/"))
+  a <- plot_toxicity_intervals_stacked(
+    combo2$blrmfit,
+    x = vars(drug_A),
+    group = vars(group_id, drug_B)
+  )
 
-    c <- plot_toxicity_intervals_stacked(combo2$blrmfit,
-      x = vars(drug_A),
-      newdata = di,
-      group = ~ label + drug_B,
-      predictive = TRUE
+  b <- plot_toxicity_intervals_stacked(
+    combo2$blrmfit,
+    x = "drug_A",
+    group = c("group_id", "drug_B")
+  )
+
+  di <- dose_info_combo2 %>%
+    filter(group_id == "trial_AB") %>%
+    mutate(
+      num_toxicities = 0,
+      num_patients = 4,
+      label = paste(group_id, num_patients, sep = "/")
     )
 
-    expect_gg(a)
-    expect_gg(b)
-    expect_gg(c)
-  }
-)
+  c <- plot_toxicity_intervals_stacked(
+    combo2$blrmfit,
+    x = vars(drug_A),
+    newdata = di,
+    group = ~ label + drug_B,
+    predictive = TRUE
+  )
 
+  expect_gg(a)
+  expect_gg(b)
+  expect_gg(c)
+})
 
 
 # plot_toxicity_intervals_stacked.blrm_trial ----------------------------------------------
 
+test_that("plot_toxicity_intervals_stacked.blrm_trial works for blrm_trial examples", {
+  skip_on_cran()
 
-test_that(
-  "plot_toxicity_intervals_stacked.blrm_trial works for blrm_trial examples",
-  {
-    skip_on_cran()
-  
-    for (trial in trial_examples) {
-      a <- plot_toxicity_intervals_stacked(trial)
-      expect_gg(a)
+  for (trial in trial_examples) {
+    a <- plot_toxicity_intervals_stacked(trial)
+    expect_gg(a)
 
-      a <- plot_toxicity_intervals_stacked(trial, predictive = TRUE)
-      expect_gg(a)
+    a <- plot_toxicity_intervals_stacked(trial, predictive = TRUE)
+    expect_gg(a)
 
-      expect_error({
-        plot_toxicity_intervals_stacked(trial,
-          predictive = TRUE,
-          newdata = slice(summary(trial, "dose_info"), 1)
-        )
-      })
-
-      a <- plot_toxicity_intervals_stacked(trial,
+    expect_error({
+      plot_toxicity_intervals_stacked(
+        trial,
         predictive = TRUE,
-        newdata = slice(summary(trial, "dose_info"), 1) %>%
-          mutate(num_patients = 10, num_toxicities = 0)
+        newdata = slice(summary(trial, "dose_info"), 1)
       )
-      expect_gg(a)
+    })
 
-      a <- plot_toxicity_intervals_stacked(trial,
-        predictive = TRUE,
-        interval_prob = c(-1, 0, 1, 10),
-        newdata = slice(summary(trial, "dose_info"), 1) %>%
-          mutate(num_patients = 10, num_toxicities = 0)
-      )
-      expect_gg(a)
-    }
+    a <- plot_toxicity_intervals_stacked(
+      trial,
+      predictive = TRUE,
+      newdata = slice(summary(trial, "dose_info"), 1) %>%
+        mutate(num_patients = 10, num_toxicities = 0)
+    )
+    expect_gg(a)
+
+    a <- plot_toxicity_intervals_stacked(
+      trial,
+      predictive = TRUE,
+      interval_prob = c(-1, 0, 1, 10),
+      newdata = slice(summary(trial, "dose_info"), 1) %>%
+        mutate(num_patients = 10, num_toxicities = 0)
+    )
+    expect_gg(a)
   }
-)
-
+})
 
 
 # Visual regression testing ----------------------------------------------------
 
 test_that("plot_toxicity_curve.blrmfit renders single-agent plots correctly", {
   testthat::skip_on_cran()
-  
+
   testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
   testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
 
@@ -173,29 +174,41 @@ test_that("plot_toxicity_curve.blrmfit renders single-agent plots correctly", {
   vdiffr::expect_doppelganger("single-agent blrmfit", p)
 
   # change intervals
-  p <- plot_toxicity_intervals_stacked(blrmfit, x = vars(drug_A), interval_prob = c((0:5) / 10, 1))
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    interval_prob = c((0:5) / 10, 1)
+  )
   vdiffr::expect_doppelganger("single-agent blrmfit intervals", p)
 
   # warning when transform = FALSE
   expect_warning(
-    p <- plot_toxicity_intervals_stacked(blrmfit,
-      x = vars(drug_A), interval_prob = c((0:5) / 10, 1),
+    p <- plot_toxicity_intervals_stacked(
+      blrmfit,
+      x = vars(drug_A),
+      interval_prob = c((0:5) / 10, 1),
       transform = FALSE
     )
   )
   vdiffr::expect_doppelganger("single-agent blrmfit transform", p)
 
   # predictive
-  p <- plot_toxicity_intervals_stacked(blrmfit,
-    x = vars(drug_A), predictive = TRUE, ylim = c(0, 1),
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    predictive = TRUE,
+    ylim = c(0, 1),
     group = ~num_patients
   )
   vdiffr::expect_doppelganger("single-agent blrmfit predictive", p)
 
   #+ fig.height = 12
   # pass alternative newdata
-  p <- plot_toxicity_intervals_stacked(blrmfit,
-    x = vars(drug_A), predictive = TRUE, ylim = c(0, 1),
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    predictive = TRUE,
+    ylim = c(0, 1),
     newdata = select(blrmfit$data, -starts_with("num")) %>%
       expand_grid(
         num_patients = 3:6,
@@ -207,8 +220,11 @@ test_that("plot_toxicity_curve.blrmfit renders single-agent plots correctly", {
   vdiffr::expect_doppelganger("single-agent blrmfit newdata", p)
 
   # change interval_prob
-  p <- plot_toxicity_intervals_stacked(blrmfit,
-    x = vars(drug_A), predictive = TRUE, ylim = c(0, 1),
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    predictive = TRUE,
+    ylim = c(0, 1),
     newdata = select(blrmfit$data, -starts_with("num")) %>%
       expand_grid(
         num_patients = 3:6,
@@ -220,8 +236,11 @@ test_that("plot_toxicity_curve.blrmfit renders single-agent plots correctly", {
   )
   vdiffr::expect_doppelganger("single-agent blrmfit intervals newdata", p)
 
-  p <- plot_toxicity_intervals_stacked(blrmfit,
-    x = vars(drug_A), predictive = TRUE, ylim = c(0, 1),
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    predictive = TRUE,
+    ylim = c(0, 1),
     newdata = select(blrmfit$data, -starts_with("num")) %>%
       expand_grid(
         num_patients = 3:6,
@@ -237,34 +256,45 @@ test_that("plot_toxicity_curve.blrmfit renders single-agent plots correctly", {
 
 test_that("plot_toxicity_intervals_stacked.blrmfit renders combo2 plots correctly", {
   testthat::skip_on_cran()
-  
+
   testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
   testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
 
   blrmfit <- combo2$blrmfit
 
-  nd <- filter(select(blrmfit$data, -starts_with("num")), group_id == "trial_AB")
+  nd <- filter(
+    select(blrmfit$data, -starts_with("num")),
+    group_id == "trial_AB"
+  )
 
   # basic
-  p <- plot_toxicity_intervals_stacked(blrmfit,
-    x = vars(drug_A), group = ~ group_id + drug_B,
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    group = ~ group_id + drug_B,
     newdata = nd
   )
   vdiffr::expect_doppelganger("combo2 blrmfit", p)
 
   # change intervals
-  p <- plot_toxicity_intervals_stacked(blrmfit,
-    x = vars(drug_A), group = ~ group_id + drug_B,
-    newdata = nd, interval_prob = c((0:5) / 10, 1)
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    group = ~ group_id + drug_B,
+    newdata = nd,
+    interval_prob = c((0:5) / 10, 1)
   )
   vdiffr::expect_doppelganger("combo2 blrmfit intervals", p)
 
   #+ fig.height = 1.62 * 8, fig.width = 8
   # predictive
   nd <- filter(blrmfit$data, group_id == "trial_AB")
-  p <- plot_toxicity_intervals_stacked(blrmfit,
-    x = vars(drug_A), group = ~ num_patients + group_id + drug_B,
-    newdata = nd, predictive = TRUE
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    group = ~ num_patients + group_id + drug_B,
+    newdata = nd,
+    predictive = TRUE
   )
   vdiffr::expect_doppelganger("combo2 blrmfit predictive", p)
 
@@ -275,18 +305,23 @@ test_that("plot_toxicity_intervals_stacked.blrmfit renders combo2 plots correctl
     num_patients = 3:6,
     num_toxicities = 0
   )
-  p <- plot_toxicity_intervals_stacked(blrmfit,
-    x = vars(drug_A), group = ~ num_patients + group_id + drug_B,
-    predictive = TRUE, ylim = c(0, 1),
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    group = ~ num_patients + group_id + drug_B,
+    predictive = TRUE,
+    ylim = c(0, 1),
     newdata = nd,
     facet_args = list(ncol = 3, dir = "v")
   )
   vdiffr::expect_doppelganger("combo2 blrmfit predictive newdata", p)
 
-
-  p <- plot_toxicity_intervals_stacked(blrmfit,
-    x = vars(drug_A), group = ~ num_patients + group_id + drug_B,
-    predictive = TRUE, ylim = c(0, 1),
+  p <- plot_toxicity_intervals_stacked(
+    blrmfit,
+    x = vars(drug_A),
+    group = ~ num_patients + group_id + drug_B,
+    predictive = TRUE,
+    ylim = c(0, 1),
     newdata = nd,
     facet_args = list(ncol = 3, dir = "v"),
     transform = TRUE
@@ -297,60 +332,76 @@ test_that("plot_toxicity_intervals_stacked.blrmfit renders combo2 plots correctl
 
 
 for (ex in names(trial_examples)) {
-  test_that(paste("plot_toxicity_intervals_stacked.blrm_trial renders", ex, "plots correctly"), {
-    testthat::skip_on_cran()
-    
-    testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
-    testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
+  test_that(
+    paste(
+      "plot_toxicity_intervals_stacked.blrm_trial renders",
+      ex,
+      "plots correctly"
+    ),
+    {
+      testthat::skip_on_cran()
 
-    example <- trial_examples[[ex]]
+      testthat::skip_if_not_installed("vdiffr", minimum_version = min_vdiffr)
+      testthat::skip_if_not(identical(Sys.getenv("TEST_VDIFFR"), "true"))
 
-    # blrm_trial
-    p <- plot_toxicity_intervals_stacked(example)
-    vdiffr::expect_doppelganger(paste(ex, "blrm_trial"), p)
+      example <- trial_examples[[ex]]
 
-    p <- plot_toxicity_intervals_stacked(example, ewoc_shading = FALSE)
-    vdiffr::expect_doppelganger(paste(ex, "blrm_trial no ewoc"), p)
+      # blrm_trial
+      p <- plot_toxicity_intervals_stacked(example)
+      vdiffr::expect_doppelganger(paste(ex, "blrm_trial"), p)
 
-    p <- plot_toxicity_intervals_stacked(example, predictive = TRUE)
-    vdiffr::expect_doppelganger(paste(ex, "blrm_trial predictive"), p)
+      p <- plot_toxicity_intervals_stacked(example, ewoc_shading = FALSE)
+      vdiffr::expect_doppelganger(paste(ex, "blrm_trial no ewoc"), p)
 
-    p <- plot_toxicity_intervals_stacked(example, predictive = TRUE, transform = TRUE)
-    vdiffr::expect_doppelganger(paste(ex, "blrm_trial predictive transform"), p)
-  })
+      p <- plot_toxicity_intervals_stacked(example, predictive = TRUE)
+      vdiffr::expect_doppelganger(paste(ex, "blrm_trial predictive"), p)
+
+      p <- plot_toxicity_intervals_stacked(
+        example,
+        predictive = TRUE,
+        transform = TRUE
+      )
+      vdiffr::expect_doppelganger(
+        paste(ex, "blrm_trial predictive transform"),
+        p
+      )
+    }
+  )
 }
 
-test_that(
-  "plot_toxicity_intervals_stacked() does not have jagged edges", {
-    skip_on_cran()
-  
-    dose <- c(5, 10, 20, 40, 60, 80)
+test_that("plot_toxicity_intervals_stacked() does not have jagged edges", {
+  skip_on_cran()
 
-    drug_info <- tibble(
-      drug_name = "Dose",
-      dose_ref = 40,
-      dose_unit = "unitless"
-    )
+  dose <- c(5, 10, 20, 40, 60, 80)
 
-    dose_info <- tibble(group_id = "trial", Dose = dose)
+  drug_info <- tibble(
+    drug_name = "Dose",
+    dose_ref = 40,
+    dose_unit = "unitless"
+  )
 
-    set.seed(56363)
-    sa_trial <- blrm_trial(
-      data = NULL,
-      drug_info = drug_info,
-      dose_info = dose_info,
-      prior_EX_mu_comp = mixmvnorm(c(1, logit(0.2), 0, diag(c(1, 0.7)^2))),
-      prior_EX_tau_comp = mixmvnorm(c(1, 0, 0, diag(c(1, 1)^2))),
-      prior_EX_prob_comp = matrix(1, nrow = 1, ncol = 1),
-      prior_tau_dist = 0,
-      prior_PD = FALSE,
-      chains = 4,
-      cores = 1,
-      warmup = 1000,
-      iter = 2000
-    )
+  dose_info <- tibble(group_id = "trial", Dose = dose)
 
-    sa_trial_intervals <- plot_toxicity_intervals_stacked(sa_trial, ylim = c(0, 1), xlim = c(0, 110))
-    vdiffr::expect_doppelganger("jagged_edges", sa_trial_intervals)
-  }
-)
+  set.seed(56363)
+  sa_trial <- blrm_trial(
+    data = NULL,
+    drug_info = drug_info,
+    dose_info = dose_info,
+    prior_EX_mu_comp = mixmvnorm(c(1, logit(0.2), 0, diag(c(1, 0.7)^2))),
+    prior_EX_tau_comp = mixmvnorm(c(1, 0, 0, diag(c(1, 1)^2))),
+    prior_EX_prob_comp = matrix(1, nrow = 1, ncol = 1),
+    prior_tau_dist = 0,
+    prior_PD = FALSE,
+    chains = 4,
+    cores = 1,
+    warmup = 1000,
+    iter = 2000
+  )
+
+  sa_trial_intervals <- plot_toxicity_intervals_stacked(
+    sa_trial,
+    ylim = c(0, 1),
+    xlim = c(0, 110)
+  )
+  vdiffr::expect_doppelganger("jagged_edges", sa_trial_intervals)
+})

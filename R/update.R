@@ -41,8 +41,15 @@ update.blrmfit <- function(object, ..., add_data) {
 
     ## ensure that group_id and stratum_id (if present) as used in
     ## object are part of the data in add_data
-    labels <- all.vars(delete.response(terms(object$f, rhs = length(object$f)[2])))
-    assert_set_equal(intersect(names(add_data), labels), labels, .var.name = "grouping and/or stratum columns")
+    labels <- all.vars(delete.response(terms(
+      object$f,
+      rhs = length(object$f)[2]
+    )))
+    assert_set_equal(
+      intersect(names(add_data), labels),
+      labels,
+      .var.name = "grouping and/or stratum columns"
+    )
     has_stratum_fct <- length(labels) == 2
 
     ## check add_data for consistency with existing data and
@@ -64,10 +71,24 @@ update.blrmfit <- function(object, ..., add_data) {
       }
     }
     .combined_data <- bind_rows(current_data, add_data)
-    upd_call <- do.call(update.default, c(list(object = object, data = .combined_data), dots, list(evaluate = FALSE)))
-    return(eval(upd_call, c(list(.combined_data = .combined_data), dots), parent.frame()))
+    upd_call <- do.call(
+      update.default,
+      c(
+        list(object = object, data = .combined_data),
+        dots,
+        list(evaluate = FALSE)
+      )
+    )
+    return(eval(
+      upd_call,
+      c(list(.combined_data = .combined_data), dots),
+      parent.frame()
+    ))
   }
-  upd_call <- do.call(update.default, c(list(object = object), dots, list(evaluate = FALSE)))
+  upd_call <- do.call(
+    update.default,
+    c(list(object = object), dots, list(evaluate = FALSE))
+  )
   return(eval(upd_call, dots, parent.frame()))
 }
 

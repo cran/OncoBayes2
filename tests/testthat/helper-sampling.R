@@ -4,7 +4,15 @@ library(Formula)
 library(abind)
 library(rstan)
 
-set_sampling_default <- function(iter, warmup, chains, cores = getOption("mc.cores", 1), save_warmup = FALSE, backend = "rstan", control=list()) {
+set_sampling_default <- function(
+  iter,
+  warmup,
+  chains,
+  cores = getOption("mc.cores", 1),
+  save_warmup = FALSE,
+  backend = "rstan",
+  control = list()
+) {
   options(
     OncoBayes2.MC.iter = iter,
     OncoBayes2.MC.warmup = warmup,
@@ -19,12 +27,12 @@ set_sampling_default <- function(iter, warmup, chains, cores = getOption("mc.cor
 very_fast_sampling <- function() {
   message("Tests running with very fast sampling")
   ## note: 250 warmups are needed to get Stans NUTS adaptation to work
-  set_sampling_default(500, 250, 1, 1, control=list(adapt_delta=0.85))
+  set_sampling_default(500, 250, 1, 1, control = list(adapt_delta = 0.85))
 }
 
 fake_sampling <- function() {
   message("Tests running with fake sampling")
-  set_sampling_default(10, 2, 1, 1, control=list(adapt_delta=0.85))
+  set_sampling_default(10, 2, 1, 1, control = list(adapt_delta = 0.85))
 }
 
 default_sampling <- function() {
@@ -33,7 +41,7 @@ default_sampling <- function() {
 
 fast_sampling <- function() {
   message("Tests running with fast sampling")
-  set_sampling_default(1000, 500, 1, 1, control=list(adapt_delta=0.85))
+  set_sampling_default(1000, 500, 1, 1, control = list(adapt_delta = 0.85))
 }
 
 run_example <- function(example) {
@@ -41,7 +49,6 @@ run_example <- function(example) {
   suppressWarnings(example_model(example, env, silent = TRUE))
   invisible(env)
 }
-
 
 
 ## set up slim sampling in case we are on CRAN
@@ -100,40 +107,79 @@ sample_prior_mean <- function(blrmfit) {
     tau_eta_raw = array(1, c(num_strata, num_inter)),
     L_corr_eta = diag(num_inter)
   )
-  
-  EX_m_intercept <- apply(ps$EX_mu_log_beta["weight", , , drop=FALSE] *
-                            ps$EX_mu_log_beta["m_intercept", , , drop=FALSE],
-                          c(1,2), sum)
-  EX_m_log_slope <- apply(ps$EX_mu_log_beta["weight", , , drop=FALSE] *
-                            ps$EX_mu_log_beta["m_log_slope", , , drop=FALSE],
-                          c(1,2), sum)
 
-  NEX_m_intercept <- apply(ps$NEX_mu_log_beta["weight", , , drop=FALSE] *
-                            ps$NEX_mu_log_beta["m_intercept", , , drop=FALSE],
-                          c(1,2), sum)
-  NEX_m_log_slope <- apply(ps$NEX_mu_log_beta["weight", , , drop=FALSE] *
-                            ps$NEX_mu_log_beta["m_log_slope", , , drop=FALSE],
-                          c(1,2), sum)
+  EX_m_intercept <- apply(
+    ps$EX_mu_log_beta["weight", , , drop = FALSE] *
+      ps$EX_mu_log_beta["m_intercept", , , drop = FALSE],
+    c(1, 2),
+    sum
+  )
+  EX_m_log_slope <- apply(
+    ps$EX_mu_log_beta["weight", , , drop = FALSE] *
+      ps$EX_mu_log_beta["m_log_slope", , , drop = FALSE],
+    c(1, 2),
+    sum
+  )
 
-  draw$log_beta_raw <- abind(c(replicate(num_groups,
-                                         abind(EX_m_intercept,
-                                               EX_m_log_slope, along=3),
-                                       simplify=FALSE),
-                               replicate(num_groups,
-                                         abind(NEX_m_intercept,
-                                               NEX_m_log_slope, along=3),
-                                         simplify=FALSE))
-                               , along=1)
+  NEX_m_intercept <- apply(
+    ps$NEX_mu_log_beta["weight", , , drop = FALSE] *
+      ps$NEX_mu_log_beta["m_intercept", , , drop = FALSE],
+    c(1, 2),
+    sum
+  )
+  NEX_m_log_slope <- apply(
+    ps$NEX_mu_log_beta["weight", , , drop = FALSE] *
+      ps$NEX_mu_log_beta["m_log_slope", , , drop = FALSE],
+    c(1, 2),
+    sum
+  )
+
+  draw$log_beta_raw <- abind(
+    c(
+      replicate(
+        num_groups,
+        abind(EX_m_intercept, EX_m_log_slope, along = 3),
+        simplify = FALSE
+      ),
+      replicate(
+        num_groups,
+        abind(NEX_m_intercept, NEX_m_log_slope, along = 3),
+        simplify = FALSE
+      )
+    ),
+    along = 1
+  )
 
   if (has_inter) {
-    EX_mu_eta <- array(summary(array2mix(ps$EX_mu_eta, num_inter))$mean, num_inter)
-    NEX_mu_eta <- array(summary(array2mix(ps$NEX_mu_eta, num_inter))$mean, num_inter)
-    draw$eta_raw <- abind(c(
-      replicate(num_groups, EX_mu_eta, simplify=FALSE),
-      replicate(num_groups, NEX_mu_eta, simplify=FALSE)),
-      along=-1)
+    EX_mu_eta <- array(
+      summary(array2mix(ps$EX_mu_eta, num_inter))$mean,
+      num_inter
+    )
+    NEX_mu_eta <- array(
+      summary(array2mix(ps$NEX_mu_eta, num_inter))$mean,
+      num_inter
+    )
+    draw$eta_raw <- abind(
+      c(
+        replicate(num_groups, EX_mu_eta, simplify = FALSE),
+        replicate(num_groups, NEX_mu_eta, simplify = FALSE)
+      ),
+      along = -1
+    )
   }
-  
-  msg <- capture.output(blrmfit$stanfit <- sampling(OncoBayes2:::stanmodels$blrm_exnex, data = blrmfit$standata, chains = 1, iter = 1, warmup = 0, seed = 23542, init = list(draw), algorithm = "Fixed_param", open_progress = FALSE))
+
+  msg <- capture.output(
+    blrmfit$stanfit <- sampling(
+      OncoBayes2:::stanmodels$blrm_exnex,
+      data = blrmfit$standata,
+      chains = 1,
+      iter = 1,
+      warmup = 0,
+      seed = 23542,
+      init = list(draw),
+      algorithm = "Fixed_param",
+      open_progress = FALSE
+    )
+  )
   blrmfit
 }

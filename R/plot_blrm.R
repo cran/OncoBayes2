@@ -119,11 +119,13 @@ plot_toxicity_curve <- function(object, ...) UseMethod("plot_toxicity_curve")
 
 #' @rdname plot_blrm
 #' @export
-plot_toxicity_intervals <- function(object, ...) UseMethod("plot_toxicity_intervals")
+plot_toxicity_intervals <- function(object, ...)
+  UseMethod("plot_toxicity_intervals")
 
 #' @rdname plot_blrm
 #' @export
-plot_toxicity_intervals_stacked <- function(object, ...) UseMethod("plot_toxicity_intervals_stacked")
+plot_toxicity_intervals_stacked <- function(object, ...)
+  UseMethod("plot_toxicity_intervals_stacked")
 
 #' @method plot_toxicity_curve default
 #' @noRd
@@ -149,32 +151,55 @@ plot_toxicity_intervals_stacked.default <- function(object, ...) {
 #' @rdname plot_blrm
 #' @method plot_toxicity_curve blrmfit
 #' @export
-plot_toxicity_curve.blrmfit <- function(object,
-                                        newdata,
-                                        x,
-                                        group,
-                                        xlim,
-                                        ylim,
-                                        transform = TRUE,
-                                        prob = 0.5,
-                                        prob_outer = 0.95,
-                                        size = 0.75,
-                                        alpha = 1,
-                                        facet_args = list(),
-                                        hline_at = c(0.16, 0.33),
-                                        grid_length = 100,
-                                        ...) {
+plot_toxicity_curve.blrmfit <- function(
+  object,
+  newdata,
+  x,
+  group,
+  xlim,
+  ylim,
+  transform = TRUE,
+  prob = 0.5,
+  prob_outer = 0.95,
+  size = 0.75,
+  alpha = 1,
+  facet_args = list(),
+  hline_at = c(0.16, 0.33),
+  grid_length = 100,
+  ...
+) {
   # make R CMD CHECK happy
   ewoc_lab <- lower <- upper <- middle <- NULL
 
-  assert_that(inherits(object, "blrmfit"), msg = "object must be of class blrmfit or blrm_trial.")
+  assert_that(
+    inherits(object, "blrmfit"),
+    msg = "object must be of class blrmfit or blrm_trial."
+  )
 
   # check probabilities
-  assert_numeric(prob, lower = 0, upper = 1, finite = TRUE, any.missing = FALSE, min.len = 1)
-  assert_numeric(prob_outer, lower = 0, upper = 1, finite = TRUE, any.missing = FALSE, min.len = 1)
+  assert_numeric(
+    prob,
+    lower = 0,
+    upper = 1,
+    finite = TRUE,
+    any.missing = FALSE,
+    min.len = 1
+  )
+  assert_numeric(
+    prob_outer,
+    lower = 0,
+    upper = 1,
+    finite = TRUE,
+    any.missing = FALSE,
+    min.len = 1
+  )
   probs <- sort(c(prob, prob_outer))
-  assert_numeric(grid_length,
-    lower = 2, upper = Inf, finite = TRUE, len = 1,
+  assert_numeric(
+    grid_length,
+    lower = 2,
+    upper = Inf,
+    finite = TRUE,
+    len = 1,
     any.missing = FALSE
   )
 
@@ -191,9 +216,17 @@ plot_toxicity_curve.blrmfit <- function(object,
     xlim <- c(0, max(newdata[[x]]))
   }
 
-  newdata_grid <- expand_newdata(newdata, xlim, object, x, group_variables, grid_length)
+  newdata_grid <- expand_newdata(
+    newdata,
+    xlim,
+    object,
+    x,
+    group_variables,
+    grid_length
+  )
 
-  posterior_summary <- summary(object,
+  posterior_summary <- summary(
+    object,
     newdata = newdata_grid,
     prob = probs,
     transform = transform
@@ -211,7 +244,6 @@ plot_toxicity_curve.blrmfit <- function(object,
       plot_data
     }
   )
-
 
   plot_data <- rbind(ribbon_data[[1]], ribbon_data[[2]])
   plot_data$prob <- factor(plot_data$prob, rev(unique(plot_data$prob)))
@@ -241,21 +273,26 @@ plot_toxicity_curve.blrmfit <- function(object,
   pl <- ggplot(plot_data, aes(x = !!sym(x))) +
     geom_ribbon(
       aes(
-        ymin = lower, ymax = upper, fill = prob,
+        ymin = lower,
+        ymax = upper,
+        fill = prob,
         group = prob
       ),
       alpha = alpha
     ) +
     geom_line(
       aes(
-        y = middle, color = "Posterior median",
+        y = middle,
+        color = "Posterior median",
         linetype = "Posterior median"
       ),
-      size = 0.75 * size, lineend = "round"
+      size = 0.75 * size,
+      lineend = "round"
     ) +
     bayesplot::bayesplot_theme_get() + ## note: we want the currently active bayesplot theme (not always the default)
     bayesplot::hline_at(hline_at, color = "gray20", linetype = "dashed") +
-    scale_fill_manual("Central posterior probability",
+    scale_fill_manual(
+      "Central posterior probability",
       values = setNames(
         c(scheme[[2]], scheme[[1]]),
         unique(plot_data$prob)
@@ -264,8 +301,14 @@ plot_toxicity_curve.blrmfit <- function(object,
     scale_x_continuous(
       breaks = function(u) {
         breaks <- scales::extended_breaks(n = 4)
-        sort(c(unique(newdata[[x]][newdata[[x]] >= xlim[1] & newdata[[x]] <= xlim[2]]), breaks(u)))
-      }, limits = xlim,
+        sort(c(
+          unique(newdata[[x]][
+            newdata[[x]] >= xlim[1] & newdata[[x]] <= xlim[2]
+          ]),
+          breaks(u)
+        ))
+      },
+      limits = xlim,
       oob = scales::squish
     ) +
     scale_color_manual(values = setNames(scheme[[5]], "Posterior median")) +
@@ -276,27 +319,29 @@ plot_toxicity_curve.blrmfit <- function(object,
     )
 
   if (transform) {
-    pl <- pl + scale_y_continuous(
-      breaks = sort(c((0:10) / 10, hline_at)),
-      minor_breaks = NULL,
-      limits = ylim,
-      labels = label_percent(accuracy = 1),
-      oob = scales::squish
-    ) +
+    pl <- pl +
+      scale_y_continuous(
+        breaks = sort(c((0:10) / 10, hline_at)),
+        minor_breaks = NULL,
+        limits = ylim,
+        labels = label_percent(accuracy = 1),
+        oob = scales::squish
+      ) +
       labs(
         x = x,
         y = "P(DLT)"
       )
   } else if (!transform) {
-    pl <- pl + scale_y_continuous(
-      breaks = function(u) {
-        breaks <- scales::extended_breaks(n = 6)
-        round(sort(c(hline_at, breaks(u))), 2)
-      },
-      minor_breaks = NULL,
-      limits = ylim,
-      oob = scales::squish
-    ) +
+    pl <- pl +
+      scale_y_continuous(
+        breaks = function(u) {
+          breaks <- scales::extended_breaks(n = 6)
+          round(sort(c(hline_at, breaks(u))), 2)
+        },
+        minor_breaks = NULL,
+        limits = ylim,
+        oob = scales::squish
+      ) +
       labs(
         x = x,
         y = "logit(P(DLT))"
@@ -304,14 +349,17 @@ plot_toxicity_curve.blrmfit <- function(object,
   }
 
   if (!missing(group)) {
-    facet_args <- modifyList(list(
-      facets = group_formula,
-      scales = "fixed",
-      strip.position = "top",
-      labeller = "label_both",
-      nrow = NULL,
-      ncol = NULL
-    ), facet_args)
+    facet_args <- modifyList(
+      list(
+        facets = group_formula,
+        scales = "fixed",
+        strip.position = "top",
+        labeller = "label_both",
+        nrow = NULL,
+        ncol = NULL
+      ),
+      facet_args
+    )
     pl <- pl + do.call(facet_wrap, facet_args)
   }
 
@@ -321,22 +369,24 @@ plot_toxicity_curve.blrmfit <- function(object,
 #' @rdname plot_blrm
 #' @method plot_toxicity_curve blrm_trial
 #' @export
-plot_toxicity_curve.blrm_trial <- function(object,
-                                           newdata,
-                                           x,
-                                           group,
-                                           xlim,
-                                           ylim,
-                                           transform = TRUE,
-                                           prob = 0.5,
-                                           prob_outer = 0.95,
-                                           size = 0.75,
-                                           alpha = 1,
-                                           facet_args = list(),
-                                           hline_at,
-                                           grid_length = 100,
-                                           ewoc_shading = TRUE,
-                                           ...) {
+plot_toxicity_curve.blrm_trial <- function(
+  object,
+  newdata,
+  x,
+  group,
+  xlim,
+  ylim,
+  transform = TRUE,
+  prob = 0.5,
+  prob_outer = 0.95,
+  size = 0.75,
+  alpha = 1,
+  facet_args = list(),
+  hline_at,
+  grid_length = 100,
+  ewoc_shading = TRUE,
+  ...
+) {
   .assert_is_blrm_trial_and_prior_is_set(object)
   drug_info <- summary(object, "drug_info")
   ewoc_lab <- NULL
@@ -351,7 +401,9 @@ plot_toxicity_curve.blrm_trial <- function(object,
   }
 
   if (missing(hline_at)) {
-    hline_at <- object$interval_prob[object$interval_prob > 0 & object$interval_prob < 1]
+    hline_at <- object$interval_prob[
+      object$interval_prob > 0 & object$interval_prob < 1
+    ]
   }
 
   if (missing(newdata)) newdata <- summary(object, "dose_info")
@@ -383,7 +435,14 @@ plot_toxicity_curve.blrm_trial <- function(object,
       xlim <- c(0, max(newdata[[x]]))
     }
 
-    newdata_grid <- as_tibble(expand_newdata(newdata, xlim, object$blrmfit, x, group_variables, grid_length))
+    newdata_grid <- as_tibble(expand_newdata(
+      newdata,
+      xlim,
+      object$blrmfit,
+      x,
+      group_variables,
+      grid_length
+    ))
 
     ewoc_data <- summary(object, "newdata_prediction", newdata = newdata_grid)
     ewoc_data$ewoc_lab <- factor(
@@ -395,7 +454,12 @@ plot_toxicity_curve.blrm_trial <- function(object,
     ylim <- plot_base$scales$get_scales("y")$limits
 
     plot_out <- plot_base +
-      scale_alpha_manual("EWOC", values = c(0, 0.5), breaks = c("OK", "Not OK"), drop = FALSE) +
+      scale_alpha_manual(
+        "EWOC",
+        values = c(0, 0.5),
+        breaks = c("OK", "Not OK"),
+        drop = FALSE
+      ) +
       geom_ribbon(
         data = ewoc_data,
         aes(ymin = ylim[1], ymax = ylim[2], alpha = ewoc_lab),
@@ -412,16 +476,21 @@ plot_toxicity_curve.blrm_trial <- function(object,
 #' @rdname plot_blrm
 #' @method plot_toxicity_intervals blrmfit
 #' @export
-plot_toxicity_intervals.blrmfit <- function(object,
-                                            newdata,
-                                            x,
-                                            group,
-                                            interval_prob = c(0, 0.16, 0.33, 1),
-                                            interval_max_mass = c(NA, NA, 0.25),
-                                            ewoc_colors = c("green", "red"),
-                                            facet_args = list(),
-                                            ...) {
-  assert_that(inherits(object, "blrmfit"), msg = "object must be of class blrmfit or blrm_trial.")
+plot_toxicity_intervals.blrmfit <- function(
+  object,
+  newdata,
+  x,
+  group,
+  interval_prob = c(0, 0.16, 0.33, 1),
+  interval_max_mass = c(NA, NA, 0.25),
+  ewoc_colors = c("green", "red"),
+  facet_args = list(),
+  ...
+) {
+  assert_that(
+    inherits(object, "blrmfit"),
+    msg = "object must be of class blrmfit or blrm_trial."
+  )
 
   # check probabilities
   assert_numeric(interval_prob, any.missing = FALSE, sorted = TRUE)
@@ -438,22 +507,35 @@ plot_toxicity_intervals.blrmfit <- function(object,
   group_variables <- variables$group_variables
   group_formula <- variables$group_formula
 
-  scheme <- bayesplot::color_scheme_get(paste0("mix-", paste(ewoc_colors, collapse = "-")))
+  scheme <- bayesplot::color_scheme_get(paste0(
+    "mix-",
+    paste(ewoc_colors, collapse = "-")
+  ))
 
-  posterior_summary <- summary(object, newdata = newdata, interval_prob = interval_prob)
+  posterior_summary <- summary(
+    object,
+    newdata = newdata,
+    interval_prob = interval_prob
+  )
 
   interval_labs <- paste0(
-    "(", 
+    "(",
     paste(
       interval_prob[seq_len(length(interval_prob) - 1)],
       interval_prob[1 + seq_len(length(interval_prob) - 1)],
       sep = ","
-    ), 
+    ),
     "]"
   )
-  interval_labs[1] <- sub(x = interval_labs[1], pattern = "(", replacement = "[", fixed = TRUE)
+  interval_labs[1] <- sub(
+    x = interval_labs[1],
+    pattern = "(",
+    replacement = "[",
+    fixed = TRUE
+  )
 
-  assert_that(length(interval_max_mass) == length(interval_labs),
+  assert_that(
+    length(interval_max_mass) == length(interval_labs),
     msg = paste(
       "interval_prob and cutoffs have inconsistent lengths.",
       "Need length(cutoffs) = length(interval_probs) - 1."
@@ -465,17 +547,13 @@ plot_toxicity_intervals.blrmfit <- function(object,
     interval = factor(interval_labs, rev(interval_labs)),
     cutoff = interval_max_mass
   )
-  
+
   plot_data <- cbind(newdata, posterior_summary[, interval_labs]) %>%
-    pivot_longer(ends_with("]"),
-      names_to = "interval",
-      values_to = "value"
-    ) %>%
+    pivot_longer(ends_with("]"), names_to = "interval", values_to = "value") %>%
     mutate(interval = factor(interval, rev(interval_labs))) %>%
     left_join(cutoffs, "interval") %>%
     tidyr::replace_na(list(cutoff = 1)) %>%
     mutate(ewoc_ok = ifelse(value <= cutoff, "Yes", "No"))
-
 
   if (!missing(group)) {
     plot_data$group <- apply(plot_data[, group_variables], 1, function(x) {
@@ -512,17 +590,23 @@ plot_toxicity_intervals.blrmfit <- function(object,
     xlab(x)
 
   if (!missing(group)) {
-    facet_args <- modifyList(list(
-      rows = vars(interval),
-      cols = vars(group),
-      scales = "fixed"
-    ), facet_args)
+    facet_args <- modifyList(
+      list(
+        rows = vars(interval),
+        cols = vars(group),
+        scales = "fixed"
+      ),
+      facet_args
+    )
   } else {
-    facet_args <- modifyList(list(
-      rows = vars(interval),
-      cols = NULL,
-      scales = "fixed"
-    ), facet_args)
+    facet_args <- modifyList(
+      list(
+        rows = vars(interval),
+        cols = NULL,
+        scales = "fixed"
+      ),
+      facet_args
+    )
   }
   pl <- pl + do.call(facet_grid, facet_args)
 
@@ -534,14 +618,16 @@ plot_toxicity_intervals.blrmfit <- function(object,
 #' @rdname plot_blrm
 #' @method plot_toxicity_intervals blrm_trial
 #' @export
-plot_toxicity_intervals.blrm_trial <- function(object,
-                                               newdata,
-                                               x,
-                                               group,
-                                               interval_prob,
-                                               interval_max_mass,
-                                               ewoc_colors = c("green", "red"),
-                                               ...) {
+plot_toxicity_intervals.blrm_trial <- function(
+  object,
+  newdata,
+  x,
+  group,
+  interval_prob,
+  interval_max_mass,
+  ewoc_colors = c("green", "red"),
+  ...
+) {
   .assert_is_blrm_trial_and_prior_is_set(object)
   drug_info <- summary(object, "drug_info")
 
@@ -578,28 +664,36 @@ plot_toxicity_intervals.blrm_trial <- function(object,
 #' @rdname plot_blrm
 #' @method plot_toxicity_intervals_stacked blrmfit
 #' @export
-plot_toxicity_intervals_stacked.blrmfit <- function(object,
-                                                    newdata,
-                                                    x,
-                                                    group,
-                                                    xlim,
-                                                    ylim = c(0, 0.5),
-                                                    predictive = FALSE,
-                                                    transform = !predictive,
-                                                    interval_prob,
-                                                    grid_length = 100,
-                                                    facet_args = list(),
-                                                    ...) {
+plot_toxicity_intervals_stacked.blrmfit <- function(
+  object,
+  newdata,
+  x,
+  group,
+  xlim,
+  ylim = c(0, 0.5),
+  predictive = FALSE,
+  transform = !predictive,
+  interval_prob,
+  grid_length = 100,
+  facet_args = list(),
+  ...
+) {
   # make R CMD CHECK happy
   prob <- cutoff <- ewoc_ok <- cprob <- interval <- NULL
 
-  assert_numeric(grid_length,
-    lower = 2, upper = Inf, finite = TRUE, len = 1,
+  assert_numeric(
+    grid_length,
+    lower = 2,
+    upper = Inf,
+    finite = TRUE,
+    len = 1,
     any.missing = FALSE
   )
 
   if (!transform & !predictive) {
-    warning("transform = FALSE not meaningful when predictive = FALSE. Setting transform = TRUE.")
+    warning(
+      "transform = FALSE not meaningful when predictive = FALSE. Setting transform = TRUE."
+    )
     transform <- TRUE
   }
 
@@ -643,7 +737,6 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
     predictive = predictive
   )
 
-
   if (missing(interval_prob)) {
     if (predictive & !transform) {
       interval_prob <- unique(c(-1, 0, 1, max(num_patients)))
@@ -655,7 +748,8 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
   } else {
     if (predictive & !transform) {
       assert_numeric(ylim, lower = 0, upper = Inf, any.missing = FALSE)
-      validate_that(max(interval_prob) >= max(num_patients),
+      validate_that(
+        max(interval_prob) >= max(num_patients),
         msg = paste(
           "interval_prob does not cover the full support",
           "of the predictive distribution: largest value",
@@ -663,7 +757,8 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
           "the largest cohort in newdata."
         )
       )
-      validate_that(min(interval_prob) < 0,
+      validate_that(
+        min(interval_prob) < 0,
         msg = paste(
           "interval_prob does not cover the full support",
           "of the predictive distribution: largest value",
@@ -673,7 +768,8 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
       )
     } else if (predictive & transform) {
       assert_numeric(ylim, lower = 0, upper = 1, any.missing = FALSE)
-      validate_that(max(interval_prob) >= 1,
+      validate_that(
+        max(interval_prob) >= 1,
         msg = paste(
           "interval_prob does not cover the full support",
           "of the predictive distribution for the",
@@ -681,7 +777,8 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
           "in interval_prob is less than 1."
         )
       )
-      validate_that(min(interval_prob) < 0,
+      validate_that(
+        min(interval_prob) < 0,
         msg = paste(
           "interval_prob does not cover the full support",
           "of the predictive distribution for the",
@@ -691,7 +788,8 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
       )
     } else if (!predictive) {
       assert_numeric(ylim, lower = 0, upper = 1, any.missing = FALSE)
-      validate_that(max(interval_prob) >= 1,
+      validate_that(
+        max(interval_prob) >= 1,
         msg = paste(
           "interval_prob does not cover the full support",
           "of the posterior distribution for the",
@@ -699,7 +797,8 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
           "in interval_prob is less than 1."
         )
       )
-      validate_that(min(interval_prob) <= 0,
+      validate_that(
+        min(interval_prob) <= 0,
         msg = paste(
           "interval_prob does not cover the full support",
           "of the posterior distribution for the",
@@ -713,22 +812,21 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
   # check probabilities
   assert_numeric(interval_prob, any.missing = FALSE, sorted = TRUE)
 
-  
   # interval_labs <- paste0(
-  #   "(", 
+  #   "(",
   #   paste(
   #     interval_prob[seq_len(length(interval_prob) - 1)],
   #     interval_prob[1 + seq_len(length(interval_prob) - 1)],
   #     sep = ","
-  #   ), 
+  #   ),
   #   "]"
   # )
   # if (!predictive) {
   #   interval_labs[1] <- sub(x = interval_labs[1], pattern = "(", replacement = "[", fixed = TRUE)
   # }
-  
 
-  sum_data <- summary(object,
+  sum_data <- summary(
+    object,
     newdata = newdata_grid,
     interval_prob = interval_prob,
     transform = transform,
@@ -738,11 +836,20 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
   x_name <- as.name(x)
   sum_data <- bind_cols(newdata_grid, sum_data)
 
-  stacked0 <- dplyr::distinct(dplyr::select(sum_data, group_variables, x, starts_with(c("[", "("))))
-  
-  
+  stacked0 <- dplyr::distinct(dplyr::select(
+    sum_data,
+    group_variables,
+    x,
+    starts_with(c("[", "("))
+  ))
+
   if (!is.null(group_variables)) {
-    stacked0$group <- apply(stacked0[c(group_variables)], 1, paste, collapse = "_")
+    stacked0$group <- apply(
+      stacked0[c(group_variables)],
+      1,
+      paste,
+      collapse = "_"
+    )
   } else {
     stacked0$group <- "one_group"
   }
@@ -752,11 +859,20 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
     function(stacked_group) {
       out0 <- stacked_group[order(stacked_group[[x]]), ]
       out0 %>%
-        pivot_longer(starts_with(c("[", "(")), names_to = "interval", values_to = "prob")
+        pivot_longer(
+          starts_with(c("[", "(")),
+          names_to = "interval",
+          values_to = "prob"
+        )
     }
   ))
 
-  stacked1$group <- apply(stacked1[c(group_variables, x)], 1, paste, collapse = "_")
+  stacked1$group <- apply(
+    stacked1[c(group_variables, x)],
+    1,
+    paste,
+    collapse = "_"
+  )
   stacked <- bind_rows(lapply(
     split(stacked1, stacked1$group),
     function(stacked_group) {
@@ -777,11 +893,13 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
           from = min(support),
           to = max(support)
         ) %>%
-        mutate(label = case_when(
-          from == to ~ as.character(from),
-          to == max(num_patients) ~ paste0(from, "+"),
-          from < to ~ paste(from, to, sep = "-")
-        ))
+        mutate(
+          label = case_when(
+            from == to ~ as.character(from),
+            to == max(num_patients) ~ paste0(from, "+"),
+            from < to ~ paste(from, to, sep = "-")
+          )
+        )
       relabel <- setNames(
         split(support$interval, 1:nrow(support)),
         support$label
@@ -798,31 +916,48 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
     fill_levels <- colnames(stacked0 %>% select(starts_with(c("[", "("))))
     stacked$interval <- factor(stacked$interval, levels = fill_levels)
   }
-  
+
   on.exit(NULL)
   pl <- ggplot(mapping = aes(x = !!sym(x)), data = stacked) +
-    geom_ribbon(aes(ymin = 1 - (cprob - prob), ymax = 1 - cprob, fill = factor(interval))) +
+    geom_ribbon(aes(
+      ymin = 1 - (cprob - prob),
+      ymax = 1 - cprob,
+      fill = factor(interval)
+    )) +
     scale_y_continuous(limits = ylim, oob = scales::squish) +
-    scale_fill_brewer(legend_lab,
-      type = "div", palette = "RdYlBu", direction = -1,
+    scale_fill_brewer(
+      legend_lab,
+      type = "div",
+      palette = "RdYlBu",
+      direction = -1,
       drop = FALSE
     ) +
-    ylab(paste0(ifelse(predictive, "Predictive\n", "Toxicity Interval\n"), "Probability")) +
-    scale_x_continuous(x, breaks = function(u) {
-      breaks <- scales::extended_breaks(n = 4)
-      sort(c(unique(newdata[[x]]), breaks(u)))
-    }, limits = xlim) +
+    ylab(paste0(
+      ifelse(predictive, "Predictive\n", "Toxicity Interval\n"),
+      "Probability"
+    )) +
+    scale_x_continuous(
+      x,
+      breaks = function(u) {
+        breaks <- scales::extended_breaks(n = 4)
+        sort(c(unique(newdata[[x]]), breaks(u)))
+      },
+      limits = xlim
+    ) +
     bayesplot::bayesplot_theme_get()
 
   if (!missing(group)) {
-    facet_args <- modifyList(list(
-      facets = group_formula,
-      scales = "fixed",
-      strip.position = "top",
-      labeller = "label_both",
-      nrow = NULL,
-      ncol = NULL
-    ), facet_args)
+    facet_args <- modifyList(
+      list(
+        facets = group_formula,
+        scales = "fixed",
+        strip.position = "top",
+        labeller = "label_both",
+        nrow = NULL,
+        ncol = NULL
+      ),
+      facet_args
+    )
     pl <- pl + do.call(facet_wrap, facet_args)
   }
 
@@ -833,19 +968,21 @@ plot_toxicity_intervals_stacked.blrmfit <- function(object,
 #' @rdname plot_blrm
 #' @method plot_toxicity_intervals_stacked blrm_trial
 #' @export
-plot_toxicity_intervals_stacked.blrm_trial <- function(object,
-                                                       newdata,
-                                                       x,
-                                                       group,
-                                                       xlim,
-                                                       ylim = c(0, 0.5),
-                                                       predictive = FALSE,
-                                                       transform = !predictive,
-                                                       interval_prob,
-                                                       grid_length = 100,
-                                                       ewoc_shading = TRUE,
-                                                       facet_args = list(),
-                                                       ...) {
+plot_toxicity_intervals_stacked.blrm_trial <- function(
+  object,
+  newdata,
+  x,
+  group,
+  xlim,
+  ylim = c(0, 0.5),
+  predictive = FALSE,
+  transform = !predictive,
+  interval_prob,
+  grid_length = 100,
+  ewoc_shading = TRUE,
+  facet_args = list(),
+  ...
+) {
   .assert_is_blrm_trial_and_prior_is_set(object)
   drug_info <- summary(object, "drug_info")
   ewoc_lab <- NULL
@@ -853,13 +990,16 @@ plot_toxicity_intervals_stacked.blrm_trial <- function(object,
   if (missing(newdata)) {
     newdata <- summary(object, "dose_info")
     if (predictive) {
-      message('By default, predictive distributions for cohorts of size 6 at summary(object, "dose_info") will be used.')
+      message(
+        'By default, predictive distributions for cohorts of size 6 at summary(object, "dose_info") will be used.'
+      )
       newdata <- mutate(newdata, num_patients = 6, num_toxicities = 0)
     }
   }
 
   if (predictive) {
-    assert_that(has_name(newdata, c("num_patients", "num_toxicities")),
+    assert_that(
+      has_name(newdata, c("num_patients", "num_toxicities")),
       msg = paste(
         "For predictive plot, newdata must contain",
         "num_patients and num_toxicities columns"
@@ -874,7 +1014,11 @@ plot_toxicity_intervals_stacked.blrm_trial <- function(object,
       num_patients_name <- "num_patients"
     }
     if (nrow(drug_info) > 1) {
-      group <- c("group_id", drug_info$drug_name[2:nrow(drug_info)], num_patients_name)
+      group <- c(
+        "group_id",
+        drug_info$drug_name[2:nrow(drug_info)],
+        num_patients_name
+      )
     } else {
       group <- c("group_id", num_patients_name)
     }
@@ -882,7 +1026,8 @@ plot_toxicity_intervals_stacked.blrm_trial <- function(object,
 
   if (missing(interval_prob)) {
     if (predictive) {
-      if (!transform) interval_prob <- unique(c(-1, 0, 1, max(newdata$num_patients)))
+      if (!transform)
+        interval_prob <- unique(c(-1, 0, 1, max(newdata$num_patients)))
       if (transform) interval_prob <- c(-1, object$interval_prob)
     } else {
       interval_prob <- object$interval_prob
@@ -915,7 +1060,6 @@ plot_toxicity_intervals_stacked.blrm_trial <- function(object,
       xlim <- c(0, max(newdata[[x]]))
     }
 
-
     newdata_grid <- as_tibble(expand_newdata(
       newdata = newdata,
       xlim = xlim,
@@ -935,7 +1079,12 @@ plot_toxicity_intervals_stacked.blrm_trial <- function(object,
     )
 
     plot_out <- plot_base +
-      scale_alpha_manual("EWOC", values = c(0, 0.5), breaks = c("OK", "Not OK"), drop = FALSE) +
+      scale_alpha_manual(
+        "EWOC",
+        values = c(0, 0.5),
+        breaks = c("OK", "Not OK"),
+        drop = FALSE
+      ) +
       geom_ribbon(
         data = ewoc_data,
         aes(ymin = ylim[1], ymax = ylim[2], alpha = ewoc_lab),
@@ -944,7 +1093,6 @@ plot_toxicity_intervals_stacked.blrm_trial <- function(object,
   } else {
     plot_out <- plot_base
   }
-
 
   return(plot_out)
 }
@@ -975,13 +1123,25 @@ tidyselect_parameters <- function(complete_pars, pars_list) {
 #' Internal function from scales package
 #' @noRd
 #' @keywords internal
-label_percent <- function(accuracy = NULL, scale = 100, prefix = "", suffix = "%",
-                          big.mark = " ", decimal.mark = ".", trim = TRUE,
-                          ...) {
+label_percent <- function(
+  accuracy = NULL,
+  scale = 100,
+  prefix = "",
+  suffix = "%",
+  big.mark = " ",
+  decimal.mark = ".",
+  trim = TRUE,
+  ...
+) {
   scales::number_format(
-    accuracy = accuracy, scale = scale, prefix = prefix,
-    suffix = suffix, big.mark = big.mark, decimal.mark = decimal.mark,
-    trim = trim, ...
+    accuracy = accuracy,
+    scale = scale,
+    prefix = prefix,
+    suffix = suffix,
+    big.mark = big.mark,
+    decimal.mark = decimal.mark,
+    trim = trim,
+    ...
   )
 }
 
@@ -1013,26 +1173,39 @@ check_plot_variables <- function(x, group, newdata) {
       group_variables <- group_variables[!grepl(":", group_variables)] # exclude interactions
     } else if (inherits(group, "character")) {
       group_variables <- group
-      group_formula <- as.formula(paste("~", paste(group_variables, collapse = "+")))
+      group_formula <- as.formula(paste(
+        "~",
+        paste(group_variables, collapse = "+")
+      ))
     } else if (rlang::is_quosures(group)) {
-      group_variables <- tidyselect_parameters(complete_pars = names(newdata), pars_list = group)
-      group_formula <- as.formula(paste("~", paste(group_variables, collapse = "+")))
+      group_variables <- tidyselect_parameters(
+        complete_pars = names(newdata),
+        pars_list = group
+      )
+      group_formula <- as.formula(paste(
+        "~",
+        paste(group_variables, collapse = "+")
+      ))
     } else {
       stop("Unrecognized class for group argument.")
     }
-    assert_that(all(group_variables %in% names(newdata)),
+    assert_that(
+      all(group_variables %in% names(newdata)),
       msg = paste(
         "Variable names",
-        paste(group_variables[!group_variables %in% names(newdata)],
-          sep = ","
-        ),
+        paste(group_variables[!group_variables %in% names(newdata)], sep = ","),
         "do not match names(newdata)."
       )
     )
-    assert_that(!x %in% group_variables,
+    assert_that(
+      !x %in% group_variables,
       msg = paste(x, "cannot be both the x-axis and a grouping variable.")
     )
-    return(list(x = x, group_variables = group_variables, group_formula = group_formula))
+    return(list(
+      x = x,
+      group_variables = group_variables,
+      group_formula = group_formula
+    ))
   } else {
     return(list(x = x))
   }
@@ -1048,13 +1221,15 @@ check_plot_variables <- function(x, group, newdata) {
 #' @param xlim x-axis limits
 #' @param object blrmfit object
 #' @keywords internal
-expand_newdata <- function(newdata,
-                           xlim,
-                           object,
-                           x,
-                           group_variables,
-                           grid_length,
-                           predictive = FALSE) {
+expand_newdata <- function(
+  newdata,
+  xlim,
+  object,
+  x,
+  group_variables,
+  grid_length,
+  predictive = FALSE
+) {
   formula <- object$formula
   env <- environment(formula)
 
@@ -1066,17 +1241,23 @@ expand_newdata <- function(newdata,
     covarnames <- unique(c(covarnames, "num_patients", "num_toxicities"))
   }
 
-  inp <- parse(text = paste0(
-    "list(", paste(covarnames, collapse = ","),
-    ")"
-  ), keep.source = FALSE)
+  inp <- parse(
+    text = paste0(
+      "list(",
+      paste(covarnames, collapse = ","),
+      ")"
+    ),
+    keep.source = FALSE
+  )
   covariates <- as_tibble(setNames(
     eval(inp, newdata, env),
     covarnames
   ))
 
   xseq <- sort(c(
-    unique(covariates[[x]])[unique(covariates[[x]]) >= xlim[1] & unique(covariates[[x]]) <= xlim[2]],
+    unique(covariates[[x]])[
+      unique(covariates[[x]]) >= xlim[1] & unique(covariates[[x]]) <= xlim[2]
+    ],
     seq(xlim[1], xlim[2], length.out = grid_length)
   ))
   xgrid <- setNames(list(xseq), x)
@@ -1087,7 +1268,10 @@ expand_newdata <- function(newdata,
   newdata_grid <- newdata_unique[0, ]
   for (j in 1:nrow(newdata_unique)) {
     nd_j <- cbind(
-      bind_rows(lapply(seq_len(len), function(i) newdata_unique[j, , drop = FALSE])),
+      bind_rows(lapply(
+        seq_len(len),
+        function(i) newdata_unique[j, , drop = FALSE]
+      )),
       xgrid
     )
     newdata_grid <- rbind(

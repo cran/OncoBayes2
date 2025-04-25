@@ -28,12 +28,19 @@
 #'
 #' @export
 blrm_formula_saturating <- function(
-    ref_doses,
-    max_interaction_level = 2,
-    specific_interaction_terms = NULL) {
+  ref_doses,
+  max_interaction_level = 2,
+  specific_interaction_terms = NULL
+) {
   assert_int(max_interaction_level)
 
-  assert_numeric(ref_doses, lower = 0, finite = TRUE, any.missing = FALSE, names = "strict")
+  assert_numeric(
+    ref_doses,
+    lower = 0,
+    finite = TRUE,
+    any.missing = FALSE,
+    names = "strict"
+  )
 
   num_components <- length(ref_doses)
   component_names <- names(ref_doses)
@@ -41,15 +48,33 @@ blrm_formula_saturating <- function(
   # Check specific interaction terms for consistency, if defined
   if (!is.null(specific_interaction_terms)) {
     assert_list(specific_interaction_terms)
-    assert_that(length(specific_interaction_terms) > 0, msg = "Specific interaction terms must at least include one term!")
+    assert_that(
+      length(specific_interaction_terms) > 0,
+      msg = "Specific interaction terms must at least include one term!"
+    )
     sorted_list <- lapply(specific_interaction_terms, sort)
-    assert_that(!any(duplicated(sorted_list)), msg = "Interaction terms between specific drugs may only occur once!")
+    assert_that(
+      !any(duplicated(sorted_list)),
+      msg = "Interaction terms between specific drugs may only occur once!"
+    )
 
     for (term in specific_interaction_terms) {
-      assert_that(all(term %in% component_names), msg = "Specific terms must only use defined drug names!")
-      assert_that(length(term) <= max_interaction_level, msg = "Specific terms are higher-order than max_interaction_level - either increase max_interaction_level or check your specified interaction terms!")
-      assert_that(!any(duplicated(term)), msg = "Interaction terms must not involve any drug twice!")
-      assert_that(length(term) > 1, msg = "Interaction terms must at least contain two drugs!")
+      assert_that(
+        all(term %in% component_names),
+        msg = "Specific terms must only use defined drug names!"
+      )
+      assert_that(
+        length(term) <= max_interaction_level,
+        msg = "Specific terms are higher-order than max_interaction_level - either increase max_interaction_level or check your specified interaction terms!"
+      )
+      assert_that(
+        !any(duplicated(term)),
+        msg = "Interaction terms must not involve any drug twice!"
+      )
+      assert_that(
+        length(term) > 1,
+        msg = "Interaction terms must at least contain two drugs!"
+      )
     }
   }
 
@@ -57,12 +82,14 @@ blrm_formula_saturating <- function(
   blrm_formula <- "cbind(num_toxicities, num_patients - num_toxicities) ~ "
 
   # Add individual component terms
-  for (component_index in seq(1, num_components))
-  {
+  for (component_index in seq(1, num_components)) {
     blrm_formula <- paste0(
       blrm_formula,
-      "1 + I(log(", component_names[component_index], "/",
-      ref_doses[[component_names[component_index]]], ")) | "
+      "1 + I(log(",
+      component_names[component_index],
+      "/",
+      ref_doses[[component_names[component_index]]],
+      ")) | "
     )
   }
   # Assemble interaction term
@@ -77,22 +104,30 @@ blrm_formula_saturating <- function(
 
         # Generate terms that are multiplied in the interaction
         i <- 0
-        for (interaction_component_name in term)
-        {
+        for (interaction_component_name in term) {
           if (i > 0) {
             blrm_formula <- paste0(blrm_formula, " * ")
           }
-          blrm_formula <- paste0(blrm_formula, interaction_component_name, "/", ref_doses[[interaction_component_name]])
+          blrm_formula <- paste0(
+            blrm_formula,
+            interaction_component_name,
+            "/",
+            ref_doses[[interaction_component_name]]
+          )
           i <- i + 1
         }
         blrm_formula <- paste0(blrm_formula, ") / (1 + ")
         i <- 0
-        for (interaction_component_name in term)
-        {
+        for (interaction_component_name in term) {
           if (i > 0) {
             blrm_formula <- paste0(blrm_formula, " * ")
           }
-          blrm_formula <- paste0(blrm_formula, interaction_component_name, "/", ref_doses[[interaction_component_name]])
+          blrm_formula <- paste0(
+            blrm_formula,
+            interaction_component_name,
+            "/",
+            ref_doses[[interaction_component_name]]
+          )
           i <- i + 1
         }
         blrm_formula <- paste0(blrm_formula, "))")
@@ -101,35 +136,46 @@ blrm_formula_saturating <- function(
       num_interaction_terms <- length(specific_interaction_terms)
     } else {
       interaction_orders <- seq(2, min(num_components, max_interaction_level))
-      for (num_interacting_components in interaction_orders)
-      {
-        for (interaction_compund_names in combn(component_names, num_interacting_components, simplify = FALSE))
-        {
+      for (num_interacting_components in interaction_orders) {
+        for (interaction_compund_names in combn(
+          component_names,
+          num_interacting_components,
+          simplify = FALSE
+        )) {
           blrm_formula <- paste0(blrm_formula, "+ I(2 * (")
 
           # Generate terms that are multiplied in the interaction
           i <- 0
-          for (interaction_component_name in interaction_compund_names)
-          {
+          for (interaction_component_name in interaction_compund_names) {
             if (i > 0) {
               blrm_formula <- paste0(blrm_formula, " * ")
             }
-            blrm_formula <- paste0(blrm_formula, interaction_component_name, "/", ref_doses[[interaction_component_name]])
+            blrm_formula <- paste0(
+              blrm_formula,
+              interaction_component_name,
+              "/",
+              ref_doses[[interaction_component_name]]
+            )
             i <- i + 1
           }
           blrm_formula <- paste0(blrm_formula, ") / (1 + ")
           i <- 0
-          for (interaction_component_name in interaction_compund_names)
-          {
+          for (interaction_component_name in interaction_compund_names) {
             if (i > 0) {
               blrm_formula <- paste0(blrm_formula, " * ")
             }
-            blrm_formula <- paste0(blrm_formula, interaction_component_name, "/", ref_doses[[interaction_component_name]])
+            blrm_formula <- paste0(
+              blrm_formula,
+              interaction_component_name,
+              "/",
+              ref_doses[[interaction_component_name]]
+            )
             i <- i + 1
           }
           blrm_formula <- paste0(blrm_formula, "))")
         }
-        num_interaction_terms <- num_interaction_terms + choose(num_components, num_interacting_components)
+        num_interaction_terms <- num_interaction_terms +
+          choose(num_components, num_interacting_components)
       }
     }
   }

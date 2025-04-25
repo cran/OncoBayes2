@@ -40,7 +40,13 @@
 #' @method posterior_linpred blrmfit
 #' @aliases posterior_linpred
 #' @export
-posterior_linpred.blrmfit <- function(object, transform = FALSE, newdata, draws, ...) {
+posterior_linpred.blrmfit <- function(
+  object,
+  transform = FALSE,
+  newdata,
+  draws,
+  ...
+) {
   dat <- pp_data(object, newdata = newdata, draws = draws)
   if (transform) {
     if (all(dim(dat) > 0)) {
@@ -53,11 +59,29 @@ posterior_linpred.blrmfit <- function(object, transform = FALSE, newdata, draws,
 
 #' @method posterior_linpred blrm_trial
 #' @export
-posterior_linpred.blrm_trial <- function(object, transform = FALSE, newdata, draws, ...) {
+posterior_linpred.blrm_trial <- function(
+  object,
+  transform = FALSE,
+  newdata,
+  draws,
+  ...
+) {
   .assert_is_blrm_trial_and_prior_is_set(object)
   if (missing(newdata)) {
-    return(posterior_linpred.blrmfit(object$blrmfit, transform = transform, newdata = object$data, draws = draws, ...))
+    return(posterior_linpred.blrmfit(
+      object$blrmfit,
+      transform = transform,
+      newdata = object$data,
+      draws = draws,
+      ...
+    ))
   } else {
-    return(posterior_linpred.blrmfit(object$blrmfit, transform = transform, newdata = newdata, draws = draws, ...))
+    return(posterior_linpred.blrmfit(
+      object$blrmfit,
+      transform = transform,
+      newdata = newdata,
+      draws = draws,
+      ...
+    ))
   }
 }

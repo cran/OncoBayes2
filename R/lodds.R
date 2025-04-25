@@ -7,12 +7,12 @@
 #' Calculates the logit (log-odds) and inverse-logit.
 #'
 #' @param mu A numeric object with probabilies, with values in the in
-#' the range \eqn{[0,1]}. Missing values (NAs) are allowed.
+#' the range \eqn{[0,1]}. Missing values (`NA`s) are allowed.
 #' @param eta A numeric object with log-odds values, with values in
-#' the range \eqn{[-Inf,Inf]}. Missing values (NAs) are allowed.
+#' the range \eqn{[-\infty,\infty]}. Missing values (`NA`s) are allowed.
 #'
-#' @details Values of mu equal to 0 or 1 will return -Inf or Inf
-#' respectively.
+#' @details Values of mu equal to 0 or 1 will return \eqn{-\infty} or
+#'   \eqn{\infty} respectively.
 #'
 #' @return A numeric object of the same type as mu and eta containing
 #' the logits or inverse logit of the input values.  The logit and

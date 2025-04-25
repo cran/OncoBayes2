@@ -525,7 +525,7 @@ blrmfit_new <- update(blrmfit,
 
 # updated posterior summary
 summ_upd <- summary(blrmfit_new, newdata = newdata, interval_prob = c(0, 0.16, 0.33, 1))
-print(cbind(newdata, summ_upd)) 
+print(cbind(newdata, summ_upd))
 ## Recover user set sampling defaults
 options(.user_mc_options)
 

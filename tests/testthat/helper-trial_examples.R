@@ -5,7 +5,6 @@ library(tidyr)
 library(dplyr)
 
 examples <- list(
-
   # Single-agent example -------------------------------------------------------
   single_agent = list(
     histdata = dplyr::bind_rows(list(
@@ -157,7 +156,7 @@ examples <- list(
     )),
     drug_info = tibble::tibble(
       drug_name = "drug1",
-      dose_ref  = 1,
+      dose_ref = 1,
       dose_unit = "ngogn"
     )
   ),
@@ -178,7 +177,7 @@ examples <- list(
     ),
     drug_info = tibble::tibble(
       drug_name = c("A", "B", "C"),
-      dose_ref  = 1,
+      dose_ref = 1,
       dose_unit = "ngogn"
     )
   )

@@ -31,7 +31,13 @@ predictive_interval.blrmfit <- function(object, prob = 0.95, newdata, ...) {
   ## yrep <- posterior_predict(object, newdata=newdata)
   ## rstantools::predictive_interval(yrep, prob=prob)
   assert_number(prob, lower = 0, upper = 1, finite = TRUE)
-  s <- summary(object, newdata = newdata, prob = prob, predictive = TRUE, transform = FALSE)
+  s <- summary(
+    object,
+    newdata = newdata,
+    prob = prob,
+    predictive = TRUE,
+    transform = FALSE
+  )
   cp <- c(0.5 - prob / 2, 0.5 + prob / 2)
   as.matrix(s[, c(3, 5)])
 }
@@ -41,8 +47,18 @@ predictive_interval.blrmfit <- function(object, prob = 0.95, newdata, ...) {
 predictive_interval.blrm_trial <- function(object, prob = 0.95, newdata, ...) {
   .assert_is_blrm_trial_and_prior_is_set(object)
   if (missing(newdata)) {
-    return(predictive_interval.blrmfit(object$blrmfit, prob = prob, newdata = object$data, ...))
+    return(predictive_interval.blrmfit(
+      object$blrmfit,
+      prob = prob,
+      newdata = object$data,
+      ...
+    ))
   } else {
-    return(predictive_interval.blrmfit(object$blrmfit, prob = prob, newdata = newdata, ...))
+    return(predictive_interval.blrmfit(
+      object$blrmfit,
+      prob = prob,
+      newdata = newdata,
+      ...
+    ))
   }
 }

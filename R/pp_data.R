@@ -38,7 +38,10 @@ pp_data <- function(object, newdata, draws, re.form) {
   stratum_idx <- as.integer(unclass(strata_group_fct$strata_fct))
 
   if (has_inter) {
-    post_rv <- as_draws_rvars(as.array(object$stanfit, pars = c("beta_group", "eta_group")))
+    post_rv <- as_draws_rvars(as.array(
+      object$stanfit,
+      pars = c("beta_group", "eta_group")
+    ))
   } else {
     post_rv <- as_draws_rvars(as.array(object$stanfit, pars = c("beta_group")))
     post_rv$eta_group <- rvar(0)
@@ -48,7 +51,13 @@ pp_data <- function(object, newdata, draws, re.form) {
     post_rv <- resample_draws(post_rv, method = "deterministic", ndraws = draws)
   }
 
-  pp <- blrm_logit_grouped_rv(group_idx, X_comp, X_inter, post_rv$beta_group, post_rv$eta_group)
+  pp <- blrm_logit_grouped_rv(
+    group_idx,
+    X_comp,
+    X_inter,
+    post_rv$beta_group,
+    post_rv$eta_group
+  )
   colnames(pp) <- rownames(data)
   pp
 }
@@ -59,20 +68,34 @@ pp_data <- function(object, newdata, draws, re.form) {
   if (is.factor(test)) {
     test_levels <- levels(test)
     unseen_levels <- setdiff(test_levels, expected_levels)
-    assert_that(length(unseen_levels) == 0,
-      msg = paste0("Found unkown factor levels in ", name, ": ", paste(unseen_levels, collapse = ", "))
+    assert_that(
+      length(unseen_levels) == 0,
+      msg = paste0(
+        "Found unkown factor levels in ",
+        name,
+        ": ",
+        paste(unseen_levels, collapse = ", ")
+      )
     )
-    assert_that(all(expected_levels == test_levels), msg = paste0("Mismatch in factor level defintion of ", name))
+    assert_that(
+      all(expected_levels == test_levels),
+      msg = paste0("Mismatch in factor level defintion of ", name)
+    )
     return(test)
   }
 
   unseen_levels <- setdiff(unique(test), expected_levels)
-  assert_that(length(unseen_levels) == 0,
-    msg = paste0("Found unkown factor levels in ", name, ": ", paste(unseen_levels, collapse = ", "))
+  assert_that(
+    length(unseen_levels) == 0,
+    msg = paste0(
+      "Found unkown factor levels in ",
+      name,
+      ": ",
+      paste(unseen_levels, collapse = ", ")
+    )
   )
   factor(test, levels = expected_levels)
 }
-
 
 
 #' Numerically stable summation of log inv logit
@@ -110,17 +133,24 @@ blrm_logit_grouped_rv <- function(group, X_comp, X_inter, beta, eta) {
   S <- dim(abeta)[1]
   mu <- matrix(0.0 * NA, S, num_obs)
   ## log_p0_nr_comp  <- matrix(0.0*NA, S, num_comp) ## obsolete definition
-  for (i in seq_len(num_obs)) { # LW: patched to NOT run if num_obs
+  for (i in seq_len(num_obs)) {
+    # LW: patched to NOT run if num_obs
     g <- group[i]
     log_p0_nr <- numeric(S)
     for (j in seq_len(num_comp)) {
       ## log_p0_nr_comp[,j] <- log_inv_logit(-1 * tcrossprod(adrop(X_comp[j,i,,drop=FALSE], drop=1), adrop(abeta[,g,j,,drop=FALSE], c(2,3))))
-      log_p0_nr <- log_p0_nr + log_inv_logit_fast(adrop(abeta[, g, j, , drop = FALSE], c(2, 3)) %*% (-1 * X_comp[j, i, , drop = FALSE]))
+      log_p0_nr <- log_p0_nr +
+        log_inv_logit_fast(
+          adrop(abeta[, g, j, , drop = FALSE], c(2, 3)) %*%
+            (-1 * X_comp[j, i, , drop = FALSE])
+        )
     }
     if (num_inter > 0) {
       ## mu[,i] <- log1m_exp_max0(log_p0_nr) - log_p0_nr + tcrossprod(X_inter[i,,drop=FALSE], adrop(aeta[,g,,drop=FALSE], 2))
       ## mu[,i] <- -qlogis(log_p0_nr, log.p=TRUE) + adrop(aeta[,g,,drop=FALSE], 2) %*% X_inter[i,,drop=TRUE]
-      mu[, i] <- log1m_exp_max0_fast(log_p0_nr) - log_p0_nr + adrop(aeta[, g, , drop = FALSE], 2) %*% X_inter[i, , drop = TRUE]
+      mu[, i] <- log1m_exp_max0_fast(log_p0_nr) -
+        log_p0_nr +
+        adrop(aeta[, g, , drop = FALSE], 2) %*% X_inter[i, , drop = TRUE]
     } else {
       ## mu[,i] <- log1m_exp_max0(log_p0_nr) - log_p0_nr
       ## mu[,i] <- -qlogis(log_p0_nr, log.p=TRUE)
@@ -176,7 +206,9 @@ pp_binomial_trials <- function(object, newdata) {
   ## been defined at model fit
   if (!is.na(idx_strata_index)) {
     model_strata_fct <- object$strata_fct
-    strata_fct <- model.part(f, data = mf, rhs = idx_group_term)[, idx_strata_index]
+    strata_fct <- model.part(f, data = mf, rhs = idx_group_term)[,
+      idx_strata_index
+    ]
     strata_fct <- .validate_factor(strata_fct, model_strata_fct, "stratum")
     strata_group <- data.frame(strata_fct = strata_fct, group_fct = group_fct)
   } else {

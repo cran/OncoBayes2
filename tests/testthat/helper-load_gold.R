@@ -15,7 +15,15 @@ load_gold <- function(use_cache = FALSE) {
     # combo3  <- run_example("combo3")
 
     trial_examples <- lapply(examples[1:3], function(example) {
-      with(example, blrm_trial(histdata, dose_info, drug_info %>% mutate(reference_p_dlt = 0.1), simplified_prior = TRUE))
+      with(
+        example,
+        blrm_trial(
+          histdata,
+          dose_info,
+          drug_info %>% mutate(reference_p_dlt = 0.1),
+          simplified_prior = TRUE
+        )
+      )
     })
 
     gold_runs <- list(

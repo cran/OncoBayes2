@@ -40,31 +40,99 @@ prior_summary.blrmfit <- function(object, digits = 2, ...) {
   x <- list()
   x$has_inter <- object$has_inter
 
-  x$is_EXNEX_comp <- .label_array(standata$prior_is_EXNEX_comp, component = labels$component)
+  x$is_EXNEX_comp <- .label_array(
+    standata$prior_is_EXNEX_comp,
+    component = labels$component
+  )
 
-  x$EX_prob_comp <- .label_array(standata$prior_EX_prob_comp, group = object$group_fct, component = labels$component)
+  x$EX_prob_comp <- .label_array(
+    standata$prior_EX_prob_comp,
+    group = object$group_fct,
+    component = labels$component
+  )
   is_EX_comp_idx <- which(x$is_EXNEX_comp == 0)
   x$EX_prob_comp[, is_EX_comp_idx] <- 1
 
-  x$EX_mu_log_beta <- with(standata, .parse_mu_log_beta_mix(prior_EX_mu_comp_Nc, prior_EX_mu_comp_w, prior_EX_mu_comp_m, prior_EX_mu_comp_sigma, labels))
+  x$EX_mu_log_beta <- with(
+    standata,
+    .parse_mu_log_beta_mix(
+      prior_EX_mu_comp_Nc,
+      prior_EX_mu_comp_w,
+      prior_EX_mu_comp_m,
+      prior_EX_mu_comp_sigma,
+      labels
+    )
+  )
 
-  x$NEX_mu_log_beta <- with(standata, .parse_mu_log_beta_mix(prior_NEX_mu_comp_Nc, prior_NEX_mu_comp_w, prior_NEX_mu_comp_m, prior_NEX_mu_comp_sigma, labels))
+  x$NEX_mu_log_beta <- with(
+    standata,
+    .parse_mu_log_beta_mix(
+      prior_NEX_mu_comp_Nc,
+      prior_NEX_mu_comp_w,
+      prior_NEX_mu_comp_m,
+      prior_NEX_mu_comp_sigma,
+      labels
+    )
+  )
 
-  x$EX_tau_log_beta <- with(standata, .parse_tau_beta_mix(prior_EX_tau_comp_Nc, prior_EX_tau_comp_w, prior_EX_tau_comp_m, prior_EX_tau_comp_sigma, labels))
-  x$EX_corr_eta_comp <- .label_array(standata$prior_EX_corr_eta_comp, component = labels$component)
+  x$EX_tau_log_beta <- with(
+    standata,
+    .parse_tau_beta_mix(
+      prior_EX_tau_comp_Nc,
+      prior_EX_tau_comp_w,
+      prior_EX_tau_comp_m,
+      prior_EX_tau_comp_sigma,
+      labels
+    )
+  )
+  x$EX_corr_eta_comp <- .label_array(
+    standata$prior_EX_corr_eta_comp,
+    component = labels$component
+  )
 
   x$tau_dist <- standata$prior_tau_dist
 
   if (x$has_inter) {
-    x$is_EXNEX_inter <- .label_array(standata$prior_is_EXNEX_inter, interaction = labels$param_eta)
-    x$EX_prob_inter <- .label_array(standata$prior_EX_prob_inter, group = object$group_fct, interaction = labels$param_eta)
+    x$is_EXNEX_inter <- .label_array(
+      standata$prior_is_EXNEX_inter,
+      interaction = labels$param_eta
+    )
+    x$EX_prob_inter <- .label_array(
+      standata$prior_EX_prob_inter,
+      group = object$group_fct,
+      interaction = labels$param_eta
+    )
     is_EX_inter_idx <- which(x$is_EXNEX_inter == 0)
     x$EX_prob_inter[, is_EX_inter_idx] <- 1
 
-    x$EX_mu_eta <- with(standata, .parse_mu_eta_mix(prior_EX_mu_inter_w, prior_EX_mu_inter_m, prior_EX_mu_inter_sigma, labels))
-    x$NEX_mu_eta <- with(standata, .parse_mu_eta_mix(prior_NEX_mu_inter_w, prior_NEX_mu_inter_m, prior_NEX_mu_inter_sigma, labels))
+    x$EX_mu_eta <- with(
+      standata,
+      .parse_mu_eta_mix(
+        prior_EX_mu_inter_w,
+        prior_EX_mu_inter_m,
+        prior_EX_mu_inter_sigma,
+        labels
+      )
+    )
+    x$NEX_mu_eta <- with(
+      standata,
+      .parse_mu_eta_mix(
+        prior_NEX_mu_inter_w,
+        prior_NEX_mu_inter_m,
+        prior_NEX_mu_inter_sigma,
+        labels
+      )
+    )
 
-    x$EX_tau_eta <- with(standata, .parse_tau_eta_mix(prior_EX_tau_inter_w, prior_EX_tau_inter_m, prior_EX_tau_inter_sigma, labels))
+    x$EX_tau_eta <- with(
+      standata,
+      .parse_tau_eta_mix(
+        prior_EX_tau_inter_w,
+        prior_EX_tau_inter_m,
+        prior_EX_tau_inter_sigma,
+        labels
+      )
+    )
 
     x$EX_corr_eta_inter <- array(standata$prior_EX_corr_eta_inter)
     dimnames(x$EX_corr_eta_inter) <- list("interaction")
@@ -73,7 +141,8 @@ prior_summary.blrmfit <- function(object, digits = 2, ...) {
   x$num_strata <- standata$num_strata
   x$num_groups <- standata$num_groups
 
-  structure(x,
+  structure(
+    x,
     class = "prior_summary.blrmfit",
     model_name = deparse(substitute(object)),
     print_digits = digits
@@ -83,7 +152,9 @@ prior_summary.blrmfit <- function(object, digits = 2, ...) {
 #' @export
 #' @method print prior_summary.blrmfit
 print.prior_summary.blrmfit <- function(x, digits, ...) {
-  cat("Bayesian Logistic Regression Model with EXchangeability-NonEXchangeability\n\n")
+  cat(
+    "Bayesian Logistic Regression Model with EXchangeability-NonEXchangeability\n\n"
+  )
 
   if (missing(digits)) {
     digits <- attr(x, "print_digits")
@@ -179,13 +250,25 @@ print.prior_summary.blrm_trial <- function(x, ...) {
 
 .label_array <- function(data, ...) {
   labs <- list(...)
-  assert_that(length(labs) == length(dim(data)), msg = "Number of labels must match dimension of input data.")
-  assert_that(all(dim(data) == sapply(labs, nlevels)), msg = "Number of factor levels must match array dimensionality.")
+  assert_that(
+    length(labs) == length(dim(data)),
+    msg = "Number of labels must match dimension of input data."
+  )
+  assert_that(
+    all(dim(data) == sapply(labs, nlevels)),
+    msg = "Number of factor levels must match array dimensionality."
+  )
   dimnames(data) <- lapply(labs, levels)
   data
 }
 
-.parse_mu_log_beta_mix <- function(mu_Nc_comp, mu_w_comp, mu_mean_comp, mu_sigma_comp, labels) {
+.parse_mu_log_beta_mix <- function(
+  mu_Nc_comp,
+  mu_w_comp,
+  mu_mean_comp,
+  mu_sigma_comp,
+  labels
+) {
   num_comp <- length(mu_Nc_comp)
   max_Nc <- max(mu_Nc_comp)
   mix_comp <- factor(paste0("comp_", 1:max_Nc))
@@ -195,14 +278,37 @@ print.prior_summary.blrm_trial <- function(x, ...) {
     for (j in 1:max_Nc) {
       mu_sd_comp[i, j, 1] <- sqrt(mu_sigma_comp[i, j, 1, 1])
       mu_sd_comp[i, j, 2] <- sqrt(mu_sigma_comp[i, j, 2, 2])
-      mu_rho_comp[i, j] <- mu_sigma_comp[i, j, 1, 2] / (mu_sd_comp[i, j, 1] * mu_sd_comp[i, j, 2])
+      mu_rho_comp[i, j] <- mu_sigma_comp[i, j, 1, 2] /
+        (mu_sd_comp[i, j, 1] * mu_sd_comp[i, j, 2])
     }
   }
-  mu_log_beta_mean <- .label_array(mu_mean_comp, component = labels$component, mix = mix_comp, coefficient = labels$param_log_beta)
-  mu_log_beta_sd <- .label_array(mu_sd_comp, component = labels$component, mix = mix_comp, coefficient = labels$param_log_beta)
-  mu_log_beta_w <- .label_array(mu_w_comp, component = labels$component, mix = mix_comp)
-  mu_log_beta_rho <- .label_array(mu_rho_comp, component = labels$component, mix = mix_comp)
-  mu_log_beta_scalar <- abind(weight = mu_log_beta_w, correlation = mu_log_beta_rho, along = 0)
+  mu_log_beta_mean <- .label_array(
+    mu_mean_comp,
+    component = labels$component,
+    mix = mix_comp,
+    coefficient = labels$param_log_beta
+  )
+  mu_log_beta_sd <- .label_array(
+    mu_sd_comp,
+    component = labels$component,
+    mix = mix_comp,
+    coefficient = labels$param_log_beta
+  )
+  mu_log_beta_w <- .label_array(
+    mu_w_comp,
+    component = labels$component,
+    mix = mix_comp
+  )
+  mu_log_beta_rho <- .label_array(
+    mu_rho_comp,
+    component = labels$component,
+    mix = mix_comp
+  )
+  mu_log_beta_scalar <- abind(
+    weight = mu_log_beta_w,
+    correlation = mu_log_beta_rho,
+    along = 0
+  )
   mu_log_beta <- abind(
     w = mu_log_beta_scalar[1, , , drop = FALSE],
     m = aperm(mu_log_beta_mean, c(3, 1, 2)),
@@ -211,11 +317,22 @@ print.prior_summary.blrm_trial <- function(x, ...) {
     along = 1
   )
   names(dimnames(mu_log_beta)) <- c("prior", "component", "mix")
-  dimnames(mu_log_beta)$prior <- c("weight", paste0("m_", labels$param_log_beta), paste0("s_", labels$param_log_beta), "rho")
+  dimnames(mu_log_beta)$prior <- c(
+    "weight",
+    paste0("m_", labels$param_log_beta),
+    paste0("s_", labels$param_log_beta),
+    "rho"
+  )
   return(mu_log_beta)
 }
 
-.parse_tau_beta_mix <- function(tau_comp_Nc, tau_comp_w, tau_comp_m, tau_comp_sigma, labels) {
+.parse_tau_beta_mix <- function(
+  tau_comp_Nc,
+  tau_comp_w,
+  tau_comp_m,
+  tau_comp_sigma,
+  labels
+) {
   num_strata <- dim(tau_comp_Nc)[1]
   tau_beta <- list()
   for (s in 1:num_strata) {
@@ -229,12 +346,24 @@ print.prior_summary.blrm_trial <- function(x, ...) {
   }
   tau_beta <- abind(tau_beta, along = 0)
   dimnames(tau_beta)[[1]] <- paste0("stratum_", 1:num_strata)
-  dimnames(tau_beta)[[2]] <- c("weight", "m_tau_intercept", "m_tau_log_slope", "s_tau_intercept", "s_tau_log_slope", "rho")
+  dimnames(tau_beta)[[2]] <- c(
+    "weight",
+    "m_tau_intercept",
+    "m_tau_log_slope",
+    "s_tau_intercept",
+    "s_tau_log_slope",
+    "rho"
+  )
   names(dimnames(tau_beta)) <- c("stratum", "prior", "component", "mix")
   tau_beta
 }
 
-.parse_mu_eta_mix <- function(mu_w_inter, mu_mean_inter, mu_sigma_inter, labels) {
+.parse_mu_eta_mix <- function(
+  mu_w_inter,
+  mu_mean_inter,
+  mu_sigma_inter,
+  labels
+) {
   Nc <- length(mu_w_inter)
   comps <- list()
   for (i in 1:Nc) {
@@ -247,7 +376,12 @@ print.prior_summary.blrm_trial <- function(x, ...) {
   t(mvm)
 }
 
-.parse_tau_eta_mix <- function(tau_inter_w, tau_inter_m, tau_inter_sigma, labels) {
+.parse_tau_eta_mix <- function(
+  tau_inter_w,
+  tau_inter_m,
+  tau_inter_sigma,
+  labels
+) {
   num_strata <- dim(tau_inter_w)[1]
   tau_eta <- list()
   for (s in 1:num_strata) {

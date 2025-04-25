@@ -12,10 +12,10 @@ inv_logit(eta)
 }
 \arguments{
 \item{mu}{A numeric object with probabilies, with values in the in
-the range \eqn{[0,1]}. Missing values (NAs) are allowed.}
+the range \eqn{[0,1]}. Missing values (\code{NA}s) are allowed.}
 
 \item{eta}{A numeric object with log-odds values, with values in
-the range \eqn{[-Inf,Inf]}. Missing values (NAs) are allowed.}
+the range \eqn{[-\infty,\infty]}. Missing values (\code{NA}s) are allowed.}
 }
 \value{
 A numeric object of the same type as mu and eta containing
@@ -29,8 +29,8 @@ inverse transformation equates to
 Calculates the logit (log-odds) and inverse-logit.
 }
 \details{
-Values of mu equal to 0 or 1 will return -Inf or Inf
-respectively.
+Values of mu equal to 0 or 1 will return \eqn{-\infty} or
+\eqn{\infty} respectively.
 }
 \examples{
 logit(0.2)

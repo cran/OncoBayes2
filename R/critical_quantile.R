@@ -131,7 +131,20 @@ critical_quantile.default <- function(object, ...) {
 #' @rdname critical_quantile
 #' @method critical_quantile blrmfit
 #' @export
-critical_quantile.blrmfit <- function(object, newdata, x, p, qc, lower.tail, interval.x, extendInt.x = c("auto", "no", "yes", "downX", "upX"), log.x, predictive = FALSE, maxiter = 100, ...) {
+critical_quantile.blrmfit <- function(
+  object,
+  newdata,
+  x,
+  p,
+  qc,
+  lower.tail,
+  interval.x,
+  extendInt.x = c("auto", "no", "yes", "downX", "upX"),
+  log.x,
+  predictive = FALSE,
+  maxiter = 100,
+  ...
+) {
   if (missing(newdata)) {
     data <- object$data
   } else {
@@ -140,13 +153,37 @@ critical_quantile.blrmfit <- function(object, newdata, x, p, qc, lower.tail, int
   xvar <- check_plot_variables(x, newdata = data)$x
   assert_that(length(xvar) == 1, msg = "Can only have a single x variable.")
   if (missing(interval.x)) {
-    interval.x <- c(min(data[, xvar], na.rm = TRUE), max(data[, xvar], na.rm = TRUE))
+    interval.x <- c(
+      min(data[, xvar], na.rm = TRUE),
+      max(data[, xvar], na.rm = TRUE)
+    )
   }
-  checkmate::assert_numeric(interval.x, finite = TRUE, len = 2, any.missing = FALSE, sorted = TRUE)
-  assert_that(interval.x[1] < interval.x[2], msg = paste("Lower interval.x[1] =", interval.x[1], "is not smaller than the upper interval.x[2] =", interval.x[2]))
+  checkmate::assert_numeric(
+    interval.x,
+    finite = TRUE,
+    len = 2,
+    any.missing = FALSE,
+    sorted = TRUE
+  )
+  assert_that(
+    interval.x[1] < interval.x[2],
+    msg = paste(
+      "Lower interval.x[1] =",
+      interval.x[1],
+      "is not smaller than the upper interval.x[2] =",
+      interval.x[2]
+    )
+  )
   checkmate::assert_number(p, lower = 0, upper = 1)
   if (missing(lower.tail) || is.null(lower.tail)) {
-    checkmate::assert_numeric(qc, lower = 0, upper = 1, len = 2, sorted = TRUE, any.missing = FALSE)
+    checkmate::assert_numeric(
+      qc,
+      lower = 0,
+      upper = 1,
+      len = 2,
+      sorted = TRUE,
+      any.missing = FALSE
+    )
     extendInt_auto <- "no"
     lower.tail <- NULL
   } else {
@@ -176,14 +213,38 @@ critical_quantile.blrmfit <- function(object, newdata, x, p, qc, lower.tail, int
     data_row <- data[i, , drop = FALSE]
     root <- function(xc) {
       data_row[1, xvar] <- if (log.x) exp(xc) else xc
-      logit(min(max(.model_distribution(object, data_row, qc, lower.tail = lower.tail, predictive = predictive), machine_low), 1 - machine_low)) - Lp
+      logit(min(
+        max(
+          .model_distribution(
+            object,
+            data_row,
+            qc,
+            lower.tail = lower.tail,
+            predictive = predictive
+          ),
+          machine_low
+        ),
+        1 - machine_low
+      )) -
+        Lp
     }
     tryCatch(
       {
-        qx[i] <- uniroot(root, interval.x, extendInt = extendInt, check.conv = TRUE, maxiter = maxiter)$root
+        qx[i] <- uniroot(
+          root,
+          interval.x,
+          extendInt = extendInt,
+          check.conv = TRUE,
+          maxiter = maxiter
+        )$root
       },
       error = function(root_error) {
-        warning("No critical value found for row ", i, ". Error message from uniroot:\n", root_error)
+        warning(
+          "No critical value found for row ",
+          i,
+          ". Error message from uniroot:\n",
+          root_error
+        )
       }
     )
   }
@@ -193,7 +254,20 @@ critical_quantile.blrmfit <- function(object, newdata, x, p, qc, lower.tail, int
 #' @rdname critical_quantile
 #' @method critical_quantile blrm_trial
 #' @export
-critical_quantile.blrm_trial <- function(object, newdata, x, p, qc, lower.tail, interval.x, extendInt.x = c("auto", "no", "yes", "downX", "upX"), log.x, predictive = FALSE, maxiter = 100, ...) {
+critical_quantile.blrm_trial <- function(
+  object,
+  newdata,
+  x,
+  p,
+  qc,
+  lower.tail,
+  interval.x,
+  extendInt.x = c("auto", "no", "yes", "downX", "upX"),
+  log.x,
+  predictive = FALSE,
+  maxiter = 100,
+  ...
+) {
   .assert_is_blrm_trial_and_prior_is_set(object)
 
   drug_info <- summary(object, "drug_info")
@@ -207,11 +281,14 @@ critical_quantile.blrm_trial <- function(object, newdata, x, p, qc, lower.tail, 
     p <- interval_max_mass[length(interval_max_mass)]
     ## ensure that all other categories are not constraining the
     ## criteria
-    assert_that(all(interval_max_mass[-length(interval_max_mass)] == 1), msg = "Non-standard EWOC detected. Please set p, qc and lower.tail.")
+    assert_that(
+      all(interval_max_mass[-length(interval_max_mass)] == 1),
+      msg = "Non-standard EWOC detected. Please set p, qc and lower.tail."
+    )
 
     interval_prob <- summary(object, summarize = "interval_prob")
     qc <- interval_prob[(length(interval_prob) - 1):length(interval_prob)]
-    
+
     if (length(qc) == 2 && qc[2] == 1) {
       lower.tail <- FALSE
       qc <- qc[1]
@@ -222,7 +299,19 @@ critical_quantile.blrm_trial <- function(object, newdata, x, p, qc, lower.tail, 
     }
   }
 
-  return(critical_quantile(object$blrmfit, newdata, x, p, qc, lower.tail, interval.x, extendInt.x, log.x, predictive, maxiter))
+  return(critical_quantile(
+    object$blrmfit,
+    newdata,
+    x,
+    p,
+    qc,
+    lower.tail,
+    interval.x,
+    extendInt.x,
+    log.x,
+    predictive,
+    maxiter
+  ))
 }
 
 ## given a model return Pr( pi < q ) if lower.tail=TRUE. This is
@@ -230,10 +319,23 @@ critical_quantile.blrm_trial <- function(object, newdata, x, p, qc, lower.tail, 
 ## or within the data.frame of newdata. In case the predictive
 ## distribution is used, then the crude rate is used for the
 ## quantiles.
-.model_distribution <- function(model, newdata, q, lower.tail, predictive = FALSE) {
+.model_distribution <- function(
+  model,
+  newdata,
+  q,
+  lower.tail,
+  predictive = FALSE
+) {
   if (missing(lower.tail) || is.null(lower.tail)) {
     ## cat("Missing: lower.tail\n")
-    checkmate::assert_numeric(q, lower = 0, upper = 1, len = 2, sorted = TRUE, any.missing = FALSE)
+    checkmate::assert_numeric(
+      q,
+      lower = 0,
+      upper = 1,
+      len = 2,
+      sorted = TRUE,
+      any.missing = FALSE
+    )
     interval <- q
   } else {
     ## cat("Not missing: lower.tail =", lower.tail, "\n")
@@ -252,9 +354,19 @@ critical_quantile.blrm_trial <- function(object, newdata, x, p, qc, lower.tail, 
       interval <- c(q, 1)
     }
   }
-  
+
   # Only include lower bound on non-predictive intervals
-  prob_col <- levels(cut(numeric(0), breaks = interval, include.lowest = !predictive))[1]
-  
-  unname(summary(model, newdata = newdata, interval_prob = interval, predictive = predictive, transform = TRUE)[, prob_col])
+  prob_col <- levels(cut(
+    numeric(0),
+    breaks = interval,
+    include.lowest = !predictive
+  ))[1]
+
+  unname(summary(
+    model,
+    newdata = newdata,
+    interval_prob = interval,
+    predictive = predictive,
+    transform = TRUE
+  )[, prob_col])
 }
